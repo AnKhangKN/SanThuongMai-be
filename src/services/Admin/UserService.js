@@ -1,10 +1,11 @@
 const createUser = () => {
-    return new Promise ((resolve, reject) => {
-        try {
+  return new Promise((resolve, reject) => {
+    try {
+      resolve({});
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
-        } catch (e) {
-            reject(e)
-        
-        }
-    })
-}
+module.exports = { createUser };
