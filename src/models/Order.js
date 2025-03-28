@@ -7,17 +7,11 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    user_name: {
-      type: String,
-      required: true,
-    },
-    phone: {
-      type: String,
-      required: true,
-    },
-    address: {
-      type: String,
-      required: true,
+    shipping_address: {
+      full_name: { type: String, required: true },
+      phone: { type: String, required: true },
+      address: { type: String, required: true },
+      city: { type: String, required: true },
     },
     items: [
       {
@@ -58,17 +52,30 @@ const orderSchema = new mongoose.Schema(
       default: "COD",
       required: true,
     },
-    payment_status: {
-      type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
-      default: "pending",
-      required: true,
+    is_paid: {
+      type: Boolean,
+      default: false,
     },
+    paid_at: {
+      type: Date,
+    },
+    tax_price: {
+      type: Number,
+      required: true,
+    }, // phí thuế
+    shipping_price: {
+      type: Number,
+      required: true,
+    }, // phí vận chuyển
+
     status: {
       type: String,
       enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
       required: true,
+    },
+    delivered_at: {
+      type: Date,
     },
   },
   {
