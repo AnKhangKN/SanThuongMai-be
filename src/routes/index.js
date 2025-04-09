@@ -1,7 +1,7 @@
-const UserRouter = require("../routes/Admin/UserRouter");
+const UserRouter = require("../routes/Customer/UserRouter");
 
 const routes = (app) => {
-  app.use("/api/admin/user", UserRouter);
+  app.use("/api/customer/", UserRouter);
 };
 
 module.exports = routes;
