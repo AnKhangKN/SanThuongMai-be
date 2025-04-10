@@ -1,4 +1,5 @@
 const UserService = require("../../services/Customer/UserServices");
+const jwtService = require("../../utils/jwt");
 
 const createUser = async (req, res) => {
   try {
@@ -43,6 +44,83 @@ const createUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const data = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Không có người dùng",
+      });
+    }
+
+    // truyền vào
+    const result = await UserService.updateUser(userId, data);
+
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "err",
+        message: "Không tìm thấy  người dùng",
+      });
+    }
+
+    // truyền vào
+    const result = await UserService.deleteUser(userId);
+
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+
+const getAllUser = async (req, res) => {
+  try {
+    const result = await UserService.getAllUser();
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+
+const getDetailUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(400).json({
+        status: "err",
+        message: "Không tìm thấy  người dùng",
+      });
+    }
+
+    const result = await UserService.getDetailUser(userId);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -75,4 +153,32 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser };
+const refreshToken = async (req, res) => {
+  try {
+    const token = req.headers.token.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        status: "error",
+        message: "Người dùng chưa đăng nhập",
+      });
+    }
+
+    const result = await jwtService.refreshTokenService(token);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: e.message || "Internal Server Error",
+    });
+  }
+};
+module.exports = {
+  createUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+  getAllUser,
+  getDetailUser,
+  refreshToken,
+};

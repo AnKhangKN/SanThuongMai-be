@@ -1,9 +1,13 @@
 const User = require("../../models/User");
 const bcrypt = require("bcrypt"); // mã hóa mật khẩu
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../../utils/jwt");
 
 const createUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
-    const { user_name, email, password, confirm_password, phone } = newUser;
+    const { user_name, email, password, phone } = newUser;
 
     try {
       // Kiểm tra email đã tồn tại chưa
@@ -33,7 +37,102 @@ const createUser = (newUser) => {
         });
       }
     } catch (e) {
-      reject(e); // đúng chuẩn Promise
+      reject(e);
+    }
+  });
+};
+
+const updateUser = (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({ _id: id });
+
+      if (!checkUser) {
+        return resolve({
+          status: "ERROR",
+          message: "Không tìm thấy người dùng",
+        });
+      }
+
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
+        { $set: data },
+        { new: true }
+      );
+
+      resolve({
+        status: "OK",
+        message: "Cập nhật thành công",
+        data: updatedUser,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const deleteUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({ _id: userId });
+
+      if (!checkUser) {
+        resolve({
+          status: "ERROR",
+          message: "Không tìm thấy người dùng",
+        });
+      }
+
+      await User.findOneAndDelete({ _id: userId }); // delete user
+
+      resolve({
+        status: "OK",
+        message: "Xóa thành công",
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const getAllUser = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allUser = await User.find();
+
+      resolve({
+        status: "OK",
+        message: "Lấy danh sách thành công",
+        data: allUser,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const getDetailUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const detailUser = await User.findOne({ _id: userId });
+
+      if (!detailUser) {
+        return reject({
+          status: "ERROR",
+          message: "Không tìm thấy người dùng",
+        });
+      }
+
+      resolve({
+        status: "OK",
+        message: "Lấy thông tin thành công",
+        data: detailUser,
+      });
+    } catch (error) {
+      reject({
+        status: "ERROR",
+        message: error.message || "Lỗi khi truy vấn dữ liệu người dùng",
+      });
     }
   });
 };
@@ -62,12 +161,34 @@ const loginUser = (userLogin) => {
       });
     }
 
+    // access token (check role)
+    const access_token = await generateAccessToken({
+      id: checkUser.id,
+      isAdmin: checkUser.isAdmin,
+      isVendor: checkUser.isVendor,
+    });
+
+    // refresh token
+    const refresh_token = await generateRefreshToken({
+      id: checkUser.id,
+      isAdmin: checkUser.isAdmin,
+      isVendor: checkUser.isVendor,
+    });
+
     resolve({
       status: "OK",
       message: "Đăng nhập thành công",
-      data: checkUser,
+      access_token,
+      refresh_token,
     });
   });
 };
 
-module.exports = { createUser, loginUser };
+module.exports = {
+  createUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+  getAllUser,
+  getDetailUser,
+};
