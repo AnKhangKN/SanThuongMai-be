@@ -1,21 +1,18 @@
-const userController = require("../../controllers/Customer/UserControllers");
-
+const UserController = require("../../controllers/Customer/UserControllers");
 const express = require("express");
-const { isAdminMiddleware } = require("../../middleware/authMiddleware");
+
 const router = express.Router();
 
-router.post("/create", userController.createUser);
+router.post("/sign-up", UserController.createUser); // đăng kí
 
-router.put("/update/:id", userController.updateUser); // cập nhật toàn bộ thông tin user (name, email, phone, ...)
+router.put("/update/:id", UserController.updateUser); // cập nhật toàn bộ thông tin user (name, email, phone, ...)
 
-router.delete("/delete/:id", isAdminMiddleware, userController.deleteUser); // kiểm tra quyền trước khi xóa
+router.patch("/partial-update/:id", UserController.partialUpdateUser); //cập nhật email hoặc mật khẩu hoặc 1 thành phần
 
-router.get("/getAll", isAdminMiddleware, userController.getAllUser);
+router.get("/get-detail/:id", UserController.getDetailUser); // show user detail
 
-router.get("/get-detail/:id", userController.getDetailUser);
+router.post("/login", UserController.loginUser); // đăng nhập
 
-router.post("/login", userController.loginUser);
-
-router.post("/refresh-token", userController.refreshToken);
+router.post("/refresh-token", UserController.refreshToken); // refresh token
 
 module.exports = router;

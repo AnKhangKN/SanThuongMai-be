@@ -71,39 +71,28 @@ const updateUser = (id, data) => {
   });
 };
 
-const deleteUser = (userId) => {
+const partialUpdateUser = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkUser = await User.findOne({ _id: userId });
+      const checkUser = await User.findOne({ _id: id });
 
       if (!checkUser) {
-        resolve({
+        return reject({
           status: "ERROR",
           message: "Không tìm thấy người dùng",
         });
       }
 
-      await User.findOneAndDelete({ _id: userId }); // delete user
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
+        { $set: data },
+        { new: true }
+      );
 
       resolve({
         status: "OK",
-        message: "Xóa thành công",
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const getAllUser = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const allUser = await User.find();
-
-      resolve({
-        status: "OK",
-        message: "Lấy danh sách thành công",
-        data: allUser,
+        message: "Cập nhật thành công",
+        data: updatedUser,
       });
     } catch (error) {
       reject(error);
@@ -188,7 +177,6 @@ module.exports = {
   createUser,
   loginUser,
   updateUser,
-  deleteUser,
-  getAllUser,
+  partialUpdateUser,
   getDetailUser,
 };

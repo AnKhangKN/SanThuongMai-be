@@ -45,6 +45,7 @@ const refreshTokenService = (refreshToken) => {
         const access_token = await generateAccessToken({
           id: payload.id,
           isAdmin: payload?.isAdmin,
+          isVendor: payload?.isVendor,
         });
 
         resolve({

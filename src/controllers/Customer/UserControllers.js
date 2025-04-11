@@ -67,36 +67,23 @@ const updateUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const partialUpdateUser = async (req, res) => {
   try {
     const userId = req.params.id;
+    const data = req.body;
 
-    if (!userId) {
+    if (!userId || Object.keys(data).length === 0) {
       return res.status(400).json({
-        status: "err",
-        message: "Không tìm thấy  người dùng",
+        message: "Thiếu thông tin cập nhật",
       });
     }
 
-    // truyền vào
-    const result = await UserService.deleteUser(userId);
+    const partialUpdate = await UserService.partialUpdateUser(userId, data);
 
-    return res.status(200).json(result);
-  } catch (e) {
-    return res.status(500).json({
-      message: e.message || "Internal Server Error",
-    });
-  }
-};
-
-const getAllUser = async (req, res) => {
-  try {
-    const result = await UserService.getAllUser();
-
-    return res.status(200).json(result);
+    return res.status(200).json(partialUpdate);
   } catch (error) {
     return res.status(500).json({
-      message: e.message || "Internal Server Error",
+      message: error.message || "Internal Server Error",
     });
   }
 };
@@ -177,8 +164,7 @@ module.exports = {
   createUser,
   loginUser,
   updateUser,
-  deleteUser,
-  getAllUser,
+  partialUpdateUser,
   getDetailUser,
   refreshToken,
 };
