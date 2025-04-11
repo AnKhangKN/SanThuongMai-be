@@ -10,7 +10,7 @@ const shopSchema = new mongoose.Schema(
     address: { type: String, required: true },
     status: {
       type: String,
-      enum: ["active", "inactive", "pending"],
+      enum: ["active", "inactive", "pending", "banned"],
       default: "pending", // cần admin xét duyệt
       required: true,
     },

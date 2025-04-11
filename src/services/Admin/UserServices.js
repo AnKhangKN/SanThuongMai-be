@@ -12,7 +12,7 @@ const deleteUser = (userId) => {
         });
       }
 
-      await User.findOneAndDelete({ _id: userId }); // delete user
+      // await User.findOneAndDelete({ _id: userId });
 
       resolve({
         status: "OK",
@@ -24,7 +24,7 @@ const deleteUser = (userId) => {
   });
 };
 
-const bannedUser = (id) => {
+const partialUpdateUser = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkUser = await User.findOne({ _id: id });
@@ -36,16 +36,18 @@ const bannedUser = (id) => {
         });
       }
 
-      const bannedUser = await User.findOneAndUpdate(
+      const partialUpdateUser = await User.findOneAndUpdate(
         { _id: id },
-        { account_status: "banned" },
+        { $set: data }, // cập nhật trạn thái người dùng account_status
         { new: true }
       );
 
+      console.log(data);
+
       resolve({
         status: "OK",
-        message: "Người dùng đã bị chặn",
-        data: bannedUser,
+        message: "Cập nhật trạng thái người dùng thành công",
+        data: partialUpdateUser,
       });
     } catch (error) {
       reject(error);
@@ -71,6 +73,6 @@ const getAllUser = () => {
 
 module.exports = {
   deleteUser,
-  bannedUser,
+  partialUpdateUser,
   getAllUser,
 };

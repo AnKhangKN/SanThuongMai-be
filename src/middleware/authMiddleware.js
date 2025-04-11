@@ -114,10 +114,10 @@ const isUserMiddleware = (req, res, next) => {
       });
     }
 
-    const payload = user;
+    const { payload } = user;
 
     // Kiểm tra: là user thường (isAdmin === false) hoặc đúng ID của user
-    if (payload?.isAdmin === false || payload?.id === userId) {
+    if (payload?.id === userId) {
       next();
     } else {
       return res.status(403).json({

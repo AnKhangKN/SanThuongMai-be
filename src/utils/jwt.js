@@ -9,7 +9,7 @@ const generateAccessToken = (payload) => {
     },
     process.env.ACCESS_TOKEN, // SECRET KEY
     {
-      expiresIn: "30s", // Token hết hạn sau 30s
+      expiresIn: "1h", // Token hết hạn sau 30s
     }
   );
 

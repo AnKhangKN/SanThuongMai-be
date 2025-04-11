@@ -1,13 +1,17 @@
 const express = require("express");
-const UserController = require("../../controllers/Admin/UserController");
+const UserControllers = require("../../controllers/Admin/UserControllers");
 const { isAdminMiddleware } = require("../../middleware/authMiddleware");
 
-const router = express.Router();
+const route = express.Router();
 
-router.put("/banned-user/:id", isAdminMiddleware, UserController.bannedUser); // cập nhật account_status: banned
+route.patch(
+  "/partial-update-user/:id",
+  isAdminMiddleware,
+  UserControllers.partialUpdateUser
+); // cập nhật trạng thái user account_status
 
-router.get("/getAll", isAdminMiddleware, UserController.getAllUser);
+route.get("/get-all-users", isAdminMiddleware, UserControllers.getAllUser);
 
-router.delete("/delete/:id", isAdminMiddleware, UserController.deleteUser); // kiểm tra quyền trước khi xóa
+route.delete("/delete-user/:id", isAdminMiddleware, UserControllers.deleteUser); // kiểm tra quyền trước khi xóa
 
-module.exports = router;
+module.exports = route;

@@ -1,10 +1,8 @@
-const UserService = require("../../services/Customer/UserServices");
-const jwtService = require("../../utils/jwt");
+const UserServices = require("../../services/Customer/UserServices");
 
 const createUser = async (req, res) => {
   try {
     console.log(req.body);
-
     const { user_name, email, password, confirm_password } = req.body;
 
     // Kiểm tra field có trống hay không
@@ -34,7 +32,7 @@ const createUser = async (req, res) => {
       });
     }
 
-    const result = await UserService.createUser(req.body);
+    const result = await UserServices.createUser(req.body);
 
     return res.status(200).json(result);
   } catch (e) {
@@ -57,7 +55,7 @@ const updateUser = async (req, res) => {
     }
 
     // truyền vào
-    const result = await UserService.updateUser(userId, data);
+    const result = await UserServices.updateUser(userId, data);
 
     return res.status(200).json(result);
   } catch (e) {
@@ -78,7 +76,7 @@ const partialUpdateUser = async (req, res) => {
       });
     }
 
-    const partialUpdate = await UserService.partialUpdateUser(userId, data);
+    const partialUpdate = await UserServices.partialUpdateUser(userId, data);
 
     return res.status(200).json(partialUpdate);
   } catch (error) {
@@ -98,7 +96,7 @@ const getDetailUser = async (req, res) => {
       });
     }
 
-    const result = await UserService.getDetailUser(userId);
+    const result = await UserServices.getDetailUser(userId);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -108,63 +106,9 @@ const getDetailUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        status: "error",
-        message: "Có thuộc tính trống",
-      });
-    }
-
-    const reg = /^[\w\.-]+@[\w\.-]+\.\w{2,}$/;
-    const isCheckEmail = reg.test(email);
-
-    // kiểm tra có đúng là email không
-    if (!isCheckEmail) {
-      return res.status(400).json({
-        status: "error",
-        message: "Email không đúng định dạng",
-      });
-    }
-
-    const result = await UserService.loginUser(req.body);
-
-    return res.status(200).json(result);
-  } catch (e) {
-    return res.status(500).json({
-      message: e.message || "Internal Server Error",
-    });
-  }
-};
-
-const refreshToken = async (req, res) => {
-  try {
-    const token = req.headers.token.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({
-        status: "error",
-        message: "Người dùng chưa đăng nhập",
-      });
-    }
-
-    const result = await jwtService.refreshTokenService(token);
-
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      message: e.message || "Internal Server Error",
-    });
-  }
-};
 module.exports = {
   createUser,
-  loginUser,
   updateUser,
   partialUpdateUser,
   getDetailUser,
-  refreshToken,
 };

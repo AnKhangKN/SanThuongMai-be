@@ -1,4 +1,4 @@
-const UserService = require("../../services/Admin/UserServices");
+const UserServices = require("../../services/Admin/UserServices");
 
 const deleteUser = async (req, res) => {
   try {
@@ -12,7 +12,7 @@ const deleteUser = async (req, res) => {
     }
 
     // truyền vào
-    const result = await UserService.deleteUser(userId);
+    const result = await UserServices.deleteUser(userId);
 
     return res.status(200).json(result);
   } catch (e) {
@@ -22,9 +22,10 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const bannedUser = async (req, res) => {
+const partialUpdateUser = async (req, res) => {
   try {
     const userId = req.params.id;
+    const data = req.body;
 
     if (!userId) {
       return res.status(400).json({
@@ -34,7 +35,7 @@ const bannedUser = async (req, res) => {
     }
 
     // truyền vào
-    const result = await UserService.bannedUser(userId);
+    const result = await UserServices.partialUpdateUser(userId, data);
 
     return res.status(200).json(result);
   } catch (e) {
@@ -46,7 +47,7 @@ const bannedUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const result = await UserService.getAllUser();
+    const result = await UserServices.getAllUser();
 
     return res.status(200).json(result);
   } catch (error) {
@@ -58,6 +59,6 @@ const getAllUser = async (req, res) => {
 
 module.exports = {
   deleteUser,
-  bannedUser,
+  partialUpdateUser,
   getAllUser,
 };

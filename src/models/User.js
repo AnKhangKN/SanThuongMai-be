@@ -13,6 +13,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    images: [
+      {
+        type: String, // link ảnh người dùng
+        required: false,
+      },
+    ],
     account_status: {
       type: String,
       enum: ["active", "inactive", "banned"],
@@ -23,15 +29,11 @@ const userSchema = new mongoose.Schema(
     isVendor: { type: Boolean, default: false },
     cccd: {
       type: String,
-      required: [
-        function () {
-          return this.isVendor;
-        },
-        "CCCD bắt buộc cho vendor",
-      ],
+      required: false, // vendor update thêm cccd
     },
     access_token: { type: String },
     refresh_token: { type: String },
+    wallet: { type: Number, default: 0 },
   },
   {
     timestamps: true,
