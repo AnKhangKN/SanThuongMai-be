@@ -1,5 +1,6 @@
 const UserControllers = require("../../controllers/Shared/UserControllers");
 const express = require("express");
+const { isUserMiddleware } = require("../../middleware/authMiddleware");
 
 const route = express.Router();
 
@@ -7,13 +8,21 @@ route.post("/login", UserControllers.loginUser);
 
 route.post("/refresh-token", UserControllers.refreshToken); // refresh token
 
-// POST/ sign-up
+route.post("/sign-up", UserControllers.createUser); // POST/ sign-up
 
-// POST/ update-user (name, phone, ...)
+route.get(
+  "/get-detail-account/:id",
+  isUserMiddleware,
+  UserControllers.getDetailAccount
+); // GET /get-detail-user/:id (vendor, admin, customer)
+
+route.post(
+  "/update-account/:id",
+  isUserMiddleware,
+  UserControllers.updateAccount
+); // POST/ update-account/:id (name, phone, ...) (vendor, admin, customer)
 
 // PATCH/ partial-update-user (name or phone or ...)
-
-// GET /get-detail-user/:id
 
 // PATCH/ change-password/:id
 
