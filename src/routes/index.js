@@ -1,13 +1,20 @@
-const SharedRouter = require("../routes/Shared/UserRouters");
-const CustomerRouter = require("./Customer/UserRouters");
-const AdminRouter = require("../routes/Admin/UserRouters");
+const UserRoutersCustomer = require("../routes/Customer/UserRouters");
+const UserRoutersAdmin = require("../routes/Admin/UserRouters");
+const AuthRoutersShared = require("../routes/Shared/AuthRouters");
+const ProfileRoutersShared = require("../routes/Shared/ProfileRouters");
 
 const routes = (app) => {
-  app.use("/api/shared", SharedRouter);
+  // Shared API
+  app.use("/api/shared", AuthRoutersShared);
+  app.use("/api/shared", ProfileRoutersShared);
 
-  app.use("/api/customer", CustomerRouter);
+  // Customer API
+  app.use("/api/customer", UserRoutersCustomer);
 
-  app.use("/api/admin", AdminRouter);
+  // Vendor API
+
+  // Admin API
+  app.use("/api/admin", UserRoutersAdmin);
 };
 
 module.exports = routes;

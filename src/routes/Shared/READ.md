@@ -1,0 +1,5 @@
+- authRoutes.js -----> login, sign up, refresh-token
+- profileRoutes.js -----> get-detail, update, change-password
+- emailRoutes.js -----> send-verify-email, verify-email
+- passwordRoutes.js -----> forgot-password, reset-password
+- avatarRoutes.js -----> upload-avatar
