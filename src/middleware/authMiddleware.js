@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Kiểm tra là admin
 const isAdminMiddleware = (req, res, next) => {
   // Lấy bearer <token>
   const bearerToken = req.headers.token;
@@ -44,6 +45,7 @@ const isAdminMiddleware = (req, res, next) => {
   });
 };
 
+// Kiểm tra là vendor
 const isVendorMiddleware = (req, res, next) => {
   const bearerToken = req.headers.token;
 
@@ -82,6 +84,7 @@ const isVendorMiddleware = (req, res, next) => {
   });
 };
 
+// Kiểm tra là người dùng
 const isUserMiddleware = (req, res, next) => {
   const bearerToken = req.headers.token;
 
