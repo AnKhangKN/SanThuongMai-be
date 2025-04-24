@@ -19,12 +19,15 @@ const productSchema = new mongoose.Schema(
             enum: ["active", "inactive", "pending", "banned"], // Có thể thêm trạng thái "banned"
             default: "pending",
         },
+        
         review_count: {type: Number, default: 0, min: 0}, // Không cho giá trị âm
+
         shop_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Shop",
             required: true,
         }, // Liên kết với Shop
+
         sale: { // Thêm phần thông tin sale
             price: {type: Number, min: 0, required: false}, // Giá bán sau giảm
             start_date: {type: Date, required: false},
