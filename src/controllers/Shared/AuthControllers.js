@@ -7,7 +7,7 @@ const refreshToken = async (req, res) => {
 
         if (!token) {
             return res.status(401).json({
-                status: "error",
+                status: "ERROR",
                 message: "Người dùng chưa đăng nhập",
             });
         }
@@ -61,7 +61,7 @@ const createUser = async (req, res) => {
         // Kiểm tra field có trống hay không
         if (!email || !password || !confirm_password) {
             return res.status(400).json({
-                status: "error",
+                status: "ERROR",
                 message: "Có thuộc tính trống",
             });
         }
@@ -72,7 +72,7 @@ const createUser = async (req, res) => {
         // kiểm tra có đúng là email không
         if (!isCheckEmail) {
             return res.status(400).json({
-                status: "error",
+                status: "ERROR",
                 message: "Email không đúng định dạng",
             });
         }
@@ -80,7 +80,7 @@ const createUser = async (req, res) => {
         // Kiểm tra nhập lại mật khẩu
         if (password !== confirm_password) {
             return res.status(400).json({
-                status: "error",
+                status: "ERROR",
                 message: "Mật khẩu không khớp",
             });
         }
@@ -90,7 +90,7 @@ const createUser = async (req, res) => {
         return res.status(200).json(result);
     } catch (e) {
         return res.status(500).json({
-            message: e.message || "Internal Server Error",
+            message: e.message || "Internal Server ERROR",
         });
     }
 };

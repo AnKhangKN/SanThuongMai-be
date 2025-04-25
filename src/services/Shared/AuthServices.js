@@ -15,9 +15,9 @@ const loginUser = (userLogin) => {
 
             // Kiểm tra email có tồn tại không
             if (!checkUser) {
-                return resolve({
+                return reject({
                     status: "ERROR",
-                    message: "Email không tồn tại",
+                    message: "Email không tồn tại", // Sử dụng reject thay vì resolve
                 });
             }
 
@@ -27,14 +27,14 @@ const loginUser = (userLogin) => {
             if (accountStatus === "banned") {
                 return reject({
                     status: "ERROR",
-                    message: "Tài khoản của bạn đã bị khóa!",
+                    message: "Tài khoản của bạn đã bị khóa!", // Sử dụng reject
                 });
             }
 
             if (accountStatus === "inactive") {
                 return reject({
                     status: "ERROR",
-                    message: "Tài khoản của bạn bị vô hiệu hóa!",
+                    message: "Tài khoản của bạn bị vô hiệu hóa!", // Sử dụng reject
                 });
             }
 
@@ -42,9 +42,9 @@ const loginUser = (userLogin) => {
             const compare_password = bcrypt.compareSync(password, checkUser.password);
 
             if (!compare_password) {
-                return resolve({
+                return reject({
                     status: "ERROR",
-                    message: "Mật khẩu không đúng",
+                    message: "Mật khẩu không đúng", // Sử dụng reject
                 });
             }
 
@@ -69,18 +69,20 @@ const loginUser = (userLogin) => {
                 refresh_token,
             });
         } catch (error) {
+            // Xử lý lỗi tổng quát
             reject({
                 status: "ERROR",
                 message: "Có lỗi xảy ra khi đăng nhập",
-                error: error.message,
+                error: error.message, // Cung cấp thông tin lỗi để dễ dàng debug
             });
         }
     });
 };
 
+
 const createUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
-        const {email, password, phone} = newUser;
+        const {email, password} = newUser;
 
         try {
             // Kiểm tra email đã tồn tại chưa
@@ -92,14 +94,12 @@ const createUser = (newUser) => {
                 });
             }
 
-            // Mã hóa mật khẩu trước khi tạo tài khoản
-            const hash = bcrypt.hashSync(password, 10);
+            // Mã hóa mật khẩu trước khi tạo tài khoản (sử dụng bcrypt.hash để không đồng bộ)
+            const hash = await bcrypt.hash(password, 10);  // Sử dụng bcrypt.hash thay vì hashSync
 
             const createdUser = await User.create({
-
                 email,
                 password: hash,
-                phone,
             });
 
             // Nếu tạo thành công
@@ -117,6 +117,7 @@ const createUser = (newUser) => {
                 message: "Không thể tạo tài khoản",
             });
         } catch (e) {
+            // Xử lý lỗi chi tiết hơn để dễ dàng debug
             return reject({
                 status: "ERROR",
                 message: e.message || "Lỗi server",
@@ -124,6 +125,7 @@ const createUser = (newUser) => {
         }
     });
 };
+
 
 module.exports = {
     loginUser,
