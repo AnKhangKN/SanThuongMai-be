@@ -19,8 +19,9 @@ const productSchema = new mongoose.Schema(
             enum: ["active", "inactive", "pending", "banned"], // Có thể thêm trạng thái "banned"
             default: "pending",
         },
-        
-        review_count: {type: Number, default: 0, min: 0}, // Không cho giá trị âm
+
+        rating: {type: Number, default: 0, min: 0}, // Không cho giá trị âm
+
 
         shop_id: {
             type: mongoose.Schema.Types.ObjectId,
