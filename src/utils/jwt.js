@@ -5,11 +5,11 @@ dotenv.config();
 const generateAccessToken = (payload) => {
   const access_token = jwt.sign(
     {
-      payload,
+      ...payload,
     },
     process.env.ACCESS_TOKEN, // SECRET KEY
     {
-      expiresIn: "1h", // Token hết hạn sau 30s
+      expiresIn: "900s", // Token hết hạn sau 900s để refresh không bị ảnh hưởng các api khác
     }
   );
 
@@ -19,7 +19,7 @@ const generateAccessToken = (payload) => {
 const generateRefreshToken = (payload) => {
   const refresh_token = jwt.sign(
     {
-      payload,
+      ...payload,
     },
     process.env.REFRESH_TOKEN, // SECRET KEY
     {
@@ -35,17 +35,17 @@ const refreshTokenService = (refreshToken) => {
     try {
       jwt.verify(refreshToken, process.env.REFRESH_TOKEN, async (err, user) => {
         if (err) {
-          reject({
+          return reject({
             status: "ERROR",
             message: "Token không hợp lệ",
           });
         }
-        const { payload } = user;
 
+        // user chính là payload luôn
         const access_token = await generateAccessToken({
-          id: payload.id,
-          isAdmin: payload?.isAdmin,
-          isVendor: payload?.isVendor,
+          id: user.id,
+          isAdmin: user?.isAdmin,
+          isVendor: user?.isVendor,
         });
 
         resolve({

@@ -84,23 +84,20 @@ const isVendorMiddleware = (req, res, next) => {
   });
 };
 
-// Kiểm tra là người dùng
+// Middleware kiểm tra quyền User
 const isUserMiddleware = (req, res, next) => {
-  const bearerToken = req.headers.token;
+  const authHeader = req.headers.authorization;
 
-  // Kiểm tra xem có token không
-  if (!bearerToken) {
+  if (!authHeader) {
     return res.status(401).json({
       status: "error",
-      message: "Bearer token không hợp lệ",
+      message: "Không có token trong header",
     });
   }
 
-  // Lấy token từ chuỗi "Bearer <token>"
-  const token = bearerToken.split(" ")[1];
+  const token = authHeader.split(" ")[1];
   const userId = req.params.id;
 
-  // Kiểm tra xem có truyền id hay không
   if (!userId) {
     return res.status(400).json({
       status: "error",
@@ -108,7 +105,6 @@ const isUserMiddleware = (req, res, next) => {
     });
   }
 
-  // Xác thực token
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) {
       return res.status(403).json({
@@ -117,10 +113,8 @@ const isUserMiddleware = (req, res, next) => {
       });
     }
 
-    const { payload } = user;
-
-    // Kiểm tra: là user thường (isAdmin === false) hoặc đúng ID của user
-    if (payload?.id === userId) {
+    // user ở đây chính là payload khi sign
+    if (user?.id?.toString() === userId.toString()) {
       next();
     } else {
       return res.status(403).json({
