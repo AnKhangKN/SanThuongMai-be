@@ -7,4 +7,6 @@ route.post("/refresh-token", AuthControllers.refreshToken);
 
 route.post("/sign-up", AuthControllers.createUser);
 
+route.post("/logout", AuthControllers.logoutUser);
+
 module.exports = route;

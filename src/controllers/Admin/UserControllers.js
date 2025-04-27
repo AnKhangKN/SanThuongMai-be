@@ -57,6 +57,7 @@ const getAllUser = async (req, res) => {
     }
 };
 
+
 module.exports = {
     deleteUser,
     partialUpdateUser,
