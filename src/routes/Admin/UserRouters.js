@@ -10,7 +10,7 @@ route.patch(
     UserControllers.partialUpdateUser
 ); // cập nhật trạng thái user account_status
 
-route.get("/get-all-users", UserControllers.getAllUser); //isAdminMiddleware,
+route.get("/get-all-users", isAdminMiddleware, UserControllers.getAllUser);
 
 route.delete("/delete-user/:id", isAdminMiddleware, UserControllers.deleteUser); // kiểm tra quyền trước khi xóa
 
