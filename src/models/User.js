@@ -37,37 +37,32 @@ const userSchema = new mongoose.Schema(
         // Vendor cần đầy đủ các thuộc tính này
         isVendor: {type: Boolean, default: false},
 
-        cccd: { type: String, required: false,},
+        cccd: { type: String, required: false},
 
         shop: {
-            name: { type: String,required: false },
-            phone: { type: String,required: false },
-            address: { type: String,required: false },
+            name: { type: String, required: false },
+            phone: { type: String, required: false },
+            address: { type: String, required: false },
             status: {
                 type: String,
                 enum: ["active", "inactive", "pending", "banned"],
-                default: "pending",
-            },
-            total_order: { type: Number, default: 0 },
+                required: false,
+            }, // admin set
+            total_order: { type: Number, min: 0, default: 0, required: false },
+
+            banned_until: {type: Date, required: false},  // Cấm cửa hàng theo thời gian (admin set)
+
+            reports: [
+                {
+                    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                    reason: { type: String, required: false },
+                    createdAt: { type: Date, default: Date.now, required: false },  // Tự động set ngày giờ tạo báo cáo
+                },
+            ],
         },
-
-
-        // Bị người dùng báo cáo và bị cấm theo thời gian (admin set)
-        banned_until: {type: Date, default: null},
-
-        // Các báo cáo không bắt buộc (admin xem xét)
-        reports: [
-            {
-                userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
-                reason: {type: String, required: true},
-                createdAt: {type: Date, default: Date.now},
-            },
-        ],
-
-
     },
     {
-        timestamps: true,
+        timestamps: true,  // Tự động tạo createdAt và updatedAt
     }
 );
 
