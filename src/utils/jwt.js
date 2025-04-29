@@ -33,6 +33,7 @@ const generateRefreshToken = (payload) => {
 const refreshTokenService = (refreshToken) => {
     return new Promise((resolve, reject) => {
         try {
+
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN, async (err, user) => {
                 if (err) {
                     return reject({

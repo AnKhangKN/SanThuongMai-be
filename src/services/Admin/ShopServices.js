@@ -1,17 +1,17 @@
 const Shop = require("../../models/Shop");
 const ShopService = require("../../controllers/Admin/ShopControllers");
 
-const getAllViolatedShops = () => {
-    return new Promise((resolve, reject) => {
-        try {
-
-            if()
-        }
-        catch (err) {
-            reject(err);
-        }
-    })
-}
+// const getAllViolatedShops = () => {
+//     return new Promise((resolve, reject) => {
+//         try {
+//
+//             if()
+//         }
+//         catch (err) {
+//             reject(err);
+//         }
+//     })
+// }
 
 const partialUpdateShop = (id, data) => {
     return new Promise(async (resolve, reject) => {

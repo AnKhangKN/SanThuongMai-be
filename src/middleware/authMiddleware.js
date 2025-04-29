@@ -4,46 +4,44 @@ dotenv.config();
 
 // Kiểm tra là admin
 const isAdminMiddleware = (req, res, next) => {
-  // Lấy bearer <token>
-  const bearerToken = req.headers.token;
+  const authToken = req.headers.authorization;
 
-  // Kiểm tra người dùng có đăng nhập chưa
-  if (!bearerToken) {
+  console.log('authToken', authToken);  // In authToken để kiểm tra header
+
+  // Kiểm tra xem có authorization header không
+  if (!authToken) {
     return res.status(401).json({
-      status: "error",
-      message: "Bearer token không hợp lệ",
+      message: "No token provided",
+      status: "ERROR"
     });
   }
 
-  // Sửa biến đúng tên: breakToken -> beareToken
-  const token = bearerToken.split(" ")[1];
+  // Lấy token từ Authorization header (Bearer <token>)
+  const token = authToken.split(" ")[1].replace(/"/g, "");
+  console.log('Token:', token);  // In token ra console để kiểm tra
 
-  // Gán id vào userId
-  const userId = req.params.id;
-
-  // Kiểm tra token có hợp lệ không
-  jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+  // Giải mã token và kiểm tra xem nó có hợp lệ không
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
       return res.status(403).json({
-        status: "error",
         message: "Token không hợp lệ",
+        status: "ERROR"
       });
     }
 
-    // Tác object
-    const { payload } = user;
-
-    // Kiểm tra người dùng có phải admin không hoặc đúng id của Admin
-    if (payload?.isAdmin === true || payload?.id === userId) {
-      next();
+    // Giả sử payload của token có trường 'isAdmin' để kiểm tra quyền admin
+    if (decoded.isAdmin === true) {
+      req.user = decoded;  // Gán decoded vào request để các middleware sau sử dụng
+      next();  // Chuyển sang middleware tiếp theo
     } else {
       return res.status(403).json({
-        status: "error",
         message: "Người dùng không phải admin",
+        status: "ERROR"
       });
     }
   });
 };
+
 
 // Kiểm tra là vendor
 const isVendorMiddleware = (req, res, next) => {
