@@ -2,6 +2,9 @@ const UserRoutersCustomer = require("../routes/Customer/UserRouters");
 const UserRoutersAdmin = require("../routes/Admin/UserRouters");
 const AuthRoutersShared = require("../routes/Shared/AuthRouters");
 const UserRoutersVendor = require("../routes/Vendor/ProductRouter");
+const ProductRouterAdmin = require("../routes/Admin/ProductRouters");
+const ShopRouterAdmin = require("../routes/Admin/ShopRouters");
+
 
 const routes = (app) => {
   // Shared API
@@ -15,6 +18,11 @@ const routes = (app) => {
 
   // Admin API
   app.use("/api/admin", UserRoutersAdmin);
+
+  app.use("/api/admin", ProductRouterAdmin);
+
+  app.use("/api/admin", ShopRouterAdmin);
+
 };
 
 module.exports = routes;
