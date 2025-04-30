@@ -3,9 +3,9 @@ const mongoose = require("mongoose");
 const productSchema = new mongoose.Schema(
     {
         product_name: { type: String, required: true },
-        description: { type: String },
+        description: { type: String, required: false }, // Nếu mô tả sản phẩm cần thiết, bạn có thể set thành required: true
         category: { type: String, required: true },
-        images: { type: [String], required: true, default: [] },
+        images: { type: [String], required: true, default: [] }, // Có thể thêm 1 hoặc nhiều ảnh
 
         details: [
             {
@@ -35,12 +35,30 @@ const productSchema = new mongoose.Schema(
             start_date: { type: Date },
             end_date: { type: Date },
         },
+
+        banned_until: {
+            type: Date,
+            required: false,  // Trường này sẽ giúp admin quản lý thời gian cấm sản phẩm
+        },
+
+        reports: [
+            {
+                userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                comment: { type: String }, // Thông tin chi tiết báo cáo
+                createdAt: { type: Date, default: Date.now },
+                status: {
+                    type: String,
+                    enum: ["pending", "resolved", "dismissed"],
+                    default: "pending",
+                },
+            },
+        ],
+
     },
     {
-        timestamps: true,
+        timestamps: true, // Tự động tạo createdAt và updatedAt
     }
 );
-
 
 const Product = mongoose.model("Product", productSchema);
 module.exports = Product;
