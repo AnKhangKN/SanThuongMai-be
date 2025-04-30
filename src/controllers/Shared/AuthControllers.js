@@ -4,7 +4,6 @@ const jwtService = require("../../utils/jwt");
 const refreshToken = async (req, res) => {
   try {
     const token = req.cookies.refresh_token;
-    console.log("refresh token", token);
 
     if (!token) {
       return res.status(401).json({
