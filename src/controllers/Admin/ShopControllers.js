@@ -4,8 +4,6 @@ const getAllShops = async (req, res) => {
     try {
         const result = await ShopServices.getAllShops();
 
-        console.log(result);
-
         return res.status(200).json(result);  // Trả về kết quả danh sách cửa hàng
     } catch (error) {
         return res.status(500).json({

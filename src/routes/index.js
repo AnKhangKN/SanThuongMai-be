@@ -1,5 +1,5 @@
 const UserRoutersCustomer = require("../routes/Customer/UserRouters");
-const AdminRouters = require("./Admin/AdminRouters");
+const UserRoutersAdmin = require("../routes/Admin/UserRouters");
 const AuthRoutersShared = require("../routes/Shared/AuthRouters");
 const UserRoutersVendor = require("../routes/Vendor/ProductRouter");
 
@@ -11,10 +11,10 @@ const routes = (app) => {
   app.use("/api/customer", UserRoutersCustomer);
 
   // Vendor API
-  app.use("/api/vendor/", UserRoutersVendor);
+  app.use("/api/vendor", UserRoutersVendor);
 
   // Admin API
-  app.use("/api/admin", AdminRouters);
+  app.use("/api/admin", UserRoutersAdmin);
 };
 
 module.exports = routes;
