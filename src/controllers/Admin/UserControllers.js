@@ -38,9 +38,9 @@ const partialUpdateUser = async (req, res) => {
         const result = await UserServices.partialUpdateUser(userId, data);
 
         return res.status(200).json(result);
-    } catch (e) {
+    } catch (err) {
         return res.status(500).json({
-            message: e.message || "Internal Server Error",
+            message: err.message || "Internal Server Error",
         });
     }
 };
