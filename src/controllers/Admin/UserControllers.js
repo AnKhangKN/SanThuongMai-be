@@ -27,6 +27,8 @@ const partialUpdateUser = async (req, res) => {
         const userId = req.params.id;
         const data = req.body;
 
+        console.log('userId ', userId, 'data', data);
+
         if (!userId) {
             return res.status(400).json({
                 status: "ERROR",

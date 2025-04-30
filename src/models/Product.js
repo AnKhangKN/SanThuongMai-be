@@ -2,43 +2,45 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
     {
-        product_name: {type: String, required: true},
-        description: {type: String},
-        category: {type: String, required: true},
-        images: [{type: String, required: true}], // Chứa nhiều ảnh
+        product_name: { type: String, required: true },
+        description: { type: String },
+        category: { type: String, required: true },
+        images: { type: [String], required: true, default: [] },
+
         details: [
             {
-                size: {type: String, required: false}, // Có thể là yêu cầu bắt buộc
-                color: {type: String, required: false}, // Cũng có thể bắt buộc
-                price: {type: Number, required: true, min: 0}, // Không cho giá trị âm
-                quantity: {type: Number, required: true, min: 0}, // Không cho số lượng âm
+                size: { type: String },
+                color: { type: String },
+                price: { type: Number, required: true, min: 0 },
+                quantity: { type: Number, required: true, min: 0 },
             },
         ],
+
         status: {
             type: String,
-            enum: ["active", "inactive", "pending", "banned"], // Có thể thêm trạng thái "banned"
+            enum: ["active", "inactive", "pending", "banned"],
             default: "pending",
         },
 
-        rating: {type: Number, default: 0, min: 0}, // Không cho giá trị âm
+        rating: { type: Number, default: 0, min: 0, max: 5 },
 
-
-        shop_id: {
+        user_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Shop",
+            ref: "User",
             required: true,
-        }, // Liên kết với Shop
+        },
 
-        sale: { // Thêm phần thông tin sale
-            price: {type: Number, min: 0, required: false}, // Giá bán sau giảm
-            start_date: {type: Date, required: false},
-            end_date: {type: Date, required: false},
+        sale: {
+            price: { type: Number, min: 0 },
+            start_date: { type: Date },
+            end_date: { type: Date },
         },
     },
     {
-        timestamps: true, // Thêm thông tin thời gian
+        timestamps: true,
     }
 );
+
 
 const Product = mongoose.model("Product", productSchema);
 module.exports = Product;
