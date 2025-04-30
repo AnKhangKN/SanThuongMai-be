@@ -15,9 +15,9 @@ const refreshToken = async (req, res) => {
     const result = await jwtService.refreshTokenService(token);
 
     return res.status(200).json(result);
-  } catch (error) {
+  } catch (error) { // Sửa từ 'e' thành 'error'
     return res.status(500).json({
-      message: e.message || "Internal Server Error",
+      message: error.message || "Internal Server Error", // Sửa 'e' thành 'error'
     });
   }
 };
@@ -111,7 +111,7 @@ const logoutUser = async (req, res) => {
 
     return res.status(200).json({
       status: "OK",
-      message: "Đãng xuất thành công",
+      message: "Đăng xuất thành công",
     });
   } catch (e) {
     return res.status(500).json({

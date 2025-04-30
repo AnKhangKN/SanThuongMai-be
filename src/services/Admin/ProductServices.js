@@ -6,8 +6,6 @@ const getAllProducts = () => {
             // Populate để join dữ liệu từ bảng User
             const allProducts = await Product.find().populate("user_id", "user_name email");
 
-            console.log(allProducts);
-
             resolve({
                 status: "OK",
                 message: "Lấy danh sách sản phẩm thành công",
@@ -40,5 +38,22 @@ const partialUpdateProduct = (productId, data) => {
     });
 };
 
+const getAllReportedProducts = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const products = await Product.find({
+                "reports.0": { $exists: true } // sản phẩm có ít nhất 1 report
+            }).populate("user_id", "username email"); // nếu muốn lấy thêm thông tin người đăng
 
-module.exports = { getAllProducts, partialUpdateProduct };
+            resolve({
+                status: "OK",
+                message: "Lấy danh sách sản phẩm bị báo cáo thành công",
+                data: products,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+module.exports = { getAllProducts, partialUpdateProduct, getAllReportedProducts };

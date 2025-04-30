@@ -4,6 +4,7 @@ const AuthRoutersShared = require("../routes/Shared/AuthRouters");
 const UserRoutersVendor = require("../routes/Vendor/ProductRouter");
 const ProductRouterAdmin = require("../routes/Admin/ProductRouters");
 const ShopRouterAdmin = require("../routes/Admin/ShopRouters");
+const PlatformFeesRouterAdmin = require("../routes/Admin/PlatformFeesRouters");
 
 
 const routes = (app) => {
@@ -22,6 +23,8 @@ const routes = (app) => {
   app.use("/api/admin", ProductRouterAdmin);
 
   app.use("/api/admin", ShopRouterAdmin);
+
+  app.use("/api/admin", PlatformFeesRouterAdmin)
 
 };
 

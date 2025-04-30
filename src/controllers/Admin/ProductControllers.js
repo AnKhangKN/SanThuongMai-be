@@ -42,5 +42,16 @@ const partialUpdateProduct = async (req, res) => {
     }
 };
 
+const getAllReportedProducts = async (req, res) => {
+    try {
+        const result = await ProductServices.getAllReportedProducts();
 
-module.exports = { getAllProducts,partialUpdateProduct };
+        return res.status(200).json(result);  // Trả về kết quả danh sách cửa hàng
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { getAllProducts,partialUpdateProduct, getAllReportedProducts };
