@@ -9,11 +9,12 @@ const productSchema = new mongoose.Schema(
 
         details: [
             {
-                size: { type: String },
-                color: { type: String },
-                price: { type: Number, required: true, min: 0 },
+                size: { type: String }, //30
+                color: { type: String }, //đỏ
+                price: { type: Number, required: true, min: 0 }, //23
                 quantity: { type: Number, required: true, min: 0 },
-            },
+            }
+
         ],
 
         status: {

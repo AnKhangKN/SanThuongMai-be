@@ -12,4 +12,16 @@ const getAllProducts = async (req, res) => {
     }
 };
 
-module.exports = {getAllProducts}
+const getTopSearchProduct = async (req, res) => {
+    try {
+        const result = await ProductServices.getTopSearchProduct();
+
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Internal Server Error",
+        });
+    }
+};
+
+module.exports = {getAllProducts, getTopSearchProduct}
