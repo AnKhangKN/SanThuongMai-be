@@ -136,5 +136,29 @@ const searchProducts = (keyword) => {
     });
 };
 
+const getDetailProduct = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const product = await Product.findOne({ _id: id });
 
-module.exports = { getAllProducts, getTopSearchProduct, getAllCategoriesHome, searchProducts };
+            if (!product) {
+                return reject(new Error("Không tìm thấy sản phẩm"));
+            }
+
+            resolve({
+                status: "OK",
+                data: product,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+module.exports = {
+    getAllProducts,
+    getTopSearchProduct,
+    getAllCategoriesHome,
+    searchProducts,
+    getDetailProduct
+};

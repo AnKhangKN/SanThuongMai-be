@@ -40,7 +40,7 @@ const partialUpdateShop = (ownerId, data) => {
 
             const updatedShop = await User.findOneAndUpdate(
                 { _id: ownerId },
-                { $set: data },
+                { $set: { "shop.status": data.shop.status } },
                 { new: true }
             );
 
@@ -102,9 +102,15 @@ const partialUpdateReportedShop = (ownerId, data) => {
                 });
             }
 
+            // Chuyển shop: { status: '...' } => { 'shop.status': '...' }
+            const updateFields = {};
+            for (const key in data.shop) {
+                updateFields[`shop.${key}`] = data.shop[key];
+            }
+
             const updatedShop = await User.findOneAndUpdate(
                 { _id: ownerId },
-                { $set: data },
+                { $set: updateFields },
                 { new: true }
             );
 

@@ -16,17 +16,17 @@ const getAllShops = async (req, res) => {
 
 const partialUpdateShop = async (req, res) => {
     try {
-        const shopId = req.params.id;
+        const userId = req.params.id;
         const data = req.body;
 
-        if (!shopId) {
+        if (!userId) {
             return res.status(400).json({
                 status: "ERROR",
                 message: "Không có người dùng",
             });
         }
 
-        const result = await ShopServices.partialUpdateShop(shopId, data);
+        const result = await ShopServices.partialUpdateShop(userId, data);
 
         return res.status(200).json(result);
     } catch (err) {

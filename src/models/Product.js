@@ -5,7 +5,10 @@ const productSchema = new mongoose.Schema(
         product_name: { type: String, required: true },
         description: { type: String, required: false }, // Nếu mô tả sản phẩm cần thiết, bạn có thể set thành required: true
         category: { type: String, required: true },
-        images: { type: [String], required: true, default: [] }, // có thể thêm 1 hoặc nhiều ảnh
+        images: {
+            type: [String],
+            required: true
+        }, // có thể thêm 1 hoặc nhiều ảnh
 
         details: [
             {
