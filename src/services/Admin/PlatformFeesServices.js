@@ -57,7 +57,28 @@ const createPlatformFee = (newFee) => {
     });
 };
 
+const updatePlatformFee = (id, data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const fee = await PlatformFees.findOneAndUpdate(
+                { _id: id },
+                { $set: data },
+                { new: true }
+            );
+
+            resolve({
+                status: "OK",
+                message: "Cập nhật chi phí thành công.",
+                data: fee
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 module.exports = {
     getAllFees,
-    createPlatformFee
+    createPlatformFee,
+    updatePlatformFee
 };

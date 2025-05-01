@@ -10,4 +10,6 @@ route.get("/get-all-fees", isAdminMiddleware, PlatformFeesControllers.getAllFees
 // Tạo một phí nền tảng mới
 route.post("/create-fee", isAdminMiddleware, PlatformFeesControllers.createPlatformFee);
 
+route.patch("/update-fee/:id", isAdminMiddleware, PlatformFeesControllers.updatePlatformFee);
+
 module.exports = route;

@@ -25,7 +25,6 @@ const platformFeesSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["active", "inactive"],
-        required: true,
         default: "active",
     },
 }, {

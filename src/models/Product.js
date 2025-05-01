@@ -54,6 +54,8 @@ const productSchema = new mongoose.Schema(
             },
         ],
 
+        sold_count: { type: Number, default: 0, min: 0 }, // Lượt bán
+
     },
     {
         timestamps: true, // Tự động tạo createdAt và updatedAt

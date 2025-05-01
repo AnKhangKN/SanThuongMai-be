@@ -33,4 +33,33 @@ const createPlatformFee = async (req, res) => {
     }
 };
 
-module.exports = { getAllFees, createPlatformFee };
+const updatePlatformFee = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fee_type, fee_name, value, description, status } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ message: "Missing fee ID in URL." });
+        }
+
+        const result = await PlatformFeesServices.updatePlatformFee(id, {
+            fee_type,
+            fee_name,
+            value,
+            description,
+            status
+        });
+
+        return res.status(200).json({
+            message: "Platform fee updated successfully.",
+            data: result
+        });
+
+    } catch (e) {
+        return res.status(500).json({
+            message: e.message || "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { getAllFees, createPlatformFee, updatePlatformFee };

@@ -1,7 +1,8 @@
 const AuthControllers = require("../../controllers/Shared/AuthControllers");
 const route = require("express").Router();
+const checkVendorBanStatus = require("../../middleware/bannedUntilMiddleware");
 
-route.post("/login", AuthControllers.loginUser);
+route.post("/login",checkVendorBanStatus, AuthControllers.loginUser);
 
 route.post("/refresh-token", AuthControllers.refreshToken);
 

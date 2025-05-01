@@ -52,6 +52,8 @@ const userSchema = new mongoose.Schema(
 
             banned_until: {type: Date, required: false},  // Cấm cửa hàng theo thời gian (admin set)
 
+            banned_count: { type: Number, required: false },
+
             comment_reported: [
                 {type: String, required: false},
             ], // Cảnh báo của admin gửi cho vendor
