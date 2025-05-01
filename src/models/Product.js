@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ["active", "inactive", "pending", "banned"],
-            default: "pending",
+            default: "active",
         },
 
         rating: { type: Number, default: 0, min: 0, max: 5 },

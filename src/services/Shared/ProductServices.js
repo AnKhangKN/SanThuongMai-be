@@ -58,35 +58,83 @@ const getTopSearchProduct = () => {
     });
 };
 
-const getAllCategories = () => {
+const getAllCategoriesHome = () => {
     return new Promise(async (resolve, reject) => {
         try {
+            // Lấy tất cả sản phẩm, bao gồm danh mục của mỗi sản phẩm
             const allProducts = await Product.find()
                 .populate({
                     path: "user_id",
                     select: "shop.status",
                 });
 
-            // Kiểm tra tình trạng sản phẩm (nếu sản phẩm đang active và trạng thái shop cũng active)
+            // Kiểm tra tình trạng sản phẩm (sản phẩm và shop phải ở trạng thái active)
             const activeProducts = allProducts.filter((product) =>
                 product?.status === "active" &&
                 product.user_id?.shop?.status === "active"
             );
 
-            // Sắp xếp theo sold_count giảm dần
-            const sorted = activeProducts.sort((a, b) => b.sold_count - a.sold_count);
+            // Gộp sản phẩm theo danh mục
+            const categories = {};
 
-            // Lấy 40 sản phẩm bán chạy nhất
-            const top10 = sorted.slice(0, 40);
+            activeProducts.forEach((product) => {
+                const categoryName = product.category; // Danh mục của sản phẩm
+                const productImage = product.images[0] || ''; // Lấy ảnh đầu tiên làm ảnh đại diện cho danh mục
+
+                // Kiểm tra nếu danh mục đã tồn tại trong categories
+                if (!categories[categoryName]) {
+                    categories[categoryName] = {
+                        name: categoryName,
+                        image: productImage, // Sử dụng ảnh của sản phẩm làm ảnh danh mục
+                        products: [],
+                    };
+                }
+
+                // Thêm sản phẩm vào danh mục tương ứng
+                categories[categoryName].products.push(product);
+            });
+
+            // Chuyển đối tượng categories thành mảng để trả về
+            const categoriesArray = Object.values(categories);
 
             resolve({
                 status: "OK",
-                message: "Lấy danh sách sản phẩm thành công",
-                data: top10,
+                message: "Lấy danh sách sản phẩm theo danh mục thành công",
+                data: categoriesArray,
             });
         } catch (error) {
             reject(error);
         }
     });
-}
-module.exports = { getAllProducts, getTopSearchProduct, getAllCategories };
+};
+
+const searchProducts = (keyword) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allProducts = await Product.find({
+                product_name: { $regex: keyword, $options: "i" }, // Tìm theo tên, không phân biệt hoa thường
+            }).populate({
+                path: "user_id",
+                select: "shop.status",
+            });
+
+            // Lọc sản phẩm active và shop active
+            const activeProducts = allProducts.filter(
+                (product) =>
+                    product?.status === "active" &&
+                    product.user_id?.shop?.status === "active"
+            );
+
+            resolve({
+                status: "OK",
+                message: `Tìm thấy ${activeProducts.length} sản phẩm phù hợp.`,
+                data: activeProducts,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+
+module.exports = { getAllProducts, getTopSearchProduct, getAllCategoriesHome, searchProducts };
