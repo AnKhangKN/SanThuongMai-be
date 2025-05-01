@@ -8,36 +8,36 @@ const createProduct = (newProduct) => {
         description,
         category,
         images,
-        details: {
-          size = null,
-          color = null,
-          price = null,
-          quantity = null,
-        } = {},
-        status,
-        rating,
-        sale,
+        details = [],
         user_id,
+        sale,
       } = newProduct;
+
+      const {
+        size = null,
+        color = null,
+        price = null,
+        quantity = null,
+      } = details[0] || {};
 
       const createdProduct = await Product.create({
         product_name,
         description,
         category,
         images,
-        details: { size, color, price, quantity },
-        status,
-        rating,
-        sale,
+        details: [{ size, color, price, quantity }],
         user_id,
+        sale,
       });
 
-      if (createProduct) {
+      if (createdProduct) {
         resolve({
           status: "OK",
           message: "SUCCESS",
           data: createdProduct,
         });
+      } else {
+        reject(new Error("Không thể tạo sản phẩm"));
       }
     } catch (e) {
       reject(e);
