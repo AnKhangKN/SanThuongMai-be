@@ -2,34 +2,26 @@ const ProductService = require("../../services/Vendor/ProductService");
 
 const createProduct = async (req, res) => {
   try {
-    const {
-      product_name,
-      description,
-      category,
-      images,
-      details,
-      status,
-      rating,
-      sale,
-      user_id,
-    } = req.body;
-
-    // Check required fields (sửa chỗ details.price vì đã destructure rồi sẽ lỗi)
+    const { product_name, description, category, images, details, user_id } =
+      req.body;
+    // Kiểm tra dữ liệu bắt buộc
     if (
       !product_name ||
       !category ||
-      //   !images ||
-      !details?.price ||
-      !details?.quantity ||
-      !user_id
+      !images ||
+      !Array.isArray(details) ||
+      details.length === 0 ||
+      !details[0].price ||
+      !details[0].quantity
     ) {
-      return res.status(200).json({
+      return res.status(401).json({
         status: "ERR",
         message: "The input is required",
       });
     }
 
     const response = await ProductService.createProduct(req.body);
+    console.log("response:", response);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
