@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const ProductController = require("../../controllers/Vendor/ProductController");
 const { isVendorMiddleware } = require("../../middleware/authMiddleware");
+const ProductController = require("../../controllers/Vendor/ProductController");
 
 router.post(
   "/add-product",
