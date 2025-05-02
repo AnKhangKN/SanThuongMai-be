@@ -74,7 +74,23 @@ const updateProduct = (productId, data) => {
   });
 };
 
+const getAllProduct = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allProduct = await Product.find();
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: allProduct,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
+  getAllProduct,
 };

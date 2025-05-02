@@ -8,12 +8,17 @@ router.post(
   isVendorMiddleware,
   ProductController.createProduct
 );
+
 router.put(
   "/update-product/:id",
   isVendorMiddleware,
   ProductController.updateProduct
 );
 
-router.get("/getAll-product", ProductController.getAllProduct);
+router.get(
+  "/getAll-product",
+  isVendorMiddleware,
+  ProductController.getAllProduct
+);
 
 module.exports = router;

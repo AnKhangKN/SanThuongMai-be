@@ -54,6 +54,8 @@ const updateProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
   try {
+    const response = await ProductService.getAllProduct();
+    return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
       status: "ERR",
