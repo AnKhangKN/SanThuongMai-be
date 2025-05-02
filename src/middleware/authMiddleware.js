@@ -43,16 +43,17 @@ const isVendorMiddleware = (req, res, next) => {
 // User Middleware
 const isUserMiddleware = (req, res, next) => {
   const token = extractToken(req);
-  const userId = req.params.id;
 
-  if (!token || !userId) {
-    return res.status(401).json({ message: "Token hoặc user ID thiếu", status: "ERROR" });
+  if (!token) {
+    return res.status(401).json({ message: "Token bị thiếu", status: "ERROR" });
   }
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
-    if (err || decoded?.id?.toString() !== userId.toString()) {
+    if (err) {
+      console.log('JWT Error:', err);
       return res.status(403).json({ message: "Không phải người dùng", status: "ERROR" });
     }
+
     req.user = decoded;
     next();
   });
