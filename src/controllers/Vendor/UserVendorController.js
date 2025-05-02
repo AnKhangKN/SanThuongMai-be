@@ -2,7 +2,7 @@ const UserVendorService = require("../../services/Vendor/UserVendorService");
 
 const createVendor = async (req, res) => {
   try {
-    const { user_name, isVendor, cccd, shop, user_id } = req.body;
+    const { user_name, isVendor, cccd, shop, phone, user_id } = req.body;
     const userId = req.params.id;
     // kiểm tra dữ liệu bắt buộc
     if (!userId) {
