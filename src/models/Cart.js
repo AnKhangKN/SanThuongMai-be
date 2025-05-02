@@ -15,10 +15,18 @@ const cartSchema = new mongoose.Schema(
             ref: "Product",
             required: true,
           },
+            product_name: {type: String},
           size: { type: String, },
           color: { type: String, },
           price: { type: Number, required: true },
           quantity: { type: Number, required: true, min: 1 },
+            owner_id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User", // đúng tên model người bán
+                required: true,
+            },
+            shop_name: { type: String },
+
         },
       ],
     },
