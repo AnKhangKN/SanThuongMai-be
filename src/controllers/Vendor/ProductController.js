@@ -52,7 +52,18 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const getAllProduct = async (req, res) => {
+  try {
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message || "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
+  getAllProduct,
 };

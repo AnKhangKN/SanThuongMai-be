@@ -14,4 +14,6 @@ router.put(
   ProductController.updateProduct
 );
 
+router.get("/getAll-product", ProductController.getAllProduct);
+
 module.exports = router;
