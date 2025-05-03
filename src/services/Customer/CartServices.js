@@ -67,10 +67,12 @@ const addToCart = (newCart) => {
                 const product = await Product.findById(product_id_url);
                 const shop = await User.findById(owner_id);
 
-                console.log(product)
-
                 const product_name = product ? product.product_name : '';
                 const shop_name = shop && shop.shop ? shop.shop.name : '';
+
+                const product_img = Array.isArray(product?.images) && product.images.length > 0
+                    ? product.images[0]
+                    : '';
 
                 const existingItem = cart.items.find(
                     (i) =>
@@ -91,6 +93,7 @@ const addToCart = (newCart) => {
                         owner_id,
                         product_name,
                         shop_name,
+                        product_img
                     });
                 }
             }

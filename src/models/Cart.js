@@ -26,7 +26,7 @@ const cartSchema = new mongoose.Schema(
                 required: true,
             },
             shop_name: { type: String },
-
+            product_img: { type: String },
         },
       ],
     },
