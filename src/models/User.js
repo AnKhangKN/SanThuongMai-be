@@ -3,22 +3,25 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema(
     {
         user_name: {type: String, required: false, default: "Khách hàng"},
+
         email: {
             type: String,
             required: true,
             unique: true,
         },
+
         password: {type: String, required: true},
-        phone: {
-            type: String,
-            required: false,
-        },
-        images: [
+
+        shipping_address: [
             {
-                type: String, // link ảnh người dùng
-                required: false,
-            },
-        ],
+                phone: {type: String,required: false,},
+                address: {type: String, required: false},
+                city: {type: String, required: false},
+            }
+        ], // Địa chỉ lưu mảng địa chỉ để có thể sử dụng khi giao hàng
+
+        images: { type: String,required: false },
+
         account_status: {
             type: String,
             enum: ["active", "inactive", "banned"],
