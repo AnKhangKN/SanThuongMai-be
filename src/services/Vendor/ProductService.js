@@ -46,15 +46,18 @@ const createProduct = (newProduct) => {
   });
 };
 
-const updateProduct = (productId, data) => {
+const updateProduct = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkId = await Product.findOne({
-        _id: productId,
-      });
+      const productId = data._id;
+
+      console.log(productId);
+      console.log(data);
+
+      const checkId = await Product.findOne({ _id: productId });
 
       if (checkId === null) {
-        resolve({
+        return resolve({
           status: "ERR",
           message: "Product not found",
         });
@@ -64,7 +67,7 @@ const updateProduct = (productId, data) => {
         new: true,
       });
 
-      resolve({
+      return resolve({
         status: "OK",
         message: "SUCCESS",
         data: updatedProduct,

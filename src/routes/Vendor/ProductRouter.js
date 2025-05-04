@@ -10,7 +10,7 @@ router.post(
 );
 
 router.put(
-  "/update-product/:id",
+  "/update-product",
   isVendorMiddleware,
   ProductController.updateProduct
 );
