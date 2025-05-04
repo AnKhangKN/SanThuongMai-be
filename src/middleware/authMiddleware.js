@@ -18,6 +18,7 @@ const isAdminMiddleware = (req, res, next) => {
   }
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+
     if (err || !decoded?.isAdmin) {
       return res
         .status(403)
