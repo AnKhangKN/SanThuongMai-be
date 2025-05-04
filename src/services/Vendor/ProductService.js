@@ -1,4 +1,5 @@
 const Product = require("../../models/Product");
+const User = require("../../models/User");
 
 const createProduct = (newProduct) => {
   return new Promise(async (resolve, reject) => {
@@ -74,10 +75,23 @@ const updateProduct = (productId, data) => {
   });
 };
 
-const getAllProduct = () => {
+const getAllProduct = (userId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const allProduct = await Product.find();
+      const checkId = await User.findOne({
+        _id: userId,
+      });
+
+      if (checkId === null) {
+        resolve({
+          status: "ERR",
+          message: "User not found",
+        });
+      }
+
+      const allProduct = await Product.find({
+        user_id: userId,
+      });
       resolve({
         status: "OK",
         message: "SUCCESS",

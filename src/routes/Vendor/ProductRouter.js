@@ -16,7 +16,7 @@ router.put(
 );
 
 router.get(
-  "/getAll-product",
+  "/get-all-product",
   isVendorMiddleware,
   ProductController.getAllProduct
 );
