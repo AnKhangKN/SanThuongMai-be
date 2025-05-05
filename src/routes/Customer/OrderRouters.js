@@ -10,4 +10,8 @@ route.patch("/add-shipping-addresses", isUserMiddleware, OrderControllers.addShi
 
 route.post("/order-product", isUserMiddleware, OrderControllers.orderProduct);
 
+route.get("/get-all-order", isUserMiddleware, OrderControllers.getAllOrderByStatus)
+
+route.patch("/successful-delivered", isUserMiddleware, OrderControllers.successfulDelivered)
+
 module.exports = route;

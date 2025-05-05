@@ -58,6 +58,53 @@ const getTopSearchProduct = () => {
     });
 };
 
+const getDetailProduct = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const product = await Product.findOne({ _id: id });
+
+            if (!product) {
+                return reject(new Error("Không tìm thấy sản phẩm"));
+            }
+
+            resolve({
+                status: "OK",
+                data: product,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+const searchProducts = (keyword) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allProducts = await Product.find({
+                product_name: { $regex: keyword, $options: "i" }, // Tìm theo tên, không phân biệt hoa thường
+            }).populate({
+                path: "user_id",
+                select: "shop.status",
+            });
+
+            // Lọc sản phẩm active và shop active
+            const activeProducts = allProducts.filter(
+                (product) =>
+                    product?.status === "active" &&
+                    product.user_id?.shop?.status === "active"
+            );
+
+            resolve({
+                status: "OK",
+                message: `Tìm thấy ${activeProducts.length} sản phẩm phù hợp.`,
+                data: activeProducts,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 const getAllCategoriesHome = () => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -108,11 +155,11 @@ const getAllCategoriesHome = () => {
     });
 };
 
-const searchProducts = (keyword) => {
+const searchCategory = (keyword) => {
     return new Promise(async (resolve, reject) => {
         try {
             const allProducts = await Product.find({
-                product_name: { $regex: keyword, $options: "i" }, // Tìm theo tên, không phân biệt hoa thường
+                category: keyword, // So khớp chính xác danh mục với từ khóa
             }).populate({
                 path: "user_id",
                 select: "shop.status",
@@ -136,29 +183,12 @@ const searchProducts = (keyword) => {
     });
 };
 
-const getDetailProduct = (id) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const product = await Product.findOne({ _id: id });
-
-            if (!product) {
-                return reject(new Error("Không tìm thấy sản phẩm"));
-            }
-
-            resolve({
-                status: "OK",
-                data: product,
-            });
-        } catch (error) {
-            reject(error);
-        }
-    });
-};
 
 module.exports = {
     getAllProducts,
     getTopSearchProduct,
     getAllCategoriesHome,
     searchProducts,
-    getDetailProduct
+    getDetailProduct,
+    searchCategory
 };

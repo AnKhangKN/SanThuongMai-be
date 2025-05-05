@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const Order = require("../../models/Order");
 const PlatformFees = require("../../models/PlatformFees");
 const Product = require("../../models/Product");
+const Cart = require("../../models/Cart");
 const mongoose = require("mongoose");
 
 const getAllShippingCustomer = (user_id) => {
@@ -99,8 +100,6 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
     return new Promise(async (resolve, reject) => {
         try {
 
-            console.log(items)
-
             if (!user_id) {
                 return reject({
                     status: 'error',
@@ -150,6 +149,7 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
                 items: items.map(item => ({
                     product_id: item.product_id,
                     product_image: item.product_img,
+                    product_name: item.product_name,
                     size: item.size,
                     color: item.color,
                     price: item.price,
@@ -251,6 +251,13 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
                 }
             }
 
+            // Xóa từng sản phẩm đã mua khỏi cart (chỉ xóa sản phẩm đã mua)
+            for (const item of items) {
+                await Cart.updateOne(
+                    { user_id },
+                    { $pull: { items: { product_id: item.product_id } } }
+                );
+            }
 
             // Chạy tất cả cập nhật song song
             await Promise.all(updates);
@@ -273,4 +280,89 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
     });
 };
 
-module.exports = { getAllShippingCustomer, addShippingCustomer, orderProduct };
+const getAllOrderByStatus = (user_id, status) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Kiểm tra xem người dùng có tồn tại không
+            const user = await User.findById(user_id);
+            if (!user) {
+                return reject(new Error("Người dùng không tồn tại"));
+            }
+
+            // Khởi tạo đối tượng filter
+            const filter = {
+                user_id: user_id
+            };
+
+            // Kiểm tra xem status có được truyền vào và có phải là chuỗi không
+            if (status) {
+                if (typeof status !== 'string' || !status.trim()) {
+                    return reject(new Error("Status phải là chuỗi hợp lệ"));
+                }
+                filter.status = status.trim(); // trim để loại bỏ các ký tự khoảng trắng thừa
+            }
+
+            // Truy vấn các đơn hàng từ cơ sở dữ liệu
+            const orders = await Order.find(filter);
+
+            // Kiểm tra xem có đơn hàng nào không
+            if (orders.length === 0) {
+                return resolve({
+                    status: "OK",
+                    message: "Không có đơn hàng nào phù hợp",
+                    data: []
+                });
+            }
+
+            // Trả về kết quả thành công
+            resolve({
+                status: "OK",
+                message: "Lấy đơn hàng thành công",
+                data: orders
+            });
+
+        } catch (error) {
+            // Xử lý lỗi chi tiết
+            console.error("Lỗi khi lấy đơn hàng:", error);
+            reject({
+                status: "ERROR",
+                message: error.message || "Đã xảy ra lỗi không xác định",
+            });
+        }
+    });
+};
+
+const successfulDelivered = (user_id, status, order_id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            if (!user_id || !status || !order_id) {
+                return reject({
+                    status: "error",
+                    message: "Thiếu thông tin!"
+                })
+            }
+
+            const successDelivered = await Order.findByIdAndUpdate(order_id, {
+                status: status,
+            }, { new: true });
+
+            resolve({
+                status: "success",
+                message: "Thành công",
+                data: successDelivered
+            })
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+module.exports = {
+    getAllShippingCustomer,
+    addShippingCustomer,
+    orderProduct,
+    getAllOrderByStatus,
+    successfulDelivered
+};

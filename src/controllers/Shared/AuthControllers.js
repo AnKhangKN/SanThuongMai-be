@@ -95,7 +95,6 @@ const createUser = async (req, res) => {
     }
 
     const result = await AuthServices.createUser(req.body);
-    console.log(result);
 
     return res.status(200).json(result);
   } catch (e) {

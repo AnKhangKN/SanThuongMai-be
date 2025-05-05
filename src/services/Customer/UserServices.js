@@ -5,6 +5,7 @@ const getDetailAccountUser = (userId) => {
         try {
             const detailUser = await User.findOne({_id: userId});
 
+
             if (!detailUser) {
                 return reject({
                     status: "ERROR",

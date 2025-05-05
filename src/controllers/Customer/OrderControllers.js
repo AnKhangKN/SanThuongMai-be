@@ -61,7 +61,7 @@ const orderProduct = (req, res) => {
         }
 
         // Gọi service orderProduct
-        const result =  OrderServices.orderProduct(user_id, shippingInfo, items,totalBill, paymentMethod)
+        const result =  OrderServices.orderProduct(user_id, shippingInfo, items, totalBill, paymentMethod)
 
         return res.status(200).json(result);
 
@@ -72,8 +72,63 @@ const orderProduct = (req, res) => {
         })
     }
 
-
-
 };
 
-module.exports = { getAllShippingCustomer, addShippingCustomer, orderProduct };
+const getAllOrderByStatus = async (req, res) => {
+    try {
+        const user_id = req.user?.id;
+
+        if (!user_id) {
+            return res.status(400).json({
+                status: "ERROR",
+                message: "Không tìm thấy người dùng"
+            });
+        }
+
+        const keyword = req.query.keyword || "";
+
+        const result = await OrderServices.getAllOrderByStatus(user_id, keyword);
+        return res.status(200).json(result);
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "ERROR",
+            message: error.message || "Internal Server Error",
+        });
+    }
+};
+
+const successfulDelivered = (req, res) => {
+    try {
+
+        const user_id = req.user?.id;
+        if (!user_id) {
+            return res.status(400).json({
+                status: "ERROR",
+                message: "Không tìm thấy người dùng"
+            })
+        }
+
+        const data = req.body;
+
+        const status = data.status ;
+        const order_id = data.order_id;
+
+        const result = OrderServices.successfulDelivered(user_id, status, order_id);
+        return res.status(200).json(result);
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "ERROR",
+            message: error.message || "Internal Server Error",
+        })
+    }
+}
+
+module.exports = {
+    getAllShippingCustomer,
+    addShippingCustomer,
+    orderProduct,
+    getAllOrderByStatus,
+    successfulDelivered
+};
