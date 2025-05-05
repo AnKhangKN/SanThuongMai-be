@@ -32,7 +32,6 @@ const isAdminMiddleware = (req, res, next) => {
 // Vendor Middleware
 const isVendorMiddleware = (req, res, next) => {
   const token = extractToken(req);
-
   if (!token) {
     return res
       .status(401)
