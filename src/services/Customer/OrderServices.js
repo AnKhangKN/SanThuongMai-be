@@ -81,7 +81,7 @@ const addShippingCustomer = (user_id, shippingInfo) => {
             );
 
             resolve({
-                status: 'success',
+                status: 'SUCCESS',
                 message: 'Đã thêm địa chỉ giao hàng thành công',
                 data: updatedUser
             });
