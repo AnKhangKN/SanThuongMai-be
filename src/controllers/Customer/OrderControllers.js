@@ -44,6 +44,30 @@ const addShippingCustomer = async (req, res) => {
     }
 };
 
+const getAllOrderByStatus = async (req, res) => {
+    try {
+        const user_id = req.user?.id;
+
+        if (!user_id) {
+            return res.status(400).json({
+                status: "ERROR",
+                message: "Không tìm thấy người dùng"
+            });
+        }
+
+        const keyword = req.query.keyword || "";
+
+        const result = await OrderServices.getAllOrderByStatus(user_id, keyword);
+        return res.status(200).json(result);
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "ERROR",
+            message: error.message || "Internal Server Error",
+        });
+    }
+};
+
 const orderProduct = (req, res) => {
     try {
 
@@ -74,56 +98,42 @@ const orderProduct = (req, res) => {
 
 };
 
-const getAllOrderByStatus = async (req, res) => {
+const successfulDelivered = async (req, res) => {
     try {
         const user_id = req.user?.id;
-
         if (!user_id) {
             return res.status(400).json({
-                status: "ERROR",
+                status: "error",
                 message: "Không tìm thấy người dùng"
             });
         }
 
-        const keyword = req.query.keyword || "";
+        const { order, status } = req.body;
 
-        const result = await OrderServices.getAllOrderByStatus(user_id, keyword);
+        if (!order || !order._id || !order.total_price || !Array.isArray(order.items) || !status) {
+            return res.status(400).json({
+                status: "error",
+                message: "Dữ liệu đơn hàng không hợp lệ hoặc thiếu trạng thái"
+            });
+        }
+
+        const result = await OrderServices.successfulDelivered(user_id, {
+            order,
+            status
+        });
+
         return res.status(200).json(result);
 
     } catch (error) {
+
         return res.status(500).json({
-            status: "ERROR",
-            message: error.message || "Internal Server Error",
+            status: "error",
+            message: error.message || "Lỗi máy chủ nội bộ"
         });
     }
 };
 
-const successfulDelivered = (req, res) => {
-    try {
 
-        const user_id = req.user?.id;
-        if (!user_id) {
-            return res.status(400).json({
-                status: "ERROR",
-                message: "Không tìm thấy người dùng"
-            })
-        }
-
-        const data = req.body;
-
-        const status = data.status ;
-        const order_id = data.order_id;
-
-        const result = OrderServices.successfulDelivered(user_id, status, order_id);
-        return res.status(200).json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            status: "ERROR",
-            message: error.message || "Internal Server Error",
-        })
-    }
-}
 
 module.exports = {
     getAllShippingCustomer,
