@@ -96,7 +96,6 @@ const addShippingCustomer = (user_id, shippingInfo) => {
     });
 };
 
-
 const getAllOrderByStatus = (user_id, status) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -289,7 +288,6 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
     });
 };
 
-
 const successfulDelivered = async (user_id,{order, status}) => {
     try {
         // Kiểm tra nếu thiếu thông tin quan trọng
@@ -301,9 +299,6 @@ const successfulDelivered = async (user_id,{order, status}) => {
         const items = order.items;
         const order_id = order._id;
 
-        console.log(order)
-
-        console.log(totalBill)
         // Kiểm tra nếu order items không phải là mảng
         if (!Array.isArray(items) || items.length === 0) {
             throw new Error("Danh sách sản phẩm không hợp lệ");
@@ -393,11 +388,54 @@ const successfulDelivered = async (user_id,{order, status}) => {
     }
 }
 
+const canceledOrder = async (user_id, { order, status }) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const paymentMethod = order.payment_method;
+            const totalBill = order.total_price;
+
+            if (paymentMethod === 'cod') {
+                const successDelivered = await Order.findByIdAndUpdate(order._id, {
+                    status: status,
+                }, { new: true });
+
+                resolve({
+                    status: "success",
+                    message: "Thành công",
+                    data: successDelivered
+                });
+            } else if (paymentMethod === 'credit_card') {
+                const successDelivered = await Order.findByIdAndUpdate(order._id, {
+                    status: status,
+                }, { new: true });
+
+                await User.findByIdAndUpdate(user_id, {
+                    $inc: { wallet: totalBill },
+                }, { new: true });
+
+                resolve({
+                    status: "success",
+                    message: "Thành công",
+                    data: successDelivered
+                });
+            } else {
+                resolve({
+                    status: "fail",
+                    message: "Phương thức không hợp lệ"
+                });
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 
 module.exports = {
     getAllShippingCustomer,
     addShippingCustomer,
     orderProduct,
     getAllOrderByStatus,
-    successfulDelivered
+    successfulDelivered,
+    canceledOrder
 };

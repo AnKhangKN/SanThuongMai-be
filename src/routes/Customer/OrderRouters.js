@@ -14,4 +14,6 @@ route.get("/get-all-order", isUserMiddleware, OrderControllers.getAllOrderByStat
 
 route.patch("/successful-delivered", isUserMiddleware, OrderControllers.successfulDelivered)
 
+route.patch("/cancel-order", isUserMiddleware, OrderControllers.cancelOrder);
+
 module.exports = route;

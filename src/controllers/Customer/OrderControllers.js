@@ -133,12 +133,39 @@ const successfulDelivered = async (req, res) => {
     }
 };
 
+const cancelOrder = async (req, res) => {
+    try {
 
+        const user_id = req.user?.id;
+        if (!user_id) {
+            return res.status(400).json({
+                status: "error",
+                message: "Không tìm thấy người dùng"
+            })
+        }
+
+        const { order, status } = req.body;
+
+        const result = await OrderServices.canceledOrder(user_id, {
+            order,
+            status
+        });
+
+        return res.status(200).json(result);
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: error.message || "Lỗi máy chủ nội bộ"
+        });
+    }
+}
 
 module.exports = {
     getAllShippingCustomer,
     addShippingCustomer,
     orderProduct,
     getAllOrderByStatus,
-    successfulDelivered
+    successfulDelivered,
+    cancelOrder
 };

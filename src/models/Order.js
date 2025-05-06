@@ -84,11 +84,6 @@ const orderSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-
-            // Chờ vendor duyệt sẽ chuyển nó thành processing sao đó "shipper" (vendor) sẽ chuyển thành shipped
-            // Nếu là processing thì người dùng sẽ có quyền chuyển thành cancelled
-            // Nếu là shipped thì người dùng chỉ có thể chuyển thành delivered không thể cancelled
-
             default: "pending",
             required: true,
         },
