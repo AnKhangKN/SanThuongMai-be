@@ -55,8 +55,6 @@ const addShippingCustomer = (user_id, shippingInfo) => {
 
             const shipping = shippingInfo.shipping_address
 
-
-
             // Kiểm tra dữ liệu shippingInfo có đầy đủ không (bổ sung nhẹ nhàng)
             if (!shippingInfo || !shipping.phone || !shipping.address || !shipping.city) {
                 return reject({

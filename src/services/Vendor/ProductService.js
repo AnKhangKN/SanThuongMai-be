@@ -51,8 +51,6 @@ const updateProduct = (data) => {
     try {
       const productId = data._id;
 
-      console.log(productId);
-      console.log(data);
 
       const checkId = await Product.findOne({ _id: productId });
 
