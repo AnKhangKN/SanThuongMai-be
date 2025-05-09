@@ -42,8 +42,6 @@ const partialUpdateUser = (id, data) => {
                 {new: true}
             );
 
-            console.log(data);
-
             resolve({
                 status: "OK",
                 message: "Cập nhật trạng thái người dùng thành công",

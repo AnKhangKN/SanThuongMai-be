@@ -1,4 +1,0 @@
-- Nếu như đơn hàng hoàn thành sẽ tăng số lượt bán = số sản phẩm đã bán ra
-- Trừ số lượng có trong kho hàng
-- cập nhật trạng thái đơn hàng là "delivered"
-- Cập nhật tiền cho vendor và admin

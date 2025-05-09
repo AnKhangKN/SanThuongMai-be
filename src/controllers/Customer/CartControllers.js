@@ -108,6 +108,18 @@ const deleteCartItem = async (req, res) => {
     }
 };
 
+const getProductBestSellersInCart = async (req, res) => {
+    try {
 
+        const result = await CartServices.getProductBestSellersInCart();
+        return res.status(200).json(result);
 
-module.exports = { addToCart, getAllItems, updateCartQuantity, deleteCartItem };
+    } catch (error) {
+        return res.status(500).json({
+            status: "ERROR",
+            message: error.message || "Internal Server Error",
+        })
+    }
+}
+
+module.exports = { addToCart, getAllItems, updateCartQuantity, deleteCartItem, getProductBestSellersInCart };

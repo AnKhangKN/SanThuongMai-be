@@ -70,9 +70,23 @@ const addToCart = (newCart) => {
                 const product_name = product ? product.product_name : '';
                 const shop_name = shop && shop.shop ? shop.shop.name : '';
 
+
                 const product_img = Array.isArray(product?.images) && product.images.length > 0
                     ? product.images[0]
                     : '';
+
+
+                // Tìm chi tiết sản phẩm khớp với size và color
+                const productDetail = product.details.find(
+                    (detail) => detail.size === size && detail.color === color
+                );
+
+                if (!productDetail) {
+                    return reject({
+                        status: "ERROR",
+                        message: "Sản phẩm không tồn tại với kích thước và màu sắc này!",
+                    });
+                }
 
                 const existingItem = cart.items.find(
                     (i) =>
@@ -80,6 +94,15 @@ const addToCart = (newCart) => {
                         i.size === size &&
                         i.color === color
                 );
+
+                // Kiểm tra tồn kho với số lượng yêu cầu
+                const totalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+                if (productDetail.quantity < totalQuantity) {
+                    return reject({
+                        status: "ERROR",
+                        message: "Sản phẩm không còn đủ trong kho!",
+                    });
+                }
 
                 if (existingItem) {
                     existingItem.quantity += quantity;
@@ -151,14 +174,54 @@ const getAllItems = (user_id) => {
 const updateCartQuantity = async (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const detailCartId = data.detailCartId;  // Id detail cart
-            const newQuantity = data.quantity;
+            const { detailCartId, quantity: newQuantity, product_id, size, color } = data;
+
+            const product = await Product.findById(product_id);
+            if (!product) {
+                return reject({
+                    status: "ERROR",
+                    message: "Sản phẩm không tồn tại.",
+                });
+            }
+
+            const productDetail = product.details.find(
+                (detail) => detail.size === size && detail.color === color
+            );
+
+            if (!productDetail) {
+                return reject({
+                    status: "ERROR",
+                    message: "Không tìm thấy chi tiết sản phẩm khớp với kích thước và màu sắc.",
+                });
+            }
+
+            // Kiểm tra tồn kho với số lượng yêu cầu (phải là số dương)
+            if (newQuantity <= 0) {
+                return reject({
+                    status: "ERROR",
+                    message: "Số lượng sản phẩm phải lớn hơn 0.",
+                });
+            }
+
+            if (productDetail.quantity < newQuantity) {
+                return reject({
+                    status: "ERROR",
+                    message: "Sản phẩm không còn đủ trong kho!",
+                });
+            }
 
             const updateQuantity = await Cart.findOneAndUpdate(
                 { "items._id": detailCartId },
                 { $set: { "items.$.quantity": newQuantity } },
                 { new: true }
             );
+
+            if (!updateQuantity) {
+                return reject({
+                    status: "ERROR",
+                    message: "Không thể cập nhật số lượng sản phẩm trong giỏ hàng.",
+                });
+            }
 
             resolve({
                 status: "OK",
@@ -169,7 +232,7 @@ const updateCartQuantity = async (data) => {
             reject({
                 status: "ERROR",
                 message: "Đã xảy ra lỗi trong quá trình cập nhật.",
-                error: e,
+                error: e.message || e,
             });
         }
     });
@@ -196,4 +259,30 @@ const deleteCartItem = async (data) => {
     });
 };
 
-module.exports = { addToCart, getAllItems, updateCartQuantity, deleteCartItem };
+const getProductBestSellersInCart = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const products = Product.find()
+                .sort({ sold_count: -1 }) // Sắp xếp theo số lượng đã bán giảm dần
+                .limit(12);
+
+            resolve({
+                status: "OK",
+                message: "Lấy danh sách thành công",
+                data: products,
+            })
+
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+module.exports = {
+    addToCart,
+    getAllItems,
+    updateCartQuantity,
+    deleteCartItem,
+    getProductBestSellersInCart
+};

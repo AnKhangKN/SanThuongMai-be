@@ -12,4 +12,6 @@ route.patch("/update-quantity",isUserMiddleware, CartController.updateCartQuanti
 
 route.delete("/delete-item",isUserMiddleware, CartController.deleteCartItem);
 
+route.get("/best-product-in-cart", CartController.getProductBestSellersInCart); // rảnh làm tiếp
+
 module.exports = route;

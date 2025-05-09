@@ -1,4 +1,5 @@
 const Product = require("../../models/Product");
+const User = require("../../models/User");
 
 const getAllProducts = () => {
     return new Promise(async (resolve, reject) => {
@@ -63,13 +64,19 @@ const getDetailProduct = (id) => {
         try {
             const product = await Product.findOne({ _id: id });
 
+            const owner_id = product.user_id;
+
+            const owner = await User.findOne({ _id: owner_id });
+
+            const shop = owner?.shop;
+
             if (!product) {
                 return reject(new Error("Không tìm thấy sản phẩm"));
             }
 
             resolve({
                 status: "OK",
-                data: product,
+                data: {product, shop}
             });
         } catch (error) {
             reject(error);
@@ -159,7 +166,7 @@ const searchCategory = (keyword) => {
     return new Promise(async (resolve, reject) => {
         try {
             const allProducts = await Product.find({
-                category: keyword, // So khớp chính xác danh mục với từ khóa
+                category: { $regex: keyword, $options: "i" }, // So khớp chính xác danh mục với từ khóa
             }).populate({
                 path: "user_id",
                 select: "shop.status",

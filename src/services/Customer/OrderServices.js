@@ -352,7 +352,10 @@ const successfulDelivered = async (user_id,{order, status}) => {
 
             updates.push(
                 User.findByIdAndUpdate(vendorId, {
-                    $inc: { wallet: vendorNet }
+                    $inc: {
+                        wallet: vendorNet,
+                        "shop.total_order": 1 // Tăng total_order lên 1
+                    }
                 })
             );
         }
