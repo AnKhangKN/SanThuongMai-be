@@ -70,13 +70,18 @@ const getDetailProduct = (id) => {
 
             const shop = owner?.shop;
 
+            const countProductsOwner = await Product.countDocuments({
+                user_id: owner_id
+            });
+
+
             if (!product) {
                 return reject(new Error("Không tìm thấy sản phẩm"));
             }
 
             resolve({
                 status: "OK",
-                data: {product, shop}
+                data: {product, shop, countProductsOwner}
             });
         } catch (error) {
             reject(error);

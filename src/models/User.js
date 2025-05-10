@@ -53,6 +53,8 @@ const userSchema = new mongoose.Schema(
             }, // admin set
             total_order: { type: Number, min: 0, default: 0, required: false },
 
+            created_at: { type: Date, default: Date.now },
+
             banned_until: {type: Date, required: false},  // Cấm cửa hàng theo thời gian (admin set)
 
             banned_count: { type: Number, required: false },
