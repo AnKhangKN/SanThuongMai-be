@@ -10,9 +10,6 @@ const saveImagePathToDB = async (userId, imagePath) => {
         // Chỉ lấy tên file từ đường dẫn ảnh
         let fileName = path.basename(imagePath);  // Lấy tên file từ đường dẫn
 
-        // Loại bỏ chữ 'avatar' nếu có
-        fileName = fileName.replace(/^avatar/, '');  // Chỉnh sửa biến fileName
-
         // Tìm User theo userId để lấy ảnh cũ
         const user = await User.findById(userId);
         if (!user) {

@@ -17,7 +17,7 @@ const uploadImage = (req, res) => {
 
         try {
             // Tạo đường dẫn đầy đủ tới ảnh
-            const imagePath = `../uploads/avatar${req.file.filename}`;  // Đường dẫn ảnh sau khi tải lên
+            const imagePath = `../uploads/avatar/${req.file.filename}`;  // Đường dẫn ảnh sau khi tải lên
 
             // Lưu đường dẫn ảnh vào MongoDB thông qua service
             const user = await imageService.saveImagePathToDB(userId, imagePath);
