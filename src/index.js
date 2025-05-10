@@ -27,22 +27,36 @@ app.use(cookieParser());
 // Các routes API của bạn
 routes(app);
 
-// Đường dẫn static cho thư mục uploads (cho phép truy cập toàn bộ thư mục uploads)
+// Cấu hình up ảnh
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
 // API để lấy ảnh avatar
 app.get('/api/avatar/:filename', (req, res) => {
     const { filename } = req.params;
 
-    console.log('filename',filename)
 
     // Đảm bảo đường dẫn file chính xác
     const filePath = path.join(__dirname, '/uploads/avatar/', filename);
-    console.log('File Path:', filePath); // Debug đường dẫn file
 
     // Kiểm tra xem file có tồn tại không
     if (!fs.existsSync(filePath)) {
-        console.log("File not found:", filePath);
+        return res.status(404).json({ message: "File not found" });
+    }
+
+    // Nếu file tồn tại, trả về file
+    res.sendFile(filePath);
+});
+
+// API để lấy ảnh sản phẩm
+app.get('/api/products-img/:filename', (req, res) => {
+    const { filename } = req.params;
+
+
+    // Đảm bảo đường dẫn file chính xác
+    const filePath = path.join(__dirname, '/uploads/products/', filename);
+
+    // Kiểm tra xem file có tồn tại không
+    if (!fs.existsSync(filePath)) {
         return res.status(404).json({ message: "File not found" });
     }
 

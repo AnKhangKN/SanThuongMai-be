@@ -24,7 +24,6 @@ const saveImagePathToDB = async (userId, imagePath) => {
             const oldFilePath = path.join(uploadsDir, user.images);  // Đường dẫn file cũ với thư mục avatar
             if (fs.existsSync(oldFilePath)) {
                 fs.unlinkSync(oldFilePath);  // Xóa ảnh cũ
-                console.log(`Xóa ảnh cũ: ${oldFilePath}`);
             }
         }
 

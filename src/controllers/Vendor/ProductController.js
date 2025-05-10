@@ -2,25 +2,15 @@ const ProductService = require("../../services/Vendor/ProductService");
 
 const createProduct = async (req, res) => {
   try {
-    const { product_name, description, category, images, details, user_id } =
-      req.body;
-    // Kiểm tra dữ liệu bắt buộc
-    if (
-      !product_name ||
-      !category ||
-      !images ||
-      !Array.isArray(details) ||
-      details.length === 0 ||
-      !details[0].price ||
-      !details[0].quantity
-    ) {
-      return res.status(401).json({
-        status: "ERR",
-        message: "The input is required",
-      });
-    }
 
-    const response = await ProductService.createProduct(req.body);
+    const data = req.body;
+    const files = req.files;
+
+
+    // Lấy user_id từ token xác thực (trong middleware của bạn)
+    const user_id = req.user?._id || req.user?.id;
+
+    const response = await ProductService.createProduct(data, files, user_id);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({

@@ -12,9 +12,6 @@ const uploadImage = (req, res) => {
             });
         }
 
-        // Sau khi upload thành công, bạn có thể truy cập thông tin file trong req.file
-        console.log('Uploaded file:', req.file);
-
         // Giả sử bạn có thông tin user trong req.user hoặc token để lấy userId
         const userId = req.user.id;  // Lấy userId từ JWT hoặc session
 

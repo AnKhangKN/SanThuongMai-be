@@ -1,47 +1,49 @@
 const Product = require("../../models/Product");
 const User = require("../../models/User");
+const path = require("path");
 
-const createProduct = (newProduct) => {
+const createProduct = (newProduct, files, user_id) => {
   return new Promise(async (resolve, reject) => {
     try {
+
       const {
         product_name,
-        description,
         category,
-        images,
-        details = [],
-        user_id,
-        sale,
+        description,
+        size,
+        color,
+        price,
+        quantity,
       } = newProduct;
 
-      const {
-        size = null,
-        color = null,
-        price = null,
-        quantity = null,
-      } = details[0] || {};
+      // Lưu đường dẫn hình ảnh vào mảng images
 
+      const imageNames = files ? files.map((file) => file.filename) : [];
+
+      // Tạo sản phẩm mới
       const createdProduct = await Product.create({
         product_name,
-        description,
         category,
-        images,
-        details: [{ size, color, price, quantity }],
+        description,
+        images: imageNames,
+        details: [
+          {
+            size: size || null,
+            color: color || null,
+            price: price || null,
+            quantity: quantity || null,
+          },
+        ],
         user_id,
-        sale,
       });
 
-      if (createdProduct) {
-        resolve({
-          status: "OK",
-          message: "SUCCESS",
-          data: createdProduct,
-        });
-      } else {
-        reject(new Error("Không thể tạo sản phẩm"));
-      }
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: createdProduct,
+      });
     } catch (e) {
-      reject(e);
+      reject(new Error(e.message || "Không thể tạo sản phẩm"));
     }
   });
 };

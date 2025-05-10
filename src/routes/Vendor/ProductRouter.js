@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { isVendorMiddleware } = require("../../middleware/authMiddleware");
+const uploadImgProducts = require("../../middleware/multerConfigProduct");
 const ProductController = require("../../controllers/Vendor/ProductController");
 
 router.post(
   "/add-product",
-  isVendorMiddleware,
+  isVendorMiddleware, uploadImgProducts,
   ProductController.createProduct
 );
 

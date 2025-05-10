@@ -21,8 +21,6 @@ const createVendor = (userId, newVendor) => {
         new: true,
       });
 
-      console.log("updatedUser: ", updatedUser);
-
       resolve({
         status: "OK",
         message: "SUCCESS",
