@@ -2,10 +2,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Đường dẫn tuyệt đối tới thư mục uploads
-const uploadsDir = path.join(__dirname, '../uploads');
+// Đường dẫn tuyệt đối tới thư mục uploads/avatar
+const uploadsDir = path.join(__dirname, '../uploads/avatar');
 
-// Tạo thư mục uploads nếu chưa tồn tại
+// Tạo thư mục uploads/avatar nếu chưa tồn tại
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -13,7 +13,7 @@ if (!fs.existsSync(uploadsDir)) {
 // Cấu hình lưu trữ với Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadsDir);  // Đường dẫn lưu ảnh
+        cb(null, uploadsDir);  // Đường dẫn lưu ảnh vào thư mục avatar
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

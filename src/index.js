@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const path = require("path"); // Đảm bảo bạn đã import path
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 
 dotenv.config();
 
@@ -27,19 +27,26 @@ app.use(cookieParser());
 // Các routes API của bạn
 routes(app);
 
-// Đường dẫn static cho thư mục uploads (Đảm bảo đúng đường dẫn)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Đường dẫn static cho thư mục uploads (cho phép truy cập toàn bộ thư mục uploads)
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
-// API để lấy ảnh
-app.get('/api/images/:filename', (req, res) => {
+// API để lấy ảnh avatar
+app.get('/api/avatar/:filename', (req, res) => {
     const { filename } = req.params;
-    const filePath = path.join(__dirname, '/uploads', filename);
 
+    console.log('filename',filename)
+
+    // Đảm bảo đường dẫn file chính xác
+    const filePath = path.join(__dirname, '/uploads/avatar/', filename);
+    console.log('File Path:', filePath); // Debug đường dẫn file
+
+    // Kiểm tra xem file có tồn tại không
     if (!fs.existsSync(filePath)) {
-        console.log("🔴 File not found:", filePath);
+        console.log("File not found:", filePath);
         return res.status(404).json({ message: "File not found" });
     }
 
+    // Nếu file tồn tại, trả về file
     res.sendFile(filePath);
 });
 
