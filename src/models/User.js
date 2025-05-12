@@ -37,6 +37,16 @@ const userSchema = new mongoose.Schema(
 
         wallet: {type: Number, default: 0},
 
+        wishlist: [
+            {
+                owner_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                shop_name: { type: String,required: false },
+                owner_img: { type: String, required: false },
+            },
+        ],
+
+        following: { type: Number,min: 0, default: 0, required: false },
+
         // Vendor cần đầy đủ các thuộc tính này
         isVendor: {type: Boolean, default: false},
 
@@ -52,6 +62,8 @@ const userSchema = new mongoose.Schema(
                 required: false,
             }, // admin set
             total_order: { type: Number, min: 0, default: 0, required: false },
+
+            followers: { type: Number,min: 0, default: 0, required: false },
 
             created_at: { type: Date, default: Date.now },
 

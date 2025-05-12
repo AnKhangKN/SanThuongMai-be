@@ -22,4 +22,6 @@ route.patch(
     UserControllers.partialUpdateUser
 ); //cập nhật 1 thành phần
 
+route.post("/add-wish-list", isUserMiddleware, UserControllers.addWishlist)
+
 module.exports = route;

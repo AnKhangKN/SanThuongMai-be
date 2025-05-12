@@ -1,4 +1,5 @@
 const UserServices = require("../../services/Customer/UserServices");
+const ShopServices = require("./UserControllers");
 
 const getDetailAccountUser = async (req, res) => {
   try {
@@ -64,8 +65,28 @@ const partialUpdateUser = async (req, res) => {
   }
 };
 
+// Add to Wishlist
+const addWishlist = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const data = req.body;
+
+
+    if (!userId) {
+      return res.status(400).json({ status: "error", message: "Không thấy người dùng!" });
+    }
+
+    const result = await UserServices.addWishlist(userId, data);
+    return res.status(200).json(result);
+
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message || "Internal Server Error" });
+  }
+};
+
 module.exports = {
   getDetailAccountUser,
   updateAccountUser,
   partialUpdateUser,
+  addWishlist,
 };

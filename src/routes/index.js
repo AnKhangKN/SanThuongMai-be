@@ -10,6 +10,7 @@ const ProductRoutersShared = require("../routes/Shared/ProductRouters");
 const CartRoutersCustomer = require("../routes/Customer/CartRouters");
 const OrderRoutersCustomer = require("../routes/Customer/OrderRouters");
 const ImageRouters = require("../routes/Customer/ImageRouters");
+const ShopRouters = require("../routes/customer/ShopRouters");
 
 const routes = (app) => {
   // Shared API
@@ -25,6 +26,8 @@ const routes = (app) => {
   app.use("/api/customer", OrderRoutersCustomer);
 
   app.use("/api/customer", ImageRouters)
+
+  app.use("/api/customer", ShopRouters)
 
   // Vendor API
   app.use("/api/vendor", ProductRoutersVendor);
