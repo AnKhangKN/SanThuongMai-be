@@ -27,35 +27,6 @@ const getDetailAccountUser = (userId) => {
     });
 };
 
-const updateAccountUser = (id, data) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const checkUser = await User.findOne({_id: id});
-
-            if (!checkUser) {
-                return resolve({
-                    status: "ERROR",
-                    message: "Không tìm thấy người dùng",
-                });
-            }
-
-            const updatedUser = await User.findOneAndUpdate(
-                {_id: id},
-                {$set: data},
-                {new: true}
-            );
-
-            resolve({
-                status: "OK",
-                message: "Cập nhật thành công",
-                data: updatedUser,
-            });
-        } catch (error) {
-            reject(error);
-        }
-    });
-};
-
 const partialUpdateUser = (id, data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -68,9 +39,11 @@ const partialUpdateUser = (id, data) => {
                 });
             }
 
+            console.log(data.payload)
+
             const updatedUser = await User.findOneAndUpdate(
                 {_id: id},
-                {$set: data},
+                {user_name: data?.payload},
                 {new: true}
             );
 
@@ -127,11 +100,8 @@ const addWishlist = async (id, shop) => {
     };
 };
 
-const removeWishlist = async (id) => {}
-
 module.exports = {
     getDetailAccountUser,
-    updateAccountUser,
     partialUpdateUser,
-    addWishlist
+    addWishlist,
 };

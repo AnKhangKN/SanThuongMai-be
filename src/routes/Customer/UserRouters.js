@@ -10,14 +10,8 @@ route.get(
     UserControllers.getDetailAccountUser
 ); // GET /get-detail-user/:id (vendor, admin, customer)
 
-route.post(
-    "/update-account/:id",
-    isUserMiddleware,
-    UserControllers.updateAccountUser
-); // POST/ update-account/:id (name, phone, ...) (vendor, admin, customer)
-
 route.patch(
-    "/partial-update/:id",
+    "/partial-update",
     isUserMiddleware,
     UserControllers.partialUpdateUser
 ); //cập nhật 1 thành phần
