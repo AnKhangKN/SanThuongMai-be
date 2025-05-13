@@ -70,6 +70,8 @@ const getDetailProduct = (id) => {
 
             const shop = owner?.shop;
 
+            console.log('shop',shop)
+
             const countProductsOwner = await Product.countDocuments({
                 user_id: owner_id
             });
