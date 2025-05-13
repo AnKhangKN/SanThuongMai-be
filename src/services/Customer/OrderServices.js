@@ -146,7 +146,7 @@ const getAllOrderByStatus = (user_id, status) => {
     });
 };
 
-const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) => {
+const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, orderNote) => {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -156,6 +156,8 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
                     message: "Không tìm thấy người dùng"
                 });
             }
+
+            console.log( 'orderNote',orderNote)
 
             // Lấy phí nền tảng
             const fee = await PlatformFees.findOne({ fee_name: "order" });
@@ -206,6 +208,7 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod) =>
                     quantity: item.quantity,
                     owner_id: item.owner_id
                 })),
+                order_note: orderNote,
                 total_price: totalBill,
                 tax_price,
                 shipping_price,
@@ -389,7 +392,7 @@ const successfulDelivered = async (user_id,{order, status}) => {
     }
 }
 
-const canceledOrder = async (user_id, { order, status }) => {
+const canceledOrder = async (user_id, { order, status, cancelReason }) => {
     return new Promise(async (resolve, reject) => {
         try {
             const paymentMethod = order.payment_method;
@@ -398,6 +401,7 @@ const canceledOrder = async (user_id, { order, status }) => {
             if (paymentMethod === 'cod') {
                 const successDelivered = await Order.findByIdAndUpdate(order._id, {
                     status: status,
+                    cancel_reason: cancelReason
                 }, { new: true });
 
                 resolve({
@@ -408,6 +412,7 @@ const canceledOrder = async (user_id, { order, status }) => {
             } else if (paymentMethod === 'credit_card') {
                 const successDelivered = await Order.findByIdAndUpdate(order._id, {
                     status: status,
+                    cancel_reason: cancelReason
                 }, { new: true });
 
                 await User.findByIdAndUpdate(user_id, {
@@ -431,6 +436,47 @@ const canceledOrder = async (user_id, { order, status }) => {
     });
 };
 
+const removeShippingAddress = (user_id, shippingAddress) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.findById(user_id);
+
+            if (!user) {
+                return reject(new Error("Người dùng không tồn tại"));
+            }
+
+            if (!user.shipping_address || user.shipping_address.length === 0) {
+                return reject(new Error("Người dùng không có địa chỉ giao hàng"));
+            }
+
+            const initialLength = user.shipping_address.length;
+
+            // Lọc danh sách địa chỉ giao hàng để loại bỏ địa chỉ cần xóa
+            user.shipping_address = user.shipping_address.filter(
+                (addr) =>
+                    addr.phone !== shippingAddress.phone ||
+                    addr.address !== shippingAddress.address ||
+                    addr.city !== shippingAddress.city
+            );
+
+            if (user.shipping_address.length === initialLength) {
+                return reject(new Error("Không tìm thấy địa chỉ giao hàng để xóa"));
+            }
+
+            // Lưu lại thông tin người dùng sau khi xóa địa chỉ
+            await user.save();
+
+            resolve({
+                status: "success",
+                message: "Địa chỉ giao hàng đã được xóa thành công",
+                data: user.shipping_address
+            });
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
 
 module.exports = {
     getAllShippingCustomer,
@@ -438,5 +484,6 @@ module.exports = {
     orderProduct,
     getAllOrderByStatus,
     successfulDelivered,
-    canceledOrder
+    canceledOrder,
+    removeShippingAddress
 };

@@ -42,6 +42,9 @@ const orderSchema = new mongoose.Schema(
                 }, // Sản phẩm này của ai ( có nhiều người bán )
             },
         ],
+
+        order_note: { type: String, required: false, default: "Đơn hàng chưa có ghi chú!" },
+
         total_price: { type: Number,required: true,}, // Tổng tiền đơn hàng
 
         tax_price: { type: Number,required: true, }, // Phí thuế

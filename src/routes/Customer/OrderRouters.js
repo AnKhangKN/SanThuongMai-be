@@ -16,4 +16,6 @@ route.patch("/successful-delivered", isUserMiddleware, OrderControllers.successf
 
 route.patch("/cancel-order", isUserMiddleware, OrderControllers.cancelOrder);
 
+route.patch("/remove-shipping-address", isUserMiddleware, OrderControllers.removeShippingAddress);
+
 module.exports = route;

@@ -68,13 +68,12 @@ const getAllOrderByStatus = async (req, res) => {
     }
 };
 
-const orderProduct = (req, res) => {
+const orderProduct = async (req, res) => {
     try {
-
         const user_id = req.user?.id;
 
         // Nhận dữ liệu từ request body
-        const {  shippingInfo, items, totalBill, paymentMethod } = req.body;
+        const { shippingInfo, items, totalBill, paymentMethod, orderNote } = req.body;
 
         // Kiểm tra nếu thiếu dữ liệu quan trọng
         if (!user_id || !shippingInfo || !items || !totalBill || items.length === 0) {
@@ -84,19 +83,26 @@ const orderProduct = (req, res) => {
             });
         }
 
-        // Gọi service orderProduct
-        const result =  OrderServices.orderProduct(user_id, shippingInfo, items, totalBill, paymentMethod)
+        // Gọi service orderProduct (Thêm await để đợi kết quả)
+        const result = await OrderServices.orderProduct(
+            user_id,
+            shippingInfo,
+            items,
+            totalBill,
+            paymentMethod,
+            orderNote
+        );
 
         return res.status(200).json(result);
 
     } catch (e) {
         return res.status(500).json({
             status: 'error',
-            message: e || "Internal Server Error",
-        })
+            message: e.message || "Internal Server Error",
+        });
     }
-
 };
+
 
 const successfulDelivered = async (req, res) => {
     try {
@@ -144,11 +150,12 @@ const cancelOrder = async (req, res) => {
             })
         }
 
-        const { order, status } = req.body;
+        const { order, status, cancelReason } = req.body;
 
         const result = await OrderServices.canceledOrder(user_id, {
             order,
-            status
+            status,
+            cancelReason
         });
 
         return res.status(200).json(result);
@@ -161,11 +168,39 @@ const cancelOrder = async (req, res) => {
     }
 }
 
+const removeShippingAddress = async (req, res) => {
+    try {
+
+        const user_id = req.user?.id;
+
+        if (!user_id) {
+            return res.status(400).json({
+                status: "error",
+                message: "Không tìm thấy người dùng"
+            })
+        }
+
+        const shippingInfor = req.body;
+
+
+        const data = OrderServices.removeShippingAddress(user_id, shippingInfor)
+
+        return res.status(200).json(data);
+
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Internal Server Error",
+        })
+    }
+}
+
 module.exports = {
     getAllShippingCustomer,
     addShippingCustomer,
     orderProduct,
     getAllOrderByStatus,
     successfulDelivered,
-    cancelOrder
+    cancelOrder,
+    removeShippingAddress
 };
