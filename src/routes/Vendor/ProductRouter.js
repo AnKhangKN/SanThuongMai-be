@@ -6,7 +6,8 @@ const ProductController = require("../../controllers/Vendor/ProductController");
 
 router.post(
   "/add-product",
-  isVendorMiddleware, uploadImgProducts,
+  isVendorMiddleware,
+  uploadImgProducts,
   ProductController.createProduct
 );
 
