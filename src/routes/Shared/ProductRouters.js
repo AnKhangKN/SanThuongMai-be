@@ -16,4 +16,6 @@ route.get("/top-search-product", ProductControllers.getTopSearchProduct);
 
 route.get("/search-category", ProductControllers.searchCategory);
 
+route.get("/get-top-cart", ProductControllers.getTopCartProduct);
+
 module.exports = route;
