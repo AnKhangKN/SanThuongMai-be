@@ -1,5 +1,4 @@
 const UserServices = require("../../services/Customer/UserServices");
-const e = require("express");
 
 const getDetailAccountUser = async (req, res) => {
   try {
@@ -16,7 +15,7 @@ const getDetailAccountUser = async (req, res) => {
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({
-      message: e.message || "Internal Server Error",
+      message: error.message || "Internal Server Error",
     });
   }
 };
@@ -60,8 +59,33 @@ const addWishlist = async (req, res) => {
   }
 };
 
+const removeWishlist = async (req, res) => {
+  try {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Không tìm thấy người dùng!"
+      })
+    }
+
+    const data = req.body;
+
+    const result = await UserServices.removeWishlist(userId, data);
+    return res.status(200).json(result);
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    })
+  }
+}
+
 module.exports = {
   getDetailAccountUser,
   partialUpdateUser,
   addWishlist,
+  removeWishlist
 };

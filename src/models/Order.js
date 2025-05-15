@@ -23,6 +23,14 @@ const orderSchema = new mongoose.Schema(
                     required: true,
                 },
 
+                // Trạng thái đơn hàng
+                status: {
+                    type: String,
+                    enum: ["pending", "processing"],
+                    default: "pending",
+                    required: true,
+                },
+
                 product_image: {type: String, required: true},
 
                 product_name: {type: String, required: true},

@@ -18,4 +18,6 @@ route.patch(
 
 route.post("/add-wish-list", isUserMiddleware, UserControllers.addWishlist)
 
+route.patch("/remove-wish-list", isUserMiddleware, UserControllers.removeWishlist);
+
 module.exports = route;

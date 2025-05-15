@@ -100,8 +100,56 @@ const addWishlist = async (id, shop) => {
     };
 };
 
+const removeWishlist = (userId, wishlistId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Lấy thông tin user
+            const user = await User.findOne({ _id: userId });
+
+            if (!user) {
+                return reject("User không tồn tại.");
+            }
+
+            // Lấy thông tin wishlist cụ thể
+            const wishlistItem = user.wishlist.find(
+                (item) => item._id.toString() === wishlistId.wishlistId
+            );
+
+            if (!wishlistItem) {
+                return reject("Wishlist không tồn tại trong danh sách của người dùng.");
+            }
+
+            // Xóa wishlist khỏi danh sách của user
+            await User.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { wishlist: { _id: wishlistId.wishlistId } }, $inc: { following: -1 } },
+                { new: true }
+            );
+
+            // Giảm số lượng followers của vendor nếu tồn tại
+            if (wishlistItem.owner_id) {
+                await User.findOneAndUpdate(
+                    { _id: wishlistItem.owner_id },
+                    { $inc: { "shop.followers": -1 } },
+                    { new: true }
+                );
+            }
+
+            resolve({
+                status: "OK",
+                message: "Wishlist đã được xóa thành công.",
+                data: wishlistItem,
+            });
+        } catch (error) {
+            console.error("Lỗi khi xóa wishlist:", error);
+            reject(error);
+        }
+    });
+};
+
 module.exports = {
     getDetailAccountUser,
     partialUpdateUser,
     addWishlist,
+    removeWishlist
 };

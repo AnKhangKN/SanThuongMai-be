@@ -68,9 +68,10 @@ const getDetailProduct = (id) => {
 
             const owner = await User.findOne({ _id: owner_id });
 
-            const shop = owner?.shop;
-
-            console.log('shop',shop)
+            const shop = {
+                shop: owner?.shop,
+                imageShop: owner?.images
+            } ;
 
             const countProductsOwner = await Product.countDocuments({
                 user_id: owner_id
@@ -197,6 +198,38 @@ const searchCategory = (keyword) => {
     });
 };
 
+const getTopCartProduct = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allProducts = await Product.find()
+                .populate({
+                    path: "user_id",
+                    select: "shop.status",
+                });
+
+            // Kiểm tra tình trạng sản phẩm (nếu sản phẩm đang active và trạng thái shop cũng active)
+            const activeProducts = allProducts.filter((product) =>
+                product?.status === "active" &&
+                product.user_id?.shop?.status === "active"
+            );
+
+            // Sắp xếp theo sold_count giảm dần
+            const sorted = activeProducts.sort((a, b) => b.sold_count - a.sold_count);
+
+            // Lấy 12 sản phẩm bán chạy nhất
+            const top12 = sorted.slice(0, 12);
+
+
+            resolve({
+                status: "OK",
+                message: "Lấy danh sách sản phẩm thành công",
+                data: top12,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
 
 module.exports = {
     getAllProducts,
@@ -204,5 +237,6 @@ module.exports = {
     getAllCategoriesHome,
     searchProducts,
     getDetailProduct,
-    searchCategory
+    searchCategory,
+    getTopCartProduct
 };
