@@ -4,6 +4,7 @@ const PlatformFees = require("../../models/PlatformFees");
 const Product = require("../../models/Product");
 const Cart = require("../../models/Cart");
 const mongoose = require("mongoose");
+const EmailServices = require("../../services/Shared/EmailServices");
 
 const getAllShippingCustomer = (user_id) => {
     return new Promise(async (resolve, reject) => {
@@ -146,7 +147,7 @@ const getAllOrderByStatus = (user_id, status) => {
     });
 };
 
-const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, orderNote) => {
+const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, orderNote, email) => {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -157,7 +158,6 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, or
                 });
             }
 
-            console.log( 'orderNote',orderNote)
 
             // Lấy phí nền tảng
             const fee = await PlatformFees.findOne({ fee_name: "order" });
@@ -270,6 +270,8 @@ const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, or
 
             // Chạy tất cả cập nhật song song
             await Promise.all(updates);
+
+            await EmailServices.sendEmailCreateOrder(email, items);
 
             // Trả kết quả
             resolve({
