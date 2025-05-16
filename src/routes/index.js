@@ -14,12 +14,15 @@ const ShopRouters = require("../routes/customer/ShopRouters");
 const OrderProducts = require("../routes/Vendor/OrderProducts");
 const OrderRoutersAdmin = require("../routes/Admin/OderRouters");
 const HomeRoutersAdmin = require("../routes/Admin/HomeRouters");
+const PasswordRouterShared = require("../routes/shared/PasswordRouters");
 
 const routes = (app) => {
   // Shared API
   app.use("/api/shared", AuthRoutersShared);
 
   app.use("/api/shared", ProductRoutersShared);
+
+  app.use("/api/shared", PasswordRouterShared)
 
   // Customer API
   app.use("/api/customer", UserRoutersCustomer);
