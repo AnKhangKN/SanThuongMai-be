@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema(
 
         refresh_token: {type: String},
 
+        email_verified: {type: Boolean, default: false},
+
         wallet: {type: Number, default: 0},
 
         wishlist: [

@@ -1,5 +1,7 @@
 const User = require("../../models/User");
 const bcrypt = require("bcrypt");
+const { sendEmailVerification } = require("../Shared/EmailServices");
+const jwt = require("jsonwebtoken");
 const {
     generateAccessToken,
     generateRefreshToken,
@@ -17,6 +19,15 @@ const loginUser = (userLogin) => {
                     status: "ERROR",
                     message: "Email không tồn tại",
                 });
+            }
+
+            const checkEmailVerify = checkUser.email_verified;
+            if (checkEmailVerify === false) {
+                return reject({
+                    status: "ERROR",
+                    message: "Tài khoản của bạn chưa xác thực hãy xác thực trước khi đăng nhập!",
+                });
+
             }
 
             const accountStatus = checkUser.account_status;
@@ -86,12 +97,17 @@ const createUser = (newUser) => {
             const createdUser = await User.create({
                 email,
                 password: hash,
+                email_verified: false,
             });
 
             if (createdUser) {
+
+
+                await sendEmailVerification(email)
+
                 return resolve({
                     status: "OK",
-                    message: "Tạo tài khoản thành công",
+                    message: "Tạo tài khoản thành công! Vui lòng kiểm tra email để xác nhận.",
                     data: createdUser,
                 });
             } else {
@@ -109,7 +125,35 @@ const createUser = (newUser) => {
     });
 };
 
+// Xác nhận email
+const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findOne({ email: decoded.email });
+
+        if (!user) {
+            return res.status(404).json({ status: "ERROR", message: "Người dùng không tồn tại." });
+        }
+
+        if (user.email_verified) {
+            return res.status(400).json({ status: "ERROR", message: "Email đã được xác nhận." });
+        }
+
+        user.email_verified = true;
+        await user.save();
+
+        res.status(200).json({ status: "SUCCESS", message: "Xác nhận email thành công!" });
+    } catch (err) {
+        res.status(400).json({ status: "ERROR", message: "Token không hợp lệ hoặc đã hết hạn." });
+    }
+};
+
+
+
 module.exports = {
     loginUser,
     createUser,
+    verifyEmail
 };

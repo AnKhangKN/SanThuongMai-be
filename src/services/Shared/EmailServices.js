@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 
 dotenv.config();
 
@@ -14,7 +15,46 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Hàm gửi email
+// Hàm gửi email xác nhận đăng ký tài khoản
+const sendEmailVerification = async (email) => {
+    try {
+        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const verificationLink = `http://localhost:3000/verify/${token}`;
+
+        const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Xác nhận email của bạn</h2>
+                <p>Vui lòng nhấp vào liên kết bên dưới để xác nhận email của bạn:</p>
+                <a href="${verificationLink}" style="display: inline-block; margin-top: 10px; padding: 10px 15px; background-color: #4CAF50; color: #fff; text-decoration: none;">Xác nhận email</a>
+                <p>Nếu bạn không đăng ký tài khoản, vui lòng bỏ qua email này.</p>
+            </div>
+        `;
+
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_ACCOUNT,
+            to: email,
+            cc: process.env.EMAIL_ACCOUNT, // Test thôi
+            subject: "Xác nhận email của bạn",
+            html: emailHtml,
+        });
+
+        console.log("Message sent:", info.messageId);
+        return {
+            status: "success",
+            message: "Email xác nhận đã được gửi!",
+            messageId: info.messageId,
+        };
+    } catch (error) {
+        console.error("Lỗi khi gửi email xác nhận:", error);
+        return {
+            status: "error",
+            message: "Gửi email xác nhận thất bại!",
+            error: error.message,
+        };
+    }
+};
+
+// Hàm gửi email tạo đơn hàng
 const sendEmailCreateOrder = async (email, items) => {
     try {
         // Tính tổng tiền
@@ -32,35 +72,28 @@ const sendEmailCreateOrder = async (email, items) => {
             </tr>
         `).join("");
 
-        // Nội dung HTML của email
         const emailHtml = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #333;">Cảm ơn bạn đã mua hàng tại HKN!</h2>
+                <h2>Cảm ơn bạn đã mua hàng tại HKN!</h2>
                 <p>Đây là danh sách sản phẩm bạn đã đặt hàng:</p>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                     <thead>
                         <tr style="background-color: #f2f2f2;">
-                            <th style="padding: 8px; border: 1px solid #ddd;">STT</th>
-                            <th style="padding: 8px; border: 1px solid #ddd;">Tên sản phẩm</th>
-                            <th style="padding: 8px; border: 1px solid #ddd;">Số lượng</th>
-                            <th style="padding: 8px; border: 1px solid #ddd;">Giá</th>
+                            <th>STT</th><th>Tên sản phẩm</th><th>Số lượng</th><th>Giá</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${itemsListHtml}
-                    </tbody>
+                    <tbody>${itemsListHtml}</tbody>
                 </table>
-                <h3 style="margin-top: 20px;">Tổng cộng: ${totalAmount}</h3>
-                <p style="margin-top: 20px;">Chúng tôi sẽ liên hệ với bạn sớm để xác nhận đơn hàng.</p>
-                <p style="color: #888;">Nếu bạn có bất kỳ câu hỏi nào, xin vui lòng liên hệ với chúng tôi.</p>
+                <h3>Tổng cộng: ${totalAmount}</h3>
+                <p>Chúng tôi sẽ liên hệ với bạn sớm để xác nhận đơn hàng.</p>
                 <p>Trân trọng,<br>Đội ngũ HKN</p>
             </div>
         `;
 
         const info = await transporter.sendMail({
             from: process.env.EMAIL_ACCOUNT,
-            to: email,                       // Người nhận
-            cc: process.env.EMAIL_ACCOUNT,   // Gửi bản sao cho chính chủ
+            to: email,
+            cc: process.env.EMAIL_ACCOUNT, // Test thôi
             subject: "Cảm ơn bạn đã ghé mua hàng tại HKN",
             html: emailHtml,
         });
@@ -83,4 +116,5 @@ const sendEmailCreateOrder = async (email, items) => {
 
 module.exports = {
     sendEmailCreateOrder,
+    sendEmailVerification
 };
