@@ -73,7 +73,7 @@ const orderProduct = async (req, res) => {
         const user_id = req.user?.id;
 
         // Nhận dữ liệu từ request body
-        const { shippingInfo, items, totalBill, paymentMethod, orderNote } = req.body;
+        const { shippingInfo, items, totalBill, paymentMethod, orderNote, email } = req.body;
 
         // Kiểm tra nếu thiếu dữ liệu quan trọng
         if (!user_id || !shippingInfo || !items || !totalBill || items.length === 0) {
@@ -90,7 +90,8 @@ const orderProduct = async (req, res) => {
             items,
             totalBill,
             paymentMethod,
-            orderNote
+            orderNote,
+            email
         );
 
         return res.status(200).json(result);
