@@ -1,4 +1,5 @@
 const User = require("../../models/User");
+const bcrypt = require("bcrypt");
 
 const getDetailAccountUser = (userId) => {
     return new Promise(async (resolve, reject) => {
@@ -146,9 +147,63 @@ const removeWishlist = (userId, wishlistId) => {
     });
 };
 
+const changePassword = async (id, password, newPassword) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.findById(id);
+            if (!user) {
+                return reject({
+                    status: "FAIL",
+                    message: "Người dùng không tồn tại",
+                });
+            }
+
+            // Kiểm tra mật khẩu hiện tại
+            const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordCorrect) {
+                return reject({
+                    status: "ERROR",
+                    message: "Mật khẩu cũ không đúng",
+                });
+            }
+
+            // So sánh mật khẩu mới với mật khẩu hiện tại
+            const isSamePassword = await bcrypt.compare(newPassword, user.password);
+            if (isSamePassword) {
+                return reject({
+                    status: "ERROR",
+                    message: "Mật khẩu mới không được giống mật khẩu hiện tại",
+                });
+            }
+
+            // Mã hóa mật khẩu mới
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            // Cập nhật mật khẩu mới
+            user.password = hashedPassword;
+            await user.save();
+
+            resolve({
+                status: "OK",
+                message: "Đổi mật khẩu thành công",
+            });
+        } catch (error) {
+            reject({
+                status: "FAIL",
+                message: "Đã xảy ra lỗi",
+                error: error.message,
+            });
+        }
+    });
+};
+
+
+
 module.exports = {
     getDetailAccountUser,
     partialUpdateUser,
     addWishlist,
-    removeWishlist
+    removeWishlist,
+    changePassword
 };

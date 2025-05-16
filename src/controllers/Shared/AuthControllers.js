@@ -35,7 +35,7 @@ const loginUser = async (req, res) => {
 
     const reg = /^[\w\.-]+@[\w\.-]+\.\w{2,}$/;
     if (!reg.test(email)) {
-      return res.status(400).json({
+      return res.status(401).json({
         status: "error",
         message: "Email không đúng định dạng",
       });
@@ -119,9 +119,20 @@ const logoutUser = async (req, res) => {
   }
 };
 
+// const forgotPassword = async (req, res) => {
+//   try {
+//
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: error.message || "Internal Server Error",
+//     })
+//   }
+// }
+
 module.exports = {
   loginUser,
   refreshToken,
   createUser,
   logoutUser,
+  // forgotPassword
 };

@@ -20,4 +20,6 @@ route.post("/add-wish-list", isUserMiddleware, UserControllers.addWishlist)
 
 route.patch("/remove-wish-list", isUserMiddleware, UserControllers.removeWishlist);
 
+route.patch("/change-password", isUserMiddleware, UserControllers.changePassword);
+
 module.exports = route;
