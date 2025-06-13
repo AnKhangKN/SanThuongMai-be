@@ -130,7 +130,7 @@ const verifyEmail = async (req, res) => {
     const { token } = req.params;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.VERIFY_EMAIL);
         const user = await User.findOne({ email: decoded.email });
 
         if (!user) {

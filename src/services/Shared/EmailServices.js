@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 // Hàm gửi email xác nhận đăng ký tài khoản
 const sendEmailVerification = async (email) => {
     try {
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ email }, process.env.VERIFY_EMAIL, { expiresIn: "1h" });
         const verificationLink = `http://localhost:3000/verify/${token}`;
 
         const emailHtml = `
@@ -155,8 +155,6 @@ const sendEmailForgetPassword = async (email, password) => {
         };
     }
 };
-
-
 
 module.exports = {
     sendEmailCreateOrder,
