@@ -122,7 +122,7 @@ const createUser = (newUser) => {
                 message: e.message || "Lỗi server",
             });
         }
-    });
+    }); 
 };
 
 // Xác nhận email
