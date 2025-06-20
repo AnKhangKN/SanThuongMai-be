@@ -1,68 +1,80 @@
 const mongoose = require("mongoose");
 
-const productSchema = new mongoose.Schema(
-  {
-    product_name: { type: String, required: true },
-    description: { type: String, required: false }, // Nếu mô tả sản phẩm cần thiết, bạn có thể set thành required: true
-    category: { type: String, required: true },
-    images: {
-      type: [String],
-      required: true,
-    }, // có thể thêm 1 hoặc nhiều ảnh
+const attributeSchema = new mongoose.Schema({
+    name: { type: String, required: true, trim: true },
+    value: { type: String, required: true, trim: true },
+}, { _id: false });
 
-    details: [
-      {
-        size: { type: String }, //30
-        color: { type: String }, //đỏ
-        price: { type: Number, required: true, min: 0 }, //23
-        quantity: { type: Number, required: true, min: 0 },
-      },
-    ],
+// Nhiều thuộc tính + giá + số lượng tồn
+const priceOptionSchema = new mongoose.Schema({
+    attributes: [attributeSchema],
+    price: { type: Number, required: true, min: 0 },
+    stock: { type: Number, required: true, min: 0 },
+}, { _id: false });
+
+// Schema chính của sản phẩm
+const productSchema = new mongoose.Schema({
+    productName: { type: String, required: true, trim: true },
+
+    images: {
+        type: [String],
+        default: [],
+    },
+
+    category: { type: String, required: true },
+
+    description: { type: String, required: false },
+
+    shopId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
+
+    priceOptions: {
+        type: [priceOptionSchema],
+        validate: [v => v.length > 0, 'Sản phẩm phải có ít nhất một biến thể giá'],
+    },
+
+    // Số lượng đã bán được
+    soldCount: { type: Number, default: 0 },
 
     status: {
-      type: String,
-      enum: ["active", "inactive", "pending", "banned"],
-      default: "active",
+        type: String,
+        enum: ["active", "inactive", "banned"],
+        default: "active",
     },
 
-    rating: { type: Number, default: 0, min: 0, max: 5 },
+    bannedUntil: { type: Date },
 
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    adminWarnings: [{
+        message: { type: String },
+        adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        createdAt: { type: Date, default: Date.now }
+    }],
 
-    sale: {
-      price: { type: Number, min: 0 },
-      start_date: { type: Date },
-      end_date: { type: Date },
-    },
+    // Điểm trung bình của sản phẩm
+    numRating: { type: Number, default: 0 },
 
-    banned_until: {
-      type: Date,
-      required: false, // Trường này sẽ giúp admin quản lý thời gian cấm sản phẩm
-    },
+    followers: { type: Number, default: 0 },
 
     reports: [
-      {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        reason: { type: String }, // Lý do
-        createdAt: { type: Date, default: Date.now },
-        status: {
-          type: String,
-          enum: ["pending", "resolved", "dismissed"],
-          default: "pending",
+        {
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+            reason: { type: String }, // Lý do
+            createdAt: { type: Date, default: Date.now },
+            status: {
+                type: String,
+                enum: ["pending", "resolved", "dismissed"],
+                default: "pending",
+            },
         },
-      },
     ],
 
-    sold_count: { type: Number, default: 0, min: 0 }, // Lượt bán
-  },
-  {
-    timestamps: true, // Tự động tạo createdAt và updatedAt
-  }
-);
+}, {
+    timestamps: true,
+});
+
+productSchema.index({ shopId: 1 });
+productSchema.index({ category: 1 });
+productSchema.index({ status: 1 });
 
 const Product = mongoose.model("Product", productSchema);
+
 module.exports = Product;

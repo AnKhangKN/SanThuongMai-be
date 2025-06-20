@@ -1,37 +1,47 @@
 const mongoose = require("mongoose");
 
+const attributeSchema = new mongoose.Schema({
+    name: String,
+    value: String,
+}, { _id: false });
+
+const productItemsSchema = new mongoose.Schema({
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+    },
+    productName: { type: String, required: true },
+
+    productImage: { type: String, required: true },
+
+    attributes: [attributeSchema],
+
+    price: { type: Number, required: true, min: 0 },
+
+    quantity: { type: Number, required: true, min: 1 },
+
+    shopId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Shop",
+        required: true,
+    },
+    shopName: { type: String, required: true },
+
+}, { _id: true });
+
 const cartSchema = new mongoose.Schema(
     {
-      user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-
-      items: [
-        {
-          product_id: {
+        userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
+            ref: "User",
             required: true,
-          },
-            product_name: {type: String},
-          size: { type: String, },
-          color: { type: String, },
-          price: { type: Number, required: true },
-          quantity: { type: Number, required: true, min: 1 },
-            owner_id: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User", // đúng tên model người bán
-                required: true,
-            },
-            shop_name: { type: String },
-            product_img: { type: String },
         },
-      ],
+
+        productItems: [productItemsSchema],
     },
     {
-      timestamps: true,
+        timestamps: true,
     }
 );
 

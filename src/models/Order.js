@@ -1,120 +1,148 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema(
-    {
+const attributeSchema = new mongoose.Schema({
+    name: String,
+    value: String,
+}, { _id: false });
 
-        user_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        }, // Ai là người đặt hàng dùng để truy vấn shipping_address nếu có
-
-        shipping_address: {
-            phone: {type: String, required: true},
-            address: {type: String, required: true},
-            city: {type: String, required: true},
-        }, // Địa chỉ mới hoặc chưa thêm địa chỉ -> sao khi nhập sẽ lưu lại địa chỉ vào bảng user
-
-        items: [
-            {
-                product_id: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Product",
-                    required: true,
-                },
-
-                // Trạng thái đơn hàng
-                status: {
-                    type: String,
-                    enum: ["pending", "processing"],
-                    default: "pending",
-                    required: true,
-                },
-
-                product_image: {type: String, required: true},
-
-                product_name: {type: String, required: true},
-
-                size: {type: String, required: false},
-
-                color: {type: String, required: false},
-
-                price: { type: Number,required: true },
-
-                quantity: { type: Number,required: true },
-
-                owner_id: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "User",
-                    required: true,
-                }, // Sản phẩm này của ai ( có nhiều người bán )
-            },
-        ],
-
-        order_note: { type: String, required: false, default: "Đơn hàng chưa có ghi chú!" },
-
-        total_price: { type: Number,required: true,}, // Tổng tiền đơn hàng
-
-        tax_price: { type: Number,required: true, }, // Phí thuế
-
-        shipping_price: { type: Number, required: true}, // Phí giao hàng
-
-        payment_method: {
-            type: String,
-            enum: ["cod", "credit_card"],
-            default: "cod",
-            required: true,
-        },
-
-        is_paid: {
-            type: Boolean,
-            default: false,
-        }, // Nếu chuyển khoản thì đã chuyển hay chưa
-
-        paid_at: {
-            type: Date,
-        }, // Chuyển lúc nào
-
-        platform_fee:{
-            platform_fee_id: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "PlatformFee",
-            },
-            value: {
-                type: Number,
-                required: true,
-            },
-            fee_type: {
-                type: String,
-                enum: ["percentage", "fixed"],
-                required: true,
-            },
-        },
-
-        // Trạng thái đơn hàng
-        status: {
-            type: String,
-            enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-            default: "pending",
-            required: true,
-        },
-
-        cancel_reason: {
-            type: String,
-            required: false,
-        }, // Nếu hủy thì lý do là gì
-
-        delivered_at: {
-            type: Date,
-            required: false,
-        }, // Ngày nhận hàng
-
+// Schema chi tiết từng sản phẩm trong đơn hàng
+const productItemSchema = new mongoose.Schema({
+    product_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
     },
-    {
-        timestamps: true,
-    }
-);
 
-const Order = mongoose.model("Order", orderSchema);
+    productName: { type: String, required: true },
+
+    productImage: { type: String, required: true },
+
+    attributes: [attributeSchema],
+
+    price: { type: Number, required: true, min: 0 },
+
+    quantity: { type: Number, required: true, min: 0  },
+
+    shopId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Shop",
+        required: true,
+    },
+
+    // Trạng thái riêng của từng sản phẩm
+    status: {
+        type: String,
+        enum: ["pending", "processing", "shipped", "delivered", "returned", "cancelled"],
+        default: "pending",
+        required: true,
+    },
+
+    isReviewed: {
+        type: Boolean,
+        default: false,
+    },
+
+    isDelivered: {
+        type: Boolean,
+        default: false,
+    },
+
+    deliveredAt: {
+        type: Date,
+    },
+
+    // khi bị returned
+    returnReason: { type: String },
+
+    imgReturnReason: [{ type: String }],
+
+    refundRequested: {
+        type: Boolean,
+        default: false
+    },
+
+    refundReason: {
+        type: String,
+        default: ""
+    },
+
+    // Lý do hủy đơn
+    cancelReason: {
+        type: String,
+        default: ""
+    }
+}, { _id: false });
+
+// Schema chính của đơn hàng
+const orderSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+
+    items: [productItemSchema], // Danh sách sản phẩm
+
+    shippingAddress: {
+        city: { type: String, required: true },
+        address: { type: String, required: true },
+        phone: { type: String, required: true },
+    },
+
+    paymentMethod: {
+        type: String,
+        enum: ["COD", "Online", "Wallet"],
+        default: "COD",
+    },
+
+    totalPrice: {
+        type: Number,
+        required: true,
+    },
+
+    note: {
+        type: String,
+        default: "",
+    },
+
+    isPaid: {
+        type: Boolean,
+        default: false,
+    },
+
+    paidAt: {
+        type: Date,
+    },
+
+    isCancelled: {
+        type: Boolean,
+        default: false,
+    },
+
+    cancelledAt: {
+        type: Date,
+    },
+
+    cancelReason: {
+        type: String,
+        default: "",  // hoặc required: false
+    },
+
+    // Trạng thái đơn hàng tổng
+    orderStatus: {
+        type: String,
+        enum: ["pending", "completed", "cancelled"],
+        default: "pending",
+    }
+}, {
+    timestamps: true,
+});
+
+// Tối ưu truy vấn theo người dùng, shop, trạng thái
+orderSchema.index({ userId: 1 });
+orderSchema.index({ "items.shopId": 1 });
+orderSchema.index({ "items.status": 1 });
+
+const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;
