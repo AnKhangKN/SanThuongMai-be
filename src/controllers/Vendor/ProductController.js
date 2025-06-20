@@ -5,10 +5,26 @@ const createProduct = async (req, res) => {
     const data = req.body;
     const files = req.files;
 
-    // Lấy user_id từ token xác thực (trong middleware của bạn)
     const user_id = req.user?._id || req.user?.id;
 
-    const response = await ProductService.createProduct(data, files, user_id);
+    // Validate sơ bộ
+    if (!data.product_name || !data.category) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "Vui lòng cung cấp tên sản phẩm và danh mục.",
+      });
+    }
+
+    // Chuyển files thành mảng tên ảnh
+    const imagePaths = files?.map((file) => file.filename) || [];
+
+    const productData = {
+      ...data,
+      images: imagePaths,
+      user_id,
+    };
+
+    const response = await ProductService.createProduct(productData);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({

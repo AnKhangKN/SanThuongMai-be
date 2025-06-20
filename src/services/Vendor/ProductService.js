@@ -5,35 +5,24 @@ const path = require("path");
 const createProduct = (newProduct, files, user_id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const {
-        product_name,
-        category,
-        description,
-        size,
-        color,
-        price,
-        quantity,
-      } = newProduct;
-
-      // Lưu đường dẫn hình ảnh vào mảng images
+      const { product_name, category, description, details, status, sale } =
+        newProduct;
 
       const imageNames = files ? files.map((file) => file.filename) : [];
 
-      // Tạo sản phẩm mới
       const createdProduct = await Product.create({
         product_name,
         category,
-        description,
+        description: description || "",
         images: imageNames,
-        details: [
-          {
-            size: size || null,
-            color: color || null,
-            price: price || null,
-            quantity: quantity || null,
-          },
-        ],
+        details: Array.isArray(details) ? details : [],
+        status: status || "active",
+        sale: sale || {},
+        rating: 0,
         user_id,
+        banned_until: null,
+        reports: [],
+        sold_count: 0,
       });
 
       resolve({
