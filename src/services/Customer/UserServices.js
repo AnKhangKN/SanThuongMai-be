@@ -43,7 +43,7 @@ const partialUpdateUser = (id, data) => {
 
             const updatedUser = await User.findOneAndUpdate(
                 {_id: id},
-                {user_name: data?.payload},
+                {fullName: data?.payload},
                 {new: true}
             );
 

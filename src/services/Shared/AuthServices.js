@@ -137,11 +137,11 @@ const verifyEmail = async (req, res) => {
             return res.status(404).json({ status: "ERROR", message: "Người dùng không tồn tại." });
         }
 
-        if (user.email_verified) {
+        if (user.isVerified) {
             return res.status(400).json({ status: "ERROR", message: "Email đã được xác nhận." });
         }
 
-        user.email_verified = true;
+        user.isVerified = true;
         await user.save();
 
         res.status(200).json({ status: "SUCCESS", message: "Xác nhận email thành công!" });

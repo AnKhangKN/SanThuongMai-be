@@ -34,9 +34,11 @@ const userSchema = new mongoose.Schema({
 
     email: { type: String, required: true, unique: true, index: true },
     // sẽ xử lý sau
-    // isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false },
 
     password: { type: String, required: true },
+
+    status: { type: String, default: "active", enum: ["active", "inactive", "banned"] },
 
     shippingAddress: [shippingAddressSchema],
 
