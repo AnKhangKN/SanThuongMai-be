@@ -15,9 +15,9 @@ const refreshToken = async (req, res) => {
     const result = await jwtService.refreshTokenService(token);
 
     return res.status(200).json(result);
-  } catch (error) { // Sửa từ 'e' thành 'error'
+  } catch (error) {
     return res.status(500).json({
-      message: error.message || "Internal Server Error", // Sửa 'e' thành 'error'
+      message: error.message || "Internal Server Error",
     });
   }
 };
@@ -63,7 +63,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) => {
+const signUp = async (req, res) => {
   try {
     const { email, password, confirm_password } = req.body;
 
@@ -106,7 +106,12 @@ const createUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
   try {
-    res.clearCookie("refresh_token");
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      path: "/",
+    });
 
     return res.status(200).json({
       status: "OK",
@@ -119,20 +124,9 @@ const logoutUser = async (req, res) => {
   }
 };
 
-// const forgotPassword = async (req, res) => {
-//   try {
-//
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: error.message || "Internal Server Error",
-//     })
-//   }
-// }
-
 module.exports = {
   loginUser,
   refreshToken,
-  createUser,
+  signUp,
   logoutUser,
-  // forgotPassword
 };
