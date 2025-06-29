@@ -21,16 +21,15 @@ const loginUser = (userLogin) => {
                 });
             }
 
-            const checkEmailVerify = checkUser.email_verified;
+            const checkEmailVerify = checkUser.isVerified;
             if (checkEmailVerify === false) {
                 return reject({
                     status: "ERROR",
-                    message: "Tài khoản của bạn chưa xác thực hãy xác thực trước khi đăng nhập!",
+                    message: "Tài khoản của bạn chưa xác thực hãy kiểm tra email!",
                 });
-
             }
 
-            const accountStatus = checkUser.account_status;
+            const accountStatus = checkUser.status;
             if (accountStatus === "banned") {
                 return reject({
                     status: "ERROR",
@@ -45,7 +44,7 @@ const loginUser = (userLogin) => {
                 });
             }
 
-            const isPasswordCorrect = await bcrypt.compare(password, checkUser.password); // dùng await
+            const isPasswordCorrect = await bcrypt.compare(password, checkUser.password);
 
             if (!isPasswordCorrect) {
                 return reject({
@@ -101,8 +100,6 @@ const createUser = (newUser) => {
             });
 
             if (createdUser) {
-
-
                 await sendEmailVerification(email)
 
                 return resolve({
@@ -125,7 +122,6 @@ const createUser = (newUser) => {
     }); 
 };
 
-// Xác nhận email
 const verifyEmail = async (req, res) => {
     const { token } = req.params;
 
@@ -137,11 +133,11 @@ const verifyEmail = async (req, res) => {
             return res.status(404).json({ status: "ERROR", message: "Người dùng không tồn tại." });
         }
 
-        if (user.email_verified) {
+        if (user.isVerified) {
             return res.status(400).json({ status: "ERROR", message: "Email đã được xác nhận." });
         }
 
-        user.email_verified = true;
+        user.isVerified = true;
         await user.save();
 
         res.status(200).json({ status: "SUCCESS", message: "Xác nhận email thành công!" });
@@ -149,8 +145,6 @@ const verifyEmail = async (req, res) => {
         res.status(400).json({ status: "ERROR", message: "Token không hợp lệ hoặc đã hết hạn." });
     }
 };
-
-
 
 module.exports = {
     loginUser,

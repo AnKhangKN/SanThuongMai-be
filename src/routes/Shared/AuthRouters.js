@@ -2,18 +2,15 @@ const AuthControllers = require("../../controllers/Shared/AuthControllers");
 const route = require("express").Router();
 const checkVendorBanStatus = require("../../middleware/bannedUntilMiddleware");
 const {verifyEmail} = require("../../services/Shared/AuthServices");
-const {sendEmailForgetPassword} = require("../../services/Shared/EmailServices");
 
-route.post("/login",checkVendorBanStatus, AuthControllers.loginUser);
+route.post("/auth/login", checkVendorBanStatus, AuthControllers.loginUser);
 
-route.post("/refresh-token", AuthControllers.refreshToken);
+route.post("/auth/token/refresh", AuthControllers.refreshToken);
 
-route.post("/sign-up", AuthControllers.createUser);
+route.post("/auth/signup", AuthControllers.signUp);
 
-route.post("/logout", AuthControllers.logoutUser);
+route.post("/auth/logout", AuthControllers.logoutUser);
 
-route.get("/verify/:token", verifyEmail);
-
-
+route.get("/auth/verify-email/:token", verifyEmail);
 
 module.exports = route;

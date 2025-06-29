@@ -3,31 +3,19 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const generateAccessToken = (payload) => {
-    const access_token = jwt.sign(
-        {
-            ...payload,
-        },
-        process.env.ACCESS_TOKEN, // SECRET KEY
-        {
-            expiresIn: "30s", // Token hết hạn sau 30s
-        }
+    return jwt.sign(
+        payload,
+        process.env.ACCESS_TOKEN,
+        { expiresIn: '60s' }
     );
-
-    return access_token;
 };
 
 const generateRefreshToken = (payload) => {
-    const refresh_token = jwt.sign(
-        {
-            ...payload,
-        },
-        process.env.REFRESH_TOKEN, // SECRET KEY
-        {
-            expiresIn: "365d", // Token hết hạn sau 365 ngày
-        }
-    );
-
-    return refresh_token;
+    return jwt.sign(
+        payload,
+        process.env.REFRESH_TOKEN,
+        { expiresIn: '365d' }
+    )
 };
 
 const refreshTokenService = (refreshToken) => {
