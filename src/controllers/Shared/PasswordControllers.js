@@ -7,7 +7,6 @@ const forgetPassword = async (req, res) => {
         const email = data.email.email
         console.log(data.email.email)
 
-        // Đảm bảo hàm này là async và có await
         const result = await PasswordServices.forgetPassword(email);
 
         return res.status(200).json(result);
