@@ -20,7 +20,7 @@ const checkVendorBanStatus = async (req, res, next) => {
         }
 
         const currentTime = Date.now();
-        const bannedUntil = new Date(banned_until).getTime(); // Chuyển thời gian cấm từ request thành kiểu milliseconds
+        const bannedUntil = new Date(bannedUntil).getTime(); // Chuyển thời gian cấm từ request thành kiểu milliseconds
 
         // Khởi tạo banned_count nếu chưa có
         if (typeof user.shop.banned_count !== "number") {
