@@ -2,9 +2,9 @@ const UserVendorService = require("../../services/Vendor/UserVendorService");
 
 const createVendor = async (req, res) => {
   try {
-    const { user_name, isVendor, cccd, shop, phone, user_id } = req.body;
     const userId = req.params.id;
-    // kiểm tra dữ liệu bắt buộc
+
+    // Kiểm tra userId bắt buộc
     if (!userId) {
       return res.status(401).json({
         status: "ERR",
@@ -12,26 +12,36 @@ const createVendor = async (req, res) => {
       });
     }
 
-    // Kiểm tra các trường bắt buộc trong vendor
+    const { cccd, shop } = req.body;
+
+    // Kiểm tra các trường bắt buộc
+    if (!cccd) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "CCCD is required",
+      });
+    }
+
     if (
-      !cccd ||
       !shop ||
       typeof shop !== "object" ||
-      !shop.name ||
+      !shop.shopName ||
       !shop.phone ||
       !shop.address
     ) {
       return res.status(400).json({
         status: "ERR",
-        message: "The input is required",
+        message: "Shop info (shopName, phone, address) is required",
       });
     }
+
     const response = await UserVendorService.createVendor(userId, req.body);
+
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
       status: "ERR",
-      message: e || "Internal server error",
+      message: e?.message || "Internal server error",
     });
   }
 };
