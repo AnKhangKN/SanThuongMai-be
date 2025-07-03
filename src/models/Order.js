@@ -138,10 +138,6 @@ const orderSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Tối ưu truy vấn theo người dùng, shop, trạng thái
-orderSchema.index({ userId: 1 });
-orderSchema.index({ "items.shopId": 1 });
-orderSchema.index({ "items.status": 1 });
 
 const Order = mongoose.model('Order', orderSchema);
 

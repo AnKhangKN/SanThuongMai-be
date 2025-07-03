@@ -39,7 +39,6 @@ const reviewSchema = new mongoose.Schema({
     timestamps: true
 });
 
-reviewSchema.index({ productId: 1 });  // Tăng tốc khi lọc tất cả review của 1 sản phẩm
 
 const Review = mongoose.model("Review", reviewSchema);
 

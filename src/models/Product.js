@@ -88,9 +88,6 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-productSchema.index({ shopId: 1 });
-productSchema.index({ category: 1 });
-productSchema.index({ status: 1 });
 
 const Product = mongoose.model("Product", productSchema);
 

@@ -55,8 +55,6 @@ const shopSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Thêm index để tối ưu truy vấn
-shopSchema.index({ state: 1 });
 
 const Shop = mongoose.model('Shop', shopSchema);
 

@@ -58,9 +58,6 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-userSchema.index({ isVendor: 1 });
-userSchema.index({ isAdmin: 1 });
-
 
 const User = mongoose.model('User', userSchema);
 
