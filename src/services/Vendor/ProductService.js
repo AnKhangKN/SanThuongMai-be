@@ -3,26 +3,32 @@ const User = require("../../models/User");
 const path = require("path");
 
 const createProduct = (newProduct, files, user_id) => {
+  console.log("✅ user_id tại service:", user_id);
+  console.log("✅ newProduct tại service:", newProduct);
   return new Promise(async (resolve, reject) => {
     try {
-      const { product_name, category, description, details, status, sale } =
+      const { productName, category, description, priceOptions, status, sale } =
         newProduct;
 
       const imageNames = files ? files.map((file) => file.filename) : [];
 
+      // ❌ Không ép lại size/color nếu đã là attributes
+      // const normalizedPriceOptions = ...
+
       const createdProduct = await Product.create({
-        product_name,
+        productName,
         category,
         description: description || "",
         images: imageNames,
-        details: Array.isArray(details) ? details : [],
+        priceOptions, // ✅ Dùng trực tiếp
         status: status || "active",
         sale: sale || {},
-        rating: 0,
-        user_id,
-        banned_until: null,
+        shopId: user_id, // <-- gán shopId
+        bannedUntil: null,
         reports: [],
-        sold_count: 0,
+        soldCount: 0,
+        numRating: 0,
+        followers: 0,
       });
 
       resolve({

@@ -15,10 +15,10 @@ const port = process.env.PORT || 8000;
 
 // Cấu hình CORS cho phép frontend (React) truy cập
 app.use(
-    cors({
-        origin: "http://localhost:3000", // Địa chỉ FE (React)
-        credentials: true,
-    })
+  cors({
+    origin: "http://localhost:3000", // Địa chỉ FE (React)
+    credentials: true,
+  })
 );
 
 app.use(bodyParser.json());
@@ -28,53 +28,51 @@ app.use(cookieParser());
 routes(app);
 
 // Cấu hình up ảnh
-app.use('/uploads', express.static(path.join(__dirname, './uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 // API để lấy ảnh avatar
-app.get('/api/avatar/:filename', (req, res) => {
-    const { filename } = req.params;
+app.get("/api/avatar/:filename", (req, res) => {
+  const { filename } = req.params;
 
+  // Đảm bảo đường dẫn file chính xác
+  const filePath = path.join(__dirname, "/uploads/avatar/", filename);
 
-    // Đảm bảo đường dẫn file chính xác
-    const filePath = path.join(__dirname, '/uploads/avatar/', filename);
+  // Kiểm tra xem file có tồn tại không
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: "File not found" });
+  }
 
-    // Kiểm tra xem file có tồn tại không
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "File not found" });
-    }
-
-    // Nếu file tồn tại, trả về file
-    res.sendFile(filePath);
+  // Nếu file tồn tại, trả về file
+  res.sendFile(filePath);
 });
 
 // API để lấy ảnh sản phẩm
-app.get('/api/products-img/:filename', (req, res) => {
-    const { filename } = req.params;
+app.get("/api/products-img/:filename", (req, res) => {
+  const { filename } = req.params;
 
+  // Đảm bảo đường dẫn file chính xác
+  const filePath = path.join(__dirname, "/uploads/products/", filename);
 
-    // Đảm bảo đường dẫn file chính xác
-    const filePath = path.join(__dirname, '/uploads/products/', filename);
+  // Kiểm tra xem file có tồn tại không
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: "File not found" });
+  }
 
-    // Kiểm tra xem file có tồn tại không
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "File not found" });
-    }
-
-    // Nếu file tồn tại, trả về file
-    res.sendFile(filePath);
+  // Nếu file tồn tại, trả về file
+  res.sendFile(filePath);
 });
 
 // Kết nối MongoDB
 mongoose
-    .connect(process.env.MONGO_DB)
-    .then(() => {
-        console.log("Connect DB success!");
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+  .connect(process.env.MONGO_DB)
+  .then(() => {
+    console.log("Connect DB success!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // Khởi động server
 app.listen(port, () => {
-    console.log("Server is running on port: " + port);
+  console.log("Server is running on port: " + port);
 });

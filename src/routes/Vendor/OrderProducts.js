@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { isVendorMiddleware } = require("../../middleware/authMiddleware");
 const OrderProductController = require("../../controllers/Vendor/OrderProductController");
+const Order = require("../../models/Order");
 
 router.get(
   "/get-all-order",

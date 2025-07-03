@@ -1,30 +1,53 @@
 const ProductService = require("../../services/Vendor/ProductService");
+const Shop = require("../../models/Shop");
 
 const createProduct = async (req, res) => {
   try {
     const data = req.body;
     const files = req.files;
-
     const user_id = req.user?._id || req.user?.id;
 
-    // Validate sơ bộ
-    if (!data.product_name || !data.category) {
+    if (!data.productName || !data.category) {
       return res.status(400).json({
         status: "ERR",
         message: "Vui lòng cung cấp tên sản phẩm và danh mục.",
       });
     }
 
-    // Chuyển files thành mảng tên ảnh
     const imagePaths = files?.map((file) => file.filename) || [];
 
+    let priceOptions = [];
+    if (data.priceOptions) {
+      try {
+        const parsed =
+          typeof data.priceOptions === "string"
+            ? JSON.parse(data.priceOptions)
+            : data.priceOptions;
+
+        priceOptions = parsed; // ✅ Không map lại, vì đã đúng format
+      } catch (err) {
+        return res.status(400).json({
+          status: "ERR",
+          message: "Dữ liệu biến thể không hợp lệ.",
+        });
+      }
+    }
+
+    // Gỡ shopId khỏi req.body nếu có
+    const { shopId, priceOptions: _, ...rest } = data;
+
     const productData = {
-      ...data,
+      ...rest,
       images: imagePaths,
-      user_id,
+      shopId: user_id,
+      priceOptions,
     };
 
-    const response = await ProductService.createProduct(productData);
+    const response = await ProductService.createProduct(
+      productData,
+      files,
+      user_id
+    );
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
