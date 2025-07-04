@@ -21,7 +21,14 @@ const bannerSchema = new mongoose.Schema({
         type: String,
         enum: ["active", "inactive"],
         default: "active",
+    },
+
+    campaignId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Campaign",
+        required: false,
     }
+
 }, {
     timestamps: true,
 });
