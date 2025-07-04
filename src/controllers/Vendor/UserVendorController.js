@@ -2,36 +2,55 @@ const UserVendorService = require("../../services/Vendor/UserVendorService");
 
 const createVendor = async (req, res) => {
   try {
-    const { user_name, isVendor, cccd, shop, phone, user_id } = req.body;
-    const userId = req.params.id;
-    // kiểm tra dữ liệu bắt buộc
+    const userId = req.user?.id;
+
     if (!userId) {
       return res.status(401).json({
         status: "ERR",
-        message: "The userId is required",
+        message: "Unauthorized: userId is missing",
       });
     }
 
-    // Kiểm tra các trường bắt buộc trong vendor
-    if (
-      !cccd ||
-      !shop ||
-      typeof shop !== "object" ||
-      !shop.name ||
-      !shop.phone ||
-      !shop.address
-    ) {
+    // Parse dữ liệu JSON từ multipart/form-data
+    let parsedShop = {};
+    try {
+      parsedShop = JSON.parse(req.body.shop || "{}");
+    } catch (err) {
       return res.status(400).json({
         status: "ERR",
-        message: "The input is required",
+        message: "Không thể parse thông tin shop",
       });
     }
-    const response = await UserVendorService.createVendor(userId, req.body);
+
+    const { shopName, phone, address, city } = parsedShop;
+
+    if (!shopName || !phone || !address || !city) {
+      return res.status(400).json({
+        status: "ERR",
+        message:
+          "Thông tin cửa hàng (shopName, phone, address, city) là bắt buộc",
+      });
+    }
+
+    // Nếu có ảnh
+    if (req.file?.filename) {
+      console.log("Đã upload avatar:", req.file.filename);
+      parsedShop.shopAvatar = req.file.filename;
+    }
+
+    parsedShop.ownerId = userId;
+    parsedShop.state = "pending";
+
+    const response = await UserVendorService.createVendor(userId, {
+      shop: parsedShop,
+    });
+
     return res.status(200).json(response);
   } catch (e) {
+    console.error("Lỗi trong createVendor:", e);
     return res.status(500).json({
       status: "ERR",
-      message: e || "Internal server error",
+      message: e.message || "Internal server error",
     });
   }
 };

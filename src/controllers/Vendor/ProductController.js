@@ -33,13 +33,20 @@ const createProduct = async (req, res) => {
       }
     }
 
-    // Gỡ shopId khỏi req.body nếu có
-    const { shopId, priceOptions: _, ...rest } = data;
+    // ❗️Lấy shopId của user hiện tại
+    const shop = await Shop.findOne({ ownerId: user_id });
+
+    if (!shop) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "Không tìm thấy cửa hàng tương ứng với người dùng.",
+      });
+    }
 
     const productData = {
-      ...rest,
+      ...data,
       images: imagePaths,
-      shopId: user_id,
+      shopId: shop._id, // ✅ Gán đúng shopId lấy từ DB
       priceOptions,
     };
 

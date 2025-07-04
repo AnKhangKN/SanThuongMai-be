@@ -1,30 +1,36 @@
 const User = require("../../models/User");
+const Shop = require("../../models/Shop");
 
 const createVendor = (userId, newVendor) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkUser = await User.findOne({
-        _id: userId,
-      });
-
-      if (checkUser === null) {
-        resolve({
-          status: "OK",
-          message: "The user is not exist",
+      const checkUser = await User.findById(userId);
+      if (!checkUser) {
+        return resolve({
+          status: "ERR",
+          message: "The user does not exist",
         });
       }
 
-      const isvendor = (newVendor.isVendor = true);
-      const status = (newVendor.shop.status = "pending");
+      // ✅ Cập nhật User → chỉ thêm isVendor
+      checkUser.isVendor = true;
+      await checkUser.save();
 
-      const updatedUser = await User.findByIdAndUpdate(userId, newVendor, {
-        new: true,
-      });
+      // ✅ Tạo mới Shop → với trạng thái pending
+      const shopData = {
+        ...newVendor.shop,
+        state: "pending", // hoặc status: "pending"
+      };
+
+      const newShop = await Shop.create(shopData);
 
       resolve({
         status: "OK",
         message: "SUCCESS",
-        data: updatedUser,
+        data: {
+          user: checkUser,
+          shop: newShop,
+        },
       });
     } catch (e) {
       reject(e);

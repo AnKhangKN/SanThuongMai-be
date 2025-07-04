@@ -1,8 +1,14 @@
 const express = require("express");
-const User = require("../../models/User");
 const router = express.Router();
 const UserVendorController = require("../../controllers/Vendor/UserVendorController");
+const multerConfigAvatar = require("../../middleware/multerConfigAvatar");
+const { isUserMiddleware } = require("../../middleware/authMiddleware");
 
-router.put("/add-vendor/:id", UserVendorController.createVendor);
+router.post(
+  "/add-vendor",
+  isUserMiddleware,
+  multerConfigAvatar,
+  UserVendorController.createVendor
+);
 
 module.exports = router;
