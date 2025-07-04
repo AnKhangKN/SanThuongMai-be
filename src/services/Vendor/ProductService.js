@@ -3,12 +3,17 @@ const User = require("../../models/User");
 const path = require("path");
 
 const createProduct = (newProduct, files, user_id) => {
-  console.log("✅ user_id tại service:", user_id);
-  console.log("✅ newProduct tại service:", newProduct);
   return new Promise(async (resolve, reject) => {
     try {
-      const { productName, category, description, priceOptions, status, sale } =
-        newProduct;
+      const {
+        productName,
+        category,
+        description,
+        priceOptions,
+        status,
+        sale,
+        shopId, // ✅ shopId nhận từ controller
+      } = newProduct;
 
       const imageNames = files ? files.map((file) => file.filename) : [];
 
@@ -23,7 +28,7 @@ const createProduct = (newProduct, files, user_id) => {
         priceOptions, // ✅ Dùng trực tiếp
         status: status || "active",
         sale: sale || {},
-        shopId: user_id, // <-- gán shopId
+        shopId, // ✅ Dùng đúng shopId đã truyền từ controller
         bannedUntil: null,
         reports: [],
         soldCount: 0,
