@@ -20,18 +20,28 @@ const getAllShops = () => {
     });
 };
 
-const activateShop = () => {
+const activateShop = (status, shopId) => {
     return new Promise(async (resolve, reject) => {
         try {
+            const shop = await Shop.findByIdAndUpdate(
+                shopId,
+                { status },
+                { new: true }
+            );
 
+            if (!shop) {
+                return reject({ message: "Không có shop tồn tại!" });
+            }
 
+            resolve({
+                message: "Cập nhật shop thành công!",
+                shop,
+            });
         } catch (error) {
-            return reject({
-                message: error.message,
-            })
+            reject({ message: error.message });
         }
-    })
-}
+    });
+};
 
 module.exports = {
     getAllShops,
