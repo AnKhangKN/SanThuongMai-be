@@ -29,6 +29,26 @@ const createBanner = () => {
     })
 }
 
+const getAllBannerByProgram = async (req, res) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+
+            const banner = await Banner.find();
+
+            resolve({
+                message: "Lấy banner thành công",
+                banner
+            })
+
+        } catch (error) {
+            return reject({
+                message: error.message,
+            })
+        }
+    })
+}
+
 module.exports = {
-    createBanner
+    createBanner,
+    getAllBannerByProgram
 };
