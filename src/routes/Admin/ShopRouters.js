@@ -4,14 +4,8 @@ const ShopControllers = require("../../controllers/Admin/ShopControllers");
 
 const route = express.Router();
 
-// shop router
 route.get("/get-all-shops", isAdminMiddleware, ShopControllers.getAllShops);
 
-// Duyệt shop
-route.patch("/partial-update-shop/:id", isAdminMiddleware, ShopControllers.partialUpdateShop);
-
-route.get("/get-all-reported-shops", isAdminMiddleware, ShopControllers.getAllReportedShops)
-
-route.patch("/update-reported-shop/:id", isAdminMiddleware, ShopControllers.partialUpdateReportedShop);
+route.patch('/shop', isAdminMiddleware, ShopControllers.activateShop);
 
 module.exports = route;

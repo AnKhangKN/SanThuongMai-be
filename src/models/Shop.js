@@ -34,7 +34,7 @@ const shopSchema = new mongoose.Schema({
 
     phone: { type: String, required: true },
 
-    state: { type: String, enum: ['active', 'pending', 'inactive'], default: 'pending' },
+    status: { type: String, enum: ['active', 'pending', 'inactive'], default: 'pending' },
 
     ownerId: {
         type: mongoose.Schema.Types.ObjectId,
