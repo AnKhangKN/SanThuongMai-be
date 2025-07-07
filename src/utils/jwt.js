@@ -32,7 +32,7 @@ const refreshTokenService = (refreshToken) => {
 
                 // user chính là payload luôn
                 const access_token = await generateAccessToken({
-                    id: user.id,
+                    id: user?.id,
                     isAdmin: user?.isAdmin,
                     isVendor: user?.isVendor,
                 });

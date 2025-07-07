@@ -1,15 +1,15 @@
 const express = require("express");
-const {isAdminMiddleware} = require("../../middleware/authMiddleware");
+const {isAdminMiddleware, verifyToken, isAdmin} = require("../../middleware/authMiddleware");
 const ProductControllers = require("../../controllers/Admin/ProductControllers");
 
 const route = express.Router();
 
 // products route
-route.get("/get-all-products", isAdminMiddleware, ProductControllers.getAllProducts);
+route.get("/get-all-products", verifyToken, isAdmin, ProductControllers.getAllProducts);
 
-route.patch("/partial-update-product/:id", isAdminMiddleware,
+route.patch("/partial-update-product/:id", verifyToken, isAdmin,
     ProductControllers.partialUpdateProduct)
 
-route.get("/get-all-reported-products", isAdminMiddleware, ProductControllers.getAllReportedProducts)
+route.get("/get-all-reported-products", verifyToken, isAdmin, ProductControllers.getAllReportedProducts)
 
 module.exports = route;

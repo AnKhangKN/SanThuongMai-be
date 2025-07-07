@@ -1,4 +1,5 @@
 const Product = require("../../models/Product");
+const Shop = require("../../models/Shop");
 const User = require("../../models/User");
 
 const getAllProducts = () => {
@@ -6,14 +7,15 @@ const getAllProducts = () => {
         try {
             const allProducts = await Product.find()
                 .populate({
-                    path: "user_id",
-                    select: "shop.status",
+                    path: "shopId",
+                    select: "status", // Chỉ cần status, không cần shopId.status
                 });
 
-            // Kiểm tra tình trạng sản phẩm nếu sản phẩm của shop ngoài active và sản phẩm đó ngoài active thì sẽ không được lấy
-            const activeProducts = allProducts.filter((product) =>
-                product?.status === "active" &&
-                product.user_id?.shop?.status === "active"
+            // Lọc sản phẩm có status "active" và shop cũng "active"
+            const activeProducts = allProducts.filter(
+                (product) =>
+                    product?.status === "active" &&
+                    product.shopId?.status === "active"
             );
 
             resolve({
@@ -27,13 +29,14 @@ const getAllProducts = () => {
     });
 };
 
+
 const getTopSearchProduct = () => {
     return new Promise(async (resolve, reject) => {
         try {
             const allProducts = await Product.find()
                 .populate({
-                    path: "user_id",
-                    select: "shop.status",
+                    path: "shopId",
+                    select: "status",
                 });
 
             // Kiểm tra tình trạng sản phẩm (nếu sản phẩm đang active và trạng thái shop cũng active)
@@ -126,8 +129,8 @@ const getAllCategoriesHome = () => {
             // Lấy tất cả sản phẩm, bao gồm danh mục của mỗi sản phẩm
             const allProducts = await Product.find()
                 .populate({
-                    path: "user_id",
-                    select: "shop.status",
+                    path: "shopId",
+                    select: "status",
                 });
 
             // Kiểm tra tình trạng sản phẩm (sản phẩm và shop phải ở trạng thái active)
@@ -203,8 +206,8 @@ const getTopCartProduct = () => {
         try {
             const allProducts = await Product.find()
                 .populate({
-                    path: "user_id",
-                    select: "shop.status",
+                    path: "shopId",
+                    select: "status",
                 });
 
             // Kiểm tra tình trạng sản phẩm (nếu sản phẩm đang active và trạng thái shop cũng active)

@@ -48,7 +48,7 @@ const productSchema = new mongoose.Schema(
         },
 
         // Số lượng đã bán được
-        soldCount: {type: Number, default: 0},
+        soldCount: {type: Number, default: 0}, 
 
         status: {
             type: String,
