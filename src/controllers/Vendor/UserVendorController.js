@@ -55,6 +55,22 @@ const createVendor = async (req, res) => {
   }
 };
 
+const getVendor = async (req, res) => {
+  try {
+    const vendorId = req.user.id; // từ token
+    const shop = await UserVendorService.getVendorByUserId(vendorId);
+
+    if (!shop) {
+      return res.status(404).json({ message: "Không tìm thấy thông tin shop" });
+    }
+
+    res.status(200).json(shop);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
 module.exports = {
   createVendor,
+  getVendor,
 };

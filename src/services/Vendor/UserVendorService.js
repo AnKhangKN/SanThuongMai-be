@@ -38,6 +38,29 @@ const createVendor = (userId, newVendor) => {
   });
 };
 
+const getVendorByUserId = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let shop = await Shop.findOne({ ownerId: userId });
+      if (!shop) {
+        return resolve({
+          status: "ERR",
+          message: "Shop not found",
+        });
+      }
+
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: shop,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createVendor,
+  getVendorByUserId,
 };
