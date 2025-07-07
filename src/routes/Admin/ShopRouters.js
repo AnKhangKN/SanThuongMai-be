@@ -1,17 +1,11 @@
 const express = require("express");
-const {isAdminMiddleware} = require("../../middleware/authMiddleware");
+const {isAdminMiddleware, verifyToken, isAdmin} = require("../../middleware/authMiddleware");
 const ShopControllers = require("../../controllers/Admin/ShopControllers");
 
 const route = express.Router();
 
-// shop router
-route.get("/get-all-shops", isAdminMiddleware, ShopControllers.getAllShops);
+route.get("/get-all-shops", verifyToken, isAdmin, ShopControllers.getAllShops);
 
-// Duyệt shop
-route.patch("/partial-update-shop/:id", isAdminMiddleware, ShopControllers.partialUpdateShop);
-
-route.get("/get-all-reported-shops", isAdminMiddleware, ShopControllers.getAllReportedShops)
-
-route.patch("/update-reported-shop/:id", isAdminMiddleware, ShopControllers.partialUpdateReportedShop);
+route.patch('/shop', verifyToken, isAdmin, ShopControllers.activateShop);
 
 module.exports = route;

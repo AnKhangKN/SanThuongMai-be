@@ -1,21 +1,21 @@
 const express = require("express");
-const {isUserMiddleware} = require("../../middleware/authMiddleware");
 const OrderControllers = require("../../controllers/Customer/OrderControllers");
+const {verifyToken} = require("../../middleware/authMiddleware");
 
 const route = express.Router();
 
-route.get("/get-all-shipping-address",isUserMiddleware, OrderControllers.getAllShippingCustomer);
+route.get("/get-all-shipping-address",verifyToken, OrderControllers.getAllShippingCustomer);
 
-route.patch("/add-shipping-addresses", isUserMiddleware, OrderControllers.addShippingCustomer);
+route.patch("/add-shipping-addresses", verifyToken, OrderControllers.addShippingCustomer);
 
-route.post("/order-product", isUserMiddleware, OrderControllers.orderProduct);
+route.post("/order-product", verifyToken, OrderControllers.orderProduct);
 
-route.get("/get-all-order", isUserMiddleware, OrderControllers.getAllOrderByStatus)
+route.get("/get-all-order", verifyToken, OrderControllers.getAllOrderByStatus)
 
-route.patch("/successful-delivered", isUserMiddleware, OrderControllers.successfulDelivered)
+route.patch("/successful-delivered", verifyToken, OrderControllers.successfulDelivered)
 
-route.patch("/cancel-order", isUserMiddleware, OrderControllers.cancelOrder);
+route.patch("/cancel-order", verifyToken, OrderControllers.cancelOrder);
 
-route.patch("/remove-shipping-address", isUserMiddleware, OrderControllers.removeShippingAddress);
+route.patch("/remove-shipping-address", verifyToken, OrderControllers.removeShippingAddress);
 
 module.exports = route;

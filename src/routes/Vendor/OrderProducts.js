@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const { isVendorMiddleware } = require("../../middleware/authMiddleware");
+const {verifyToken, isVendor} = require("../../middleware/authMiddleware");
 const OrderProductController = require("../../controllers/Vendor/OrderProductController");
 const Order = require("../../models/Order");
 
 router.get(
   "/get-all-order",
-  isVendorMiddleware,
+    verifyToken,isVendor,
   OrderProductController.getAllOrderProducts
 );
 
 router.put(
   "/change-status",
-  isVendorMiddleware,
+    verifyToken,isVendor,
   OrderProductController.changeStatusOrder
 );
 

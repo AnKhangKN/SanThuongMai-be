@@ -2,54 +2,15 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Hàm tách token từ header
 const extractToken = (req) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
   return authHeader.split(" ")[1].replace(/"/g, "");
 };
 
-// Admin Middleware
-const isAdminMiddleware = (req, res, next) => {
-  const token = extractToken(req);
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "No token provided", status: "ERROR" });
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
-    if (err || !decoded?.isAdmin) {
-      return res
-        .status(403)
-        .json({ message: "Người dùng không phải admin", status: "ERROR" });
-    }
-    req.user = decoded;
-    next();
-  });
-};
-
-// Vendor Middleware
-const isVendorMiddleware = (req, res, next) => {
-  const token = extractToken(req);
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "No token provided", status: "ERROR" });
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
-    if (err || !decoded?.isVendor) {
-      return res
-        .status(403)
-        .json({ message: "Người dùng không phải vendor", status: "ERROR" });
-    }
-    req.user = decoded;
-    next();
-  });
-};
-
-// User Middleware
-const isUserMiddleware = (req, res, next) => {
+// Middleware xác thực token
+const verifyToken = (req, res, next) => {
   const token = extractToken(req);
 
   if (!token) {
@@ -58,10 +19,7 @@ const isUserMiddleware = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
-      console.log("JWT Error:", err);
-      return res
-        .status(403)
-        .json({ message: "Không phải người dùng", status: "ERROR" });
+      return res.status(403).json({ message: "Token không hợp lệ", status: "ERROR" });
     }
 
     req.user = decoded;
@@ -69,4 +27,36 @@ const isUserMiddleware = (req, res, next) => {
   });
 };
 
-module.exports = { isAdminMiddleware, isVendorMiddleware, isUserMiddleware };
+// Admin Middleware
+const isAdmin = (req, res, next) => {
+  if (req.user?.isAdmin === true) return next();
+  return res.status(403).json({
+    status: "ERROR",
+    message: "Người dùng không phải là Admin!",
+  });
+};
+
+// Seller Middleware
+const isVendor = (req, res, next) => {
+  if (req.user?.isVendor === true) return next();
+  return res.status(403).json({
+    status: "ERROR",
+    message: "Người dùng không phải là chủ Shop!",
+  });
+};
+
+// User thông thường (không phải Admin và không phải Seller)
+const isUser = (req, res, next) => {
+  if (!req.user?.isAdmin && !req.user?.isSeller) return next();
+  return res.status(403).json({
+    status: "ERROR",
+    message: "Không phải người dùng thông thường!",
+  });
+};
+
+module.exports = {
+  verifyToken,
+  isAdmin,
+  isVendor,
+  isUser,
+};

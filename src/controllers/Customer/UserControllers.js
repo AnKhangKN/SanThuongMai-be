@@ -2,7 +2,7 @@ const UserServices = require("../../services/Customer/UserServices");
 
 const getDetailAccountUser = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req?.user?.id;
     if (!userId) {
       return res.status(400).json({
         status: "err",

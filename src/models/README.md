@@ -49,8 +49,8 @@ Cart model
 - Chỉ những sản phẩm nào được chọn mua mới mất trong giỏ hàng còn lại sẽ còn.
 
 Banner model
-- Banner sản phẩm sẽ hiện theo từng chương trình (sẽ có 1 chương trình mặc đinh).
-- Trong 1 chương trình sẽ có hình ảnh của chương trình hiển thị trên banner.
+- Banner sản phẩm sẽ hiện các chương trình theo móc thời gian các chương trình nào cùng móc thời gian sẽ cùng hiển thị (sẽ có 1 chương trình mặc đinh).
+- Khi nhấn vào chương trình trên banner sẽ chuyển qua chương trình đó trong 1 trang khác (ví dụ 7.7, ... ).
 - Khi chương trình kết thúc sẽ trở về chương trình mặc định của sản.
 - Hiển thị các chương trình giảm giá hoặc các chương trình sắp diện ra, có thể liên kết các chương trình giảm giá với banner bấm vào sẽ hiện qua chỗ giảm giá theo chương trình.
 

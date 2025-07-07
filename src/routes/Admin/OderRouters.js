@@ -1,11 +1,11 @@
 const express = require('express');
-const {isAdminMiddleware} = require("../../middleware/authMiddleware");
+const {isAdminMiddleware, verifyToken, isAdmin} = require("../../middleware/authMiddleware");
 const OrderController = require("../../controllers/Admin/OrderControllers");
 
 const route = express.Router();
 
-route.get("/get-all-order", isAdminMiddleware, OrderController.getAllOrder);
+route.get("/get-all-order", verifyToken, isAdmin,OrderController.getAllOrder);
 
-route.patch("/set-status-order", isAdminMiddleware, OrderController.setStatusOrder)
+route.patch("/set-status-order", verifyToken, isAdmin, OrderController.setStatusOrder)
 
 module.exports = route;

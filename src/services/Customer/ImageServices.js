@@ -17,15 +17,15 @@ const saveImagePathToDB = async (userId, imagePath) => {
         }
 
         // Kiểm tra nếu user có ảnh cũ, xóa ảnh cũ nếu tồn tại
-        if (user.images) {
-            const oldFilePath = path.join(uploadsDir, user.images);  // Đường dẫn file cũ với thư mục avatar
+        if (user.avatar) {
+            const oldFilePath = path.join(uploadsDir, user.avatar);  // Đường dẫn file cũ với thư mục avatar
             if (fs.existsSync(oldFilePath)) {
                 fs.unlinkSync(oldFilePath);  // Xóa ảnh cũ
             }
         }
 
         // Cập nhật ảnh mới vào MongoDB (chỉ lưu tên file ảnh)
-        user.images = fileName;  // Lưu tên file vào MongoDB (chỉ có tên file không có thư mục)
+        user.avatar = fileName;  // Lưu tên file vào MongoDB (chỉ có tên file không có thư mục)
         await user.save();
 
         return user;

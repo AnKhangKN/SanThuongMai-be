@@ -1,25 +1,25 @@
 const UserControllers = require("../../controllers/Customer/UserControllers");
 const express = require("express");
-const {isUserMiddleware} = require("../../middleware/authMiddleware");
+const {verifyToken} = require("../../middleware/authMiddleware");
 
 const route = express.Router();
 
 route.get(
-    "/get-detail-account/:id",
-    isUserMiddleware,
+    "/get-detail-account",
+    verifyToken,
     UserControllers.getDetailAccountUser
-); // GET /get-detail-user/:id (vendor, admin, customer)
+);
 
 route.patch(
     "/partial-update",
-    isUserMiddleware,
+    verifyToken,
     UserControllers.partialUpdateUser
 ); //cập nhật 1 thành phần
 
-route.post("/add-wish-list", isUserMiddleware, UserControllers.addWishlist)
+route.post("/add-wish-list", verifyToken, UserControllers.addWishlist)
 
-route.patch("/remove-wish-list", isUserMiddleware, UserControllers.removeWishlist);
+route.patch("/remove-wish-list", verifyToken, UserControllers.removeWishlist);
 
-route.patch("/change-password", isUserMiddleware, UserControllers.changePassword);
+route.patch("/change-password", verifyToken, UserControllers.changePassword);
 
 module.exports = route;
