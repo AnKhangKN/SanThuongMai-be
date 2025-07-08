@@ -19,4 +19,19 @@ router.get(
   UserVendorController.getVendor
 );
 
+router.put(
+  "/update-vendor",
+  verifyToken,
+  isVendor,
+  UserVendorController.updateVendor
+);
+
+router.put(
+  "/update-avatar-vendor",
+  verifyToken,
+  isVendor,
+  multerConfigAvatar,
+  UserVendorController.updateAvatarVendor
+);
+
 module.exports = router;
