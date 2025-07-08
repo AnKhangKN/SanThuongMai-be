@@ -60,7 +60,56 @@ const getVendorByUserId = (userId) => {
   });
 };
 
+const updateVendorByUserId = (userId, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const shop = await Shop.findOneAndUpdate(
+        { ownerId: userId },
+        { $set: data },
+        { new: true }
+      );
+
+      if (!shop) {
+        resolve({
+          status: "ERR",
+          message: "Shop not found",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "SUCCESS",
+          data: shop,
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const updateAvatar = (userId, avatar) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const updated = await Shop.findOneAndUpdate(
+        { ownerId: userId },
+        { shopAvatar: avatar },
+        { new: true }
+      );
+
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: updated,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createVendor,
   getVendorByUserId,
+  updateVendorByUserId,
+  updateAvatar,
 };

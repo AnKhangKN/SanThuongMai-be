@@ -70,7 +70,57 @@ const getVendor = async (req, res) => {
   }
 };
 
+const updateVendor = async (req, res) => {
+  try {
+    const userId = req.user.id; // lấy từ token
+    const { shopName, phone, address, city, description } = req.body;
+
+    if (!shopName || !phone || !address || !city) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "Vui lòng nhập đầy đủ các thông tin bắt buộc",
+      });
+    }
+
+    const updatedShop = await UserVendorService.updateVendorByUserId(userId, {
+      shopName,
+      phone,
+      address,
+      city,
+      description,
+    });
+
+    res.status(200).json({ status: "OK", data: updatedShop });
+  } catch (error) {
+    res.status(500).json({ status: "ERR", message: error.message });
+  }
+};
+
+const updateAvatarVendor = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const file = req.file;
+
+    if (!file) {
+      return res
+        .status(400)
+        .json({ status: "ERR", message: "Vui lòng chọn ảnh" });
+    }
+
+    const updatedShop = await UserVendorService.updateAvatar(
+      userId,
+      file.filename
+    );
+
+    return res.status(200).json({ status: "OK", data: updatedShop });
+  } catch (error) {
+    return res.status(500).json({ status: "ERR", message: error.message });
+  }
+};
+
 module.exports = {
   createVendor,
   getVendor,
+  updateVendor,
+  updateAvatarVendor,
 };
