@@ -2,11 +2,7 @@ const express = require("express");
 const router = express.Router();
 const UserVendorController = require("../../controllers/Vendor/UserVendorController");
 const multerConfigAvatar = require("../../middleware/multerConfigAvatar");
-<<<<<<< HEAD
-const {verifyToken, isVendor} = require("../../middleware/authMiddleware");
-=======
-const { isVendor, verifyToken } = require("../../middleware/authMiddleware");
->>>>>>> 99f9822c854bcd88108e28b9d8e81f9db4a3c397
+const { verifyToken, isVendor } = require("../../middleware/authMiddleware");
 
 router.post(
   "/add-vendor",
@@ -16,9 +12,6 @@ router.post(
   UserVendorController.createVendor
 );
 
-<<<<<<< HEAD
-router.get("/get-vendor", verifyToken, isVendor,  UserVendorController.getVendor);
-=======
 router.get(
   "/get-vendor",
   verifyToken,
@@ -40,6 +33,5 @@ router.put(
   multerConfigAvatar,
   UserVendorController.updateAvatarVendor
 );
->>>>>>> 99f9822c854bcd88108e28b9d8e81f9db4a3c397
 
 module.exports = router;
