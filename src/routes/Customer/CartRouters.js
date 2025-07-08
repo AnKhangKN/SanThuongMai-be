@@ -1,11 +1,11 @@
 const express = require("express");
 const CartController = require("../../controllers/Customer/CartControllers");
-const {verifyToken} = require("../../middleware/authMiddleware");
+const {verifyToken, isUser} = require("../../middleware/authMiddleware");
 
 
 const route = express.Router();
 
-route.post("/add-to-cart/:id", verifyToken, CartController.addToCart );
+route.post("/add-to-cart", verifyToken ,isUser, CartController.addToCart );
 
 route.get("/get-all-items",verifyToken, CartController.getAllItems);
 

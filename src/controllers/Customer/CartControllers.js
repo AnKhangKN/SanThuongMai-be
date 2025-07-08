@@ -2,34 +2,52 @@ const CartServices = require("../../services/Customer/CartServices");
 
 const addToCart = async (req, res) => {
     try {
-        const item = req.body;
+        const {
+            productId,
+            productName,
+            productImage,
+            attributes,
+            price,
+            quantity,
+            shopId,
+            shopName,
+        } = req.body;
 
-        // Lấy từ middleware
-        const user_id = req.user.id;
-        const product_id = req.params.id;
+        const user_id = req.user?.id;
+        
+        if (!user_id) {
+            return res.status(401).json({
+                status: "ERROR",
+                message: "Không xác định người dùng!",
+            });
+        }
 
-        const size = item.itemData.size;
-        const color = item.itemData.color;
-        const price = item.itemData.price;
-        const quantity = item.quantity;
-        const owner_id = item.owner_id;
-        const product_id_url = item.product_id_module;
+        if (!productId || !shopId || !price || !quantity) {
+            return res.status(400).json({
+                status: "ERROR",
+                message: "Thiếu thông tin bắt buộc!",
+            });
+        }
 
         const result = await CartServices.addToCart({
             user_id,
-            items: [{
-                product_id,
-                size,
-                color,
-                price,
-                quantity,
-                owner_id,
-                product_id_url
-            }]
+            items: [
+                {
+                    productId,
+                    productName,
+                    productImage,
+                    attributes,
+                    price,
+                    quantity,
+                    shopId,
+                    shopName,
+                },
+            ],
         });
 
         return res.status(200).json(result);
     } catch (e) {
+        console.error("Lỗi addToCart:", e);
         return res.status(500).json({
             status: "ERROR",
             message: e.message || "Lỗi máy chủ!",
@@ -122,4 +140,4 @@ const getProductBestSellersInCart = async (req, res) => {
     }
 }
 
-module.exports = { addToCart, getAllItems, updateCartQuantity, deleteCartItem, getProductBestSellersInCart };
+module.exports = {addToCart, getAllItems, updateCartQuantity, deleteCartItem, getProductBestSellersInCart};

@@ -17,12 +17,9 @@ const getDetailProduct = async (req, res) => {
 
         const { id } = req.params;
 
-        const product = await ProductServices.getDetailProduct(id)
+        const product = await ProductServices.getDetailProduct(id);
 
-        return res.status(200).json({
-            status: "OK",
-            data: product,
-        });
+        return res.status(200).json(product);
     } catch (error) {
         return res.status(500).json({
             status: "ERR",

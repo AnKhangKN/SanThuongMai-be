@@ -1,6 +1,5 @@
 const Product = require("../../models/Product");
 const Shop = require("../../models/Shop");
-const User = require("../../models/User");
 
 const getAllProducts = () => {
     return new Promise(async (resolve, reject) => {
@@ -28,7 +27,6 @@ const getAllProducts = () => {
         }
     });
 };
-
 
 const getTopSearchProduct = () => {
     return new Promise(async (resolve, reject) => {
@@ -62,32 +60,20 @@ const getTopSearchProduct = () => {
     });
 };
 
-const getDetailProduct = (id) => {
+const getDetailProduct = (productId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const product = await Product.findOne({ _id: id });
+            const product = await Product.findById(productId);
+            if (!product) return reject({ status: "ERROR", message: "Product not found" });
 
-            const owner_id = product.user_id;
-
-            const owner = await User.findOne({ _id: owner_id });
-
-            const shop = {
-                shop: owner?.shop,
-                imageShop: owner?.images
-            } ;
-
-            const countProductsOwner = await Product.countDocuments({
-                user_id: owner_id
-            });
-
-
-            if (!product) {
-                return reject(new Error("Không tìm thấy sản phẩm"));
-            }
+            const shop = await Shop.findById(product.shopId);
+            const countProductShop = await Product.countDocuments({ shopId: product.shopId });
 
             resolve({
                 status: "OK",
-                data: {product, shop, countProductsOwner}
+                product,
+                shop,
+                countProductShop,
             });
         } catch (error) {
             reject(error);
