@@ -1,26 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const { verifyToken, isVendor} = require("../../middleware/authMiddleware");
+const { verifyToken, isVendor } = require("../../middleware/authMiddleware");
 const uploadImgProducts = require("../../middleware/multerConfigProduct");
 const ProductController = require("../../controllers/Vendor/ProductController");
 const Product = require("../../models/Product");
 
 router.post(
   "/add-product",
-  verifyToken,isVendor,
+  verifyToken,
+  isVendor,
   uploadImgProducts,
   ProductController.createProduct
 );
 
 router.put(
   "/update-product",
-    verifyToken,isVendor,
+  verifyToken,
+  isVendor,
   ProductController.updateProduct
 );
 
 router.get(
   "/get-all-product",
-    verifyToken,isVendor,
+  verifyToken,
+  isVendor,
   ProductController.getAllProduct
 );
 
