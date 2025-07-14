@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const categorySchema = new mongoose.Schema({
-    name: {
+    categoryName: {
         type: String,
         required: true,
         unique: true,
@@ -13,28 +13,27 @@ const categorySchema = new mongoose.Schema({
 
     vat: {
         type: Number, // phần trăm VAT
-        default: 0,   // ví dụ: 10 = 10%
+        required: true,
     },
 
     platformFee: {
         type: Number, // phần trăm phí sàn
-        default: 5,   // ví dụ: 5%
+        required: true,
+        default: 0,
     },
 
-    otherFees: [
-        {
-            name: { type: String },
-            amount: { type: Number }, // cố định hoặc %
-            isPercentage: { type: Boolean, default: false }, // true nếu là %
-        }
-    ],
+    typeFees: {
+        type: String,
+        enum: ["percent", "fixed"], // phần trăm hoặc cố định
+        default: "fixed",
+    },
 
     isActive: {
         type: Boolean,
         default: true,
-    }
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 
 const Category = mongoose.model("Category", categorySchema);

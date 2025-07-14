@@ -4,7 +4,9 @@ const {verifyToken, isAdmin} = require("../../middleware/authMiddleware");
 
 const routes = express.Router();
 
-routes.get("/categories",verifyToken, isAdmin ,CategoryControllers.getAllCategories);
+routes.get("/categories", verifyToken, isAdmin ,CategoryControllers.getAllCategories);
+
+routes.post("/categories", CategoryControllers.createCategory); // verifyToken, isAdmin,
 
 module.exports = routes;
 

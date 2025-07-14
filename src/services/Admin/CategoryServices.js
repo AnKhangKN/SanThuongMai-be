@@ -3,36 +3,41 @@ const Category = require("../../models/Category");
 const getAllCategories = () => {
     return new Promise(async (resolve, reject) => {
         try {
-
             const categories = await Category.find();
-            if (!categories.length) {
-                reject("Category not found");
-            }
 
+            // Không reject khi rỗng
             resolve({
-                message: "All Categories",
-                categories
+                message: "All categories",
+                data: categories,
             });
-
         } catch (error) {
             reject(error);
         }
-    })
-}
+    });
+};
 
-const createCategory = () => {
+const createCategory = ({categoryName, description, vat, platformFee, typeFees}) => {
     return new Promise(async (resolve, reject) => {
         try {
+            if (!categoryName) {
+                reject({
+                    message: "Please enter a categoryName",
+                })
+            }
 
-            const category = await Category.create({
+            const newCategory = await Category.create({
+                categoryName, description, vat, platformFee, typeFees
+            });
 
-            })
-            
+            resolve({
+                message: "Tạo danh mục thành công",
+                data: newCategory,
+            });
         } catch (error) {
             reject(error);
         }
-    })
-}
+    });
+};
 
 module.exports = {
     getAllCategories,

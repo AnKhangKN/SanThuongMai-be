@@ -68,3 +68,9 @@ Notification model
 - Thông báo cho user (đơn hàng (các thông báo nhỏ), chương trình sale toàn sàn vd: tuần lễ thời trang,... , đơn hàng đã tới, đơn hàng đc hoàn trả thành công hay chưa, đã nhận lại tiền hay chưa, thông báo đăng kí shop nếu có, thông báo các báo cáo đã được xử lý hay chưa, các tin nhắn mới).
 - Thông báo cho seller (Có đơn hàng mới, Đơn hàng bị hủy, Sản phẩm bị từ chối, Tin nhắn mới từ khách, Thanh toán đã hoàn thành).
 - Thông báo cho admin (Có shop mới đăng ký, Có sản phẩm mới cần duyệt, Có báo cáo vi phạm (shop, sản phẩm), Có tin nhắn support mới, Hệ thống lỗi (monitoring)).
+
+Category model
+- Mỗi loại sản phẩm sẽ thuộc 1 danh mục để quản lý chi phí (nền tảng, vat, các chi phí khác).
+- Phí nền tảng và vat là bắt buộc áp dụng vào đơn hàng. Khi thanh toán sẽ tính các chi phí này.
+- Giá hiển thị cho người dùng là giá đã bao gồm phí vat, phí nền tảng và các chi phí khác.
+- Vendor muốn kiểm tra giá thì sẽ hiện thị giá final.
