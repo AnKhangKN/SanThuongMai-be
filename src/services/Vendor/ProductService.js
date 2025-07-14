@@ -47,23 +47,21 @@ const createProduct = (newProduct, files, user_id) => {
   });
 };
 
-const updateProduct = (data) => {
+const updateProduct = (productId, updatedData) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const productId = data._id;
-
-      const checkId = await Product.findOne({ _id: productId });
-
-      if (checkId === null) {
+      if (!productId) {
         return resolve({
           status: "ERR",
-          message: "Product not found",
+          message: "Invalid product ID",
         });
       }
 
-      const updatedProduct = await Product.findByIdAndUpdate(productId, data, {
-        new: true,
-      });
+      const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        updatedData,
+        { new: true }
+      );
 
       return resolve({
         status: "OK",
