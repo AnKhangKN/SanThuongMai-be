@@ -5,11 +5,12 @@ const getAllCategories = () => {
         try {
             const categories = await Category.find();
 
-            // Không reject khi rỗng
             resolve({
+                status: "200",
                 message: "All categories",
                 data: categories,
             });
+            
         } catch (error) {
             reject(error);
         }
@@ -39,7 +40,45 @@ const createCategory = ({categoryName, description, vat, platformFee, typeFees})
     });
 };
 
+const updateCategory = async ({
+                                  categoryId,
+                                  categoryName,
+                                  description,
+                                  vat,
+                                  platformFee,
+                                  typeFees,
+                                  isActive,
+                              }) => {
+    try {
+        const category = await Category.findByIdAndUpdate(
+            categoryId,
+            { categoryName, description, vat, platformFee, typeFees, isActive },
+            { new: true }
+        );
+
+        if (!category) {
+            throw {
+                status: 404,
+                message: "Không tìm thấy danh mục",
+            };
+        }
+
+        return {
+            status: 200,
+            message: "Cập nhật danh mục thành công",
+            data: category,
+        };
+    } catch (error) {
+        throw {
+            status: error.status || 500,
+            message: error.message || "Lỗi máy chủ",
+        };
+    }
+};
+
+
 module.exports = {
     getAllCategories,
-    createCategory
+    createCategory,
+    updateCategory
 };

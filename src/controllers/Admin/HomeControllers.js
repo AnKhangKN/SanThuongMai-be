@@ -10,7 +10,7 @@ const getAllHome = async (req, res) => {
             });
         }
 
-        const result = await HomeServices.getAllHome(); // Sử dụng await để xử lý bất đồng bộ
+        const result = await HomeServices.getAllHome();
 
         return res.status(200).json(result); // Đảm bảo trả về JSON
     } catch (error) {
