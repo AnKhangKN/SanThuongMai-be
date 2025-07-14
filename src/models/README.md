@@ -62,3 +62,9 @@ Voucher model
 - Các mã giảm giá sẽ có số lượng sử dụng (riêng mã giảm giá vận chuyển có thể sẽ là vĩnh viễn để kích thích mua hàng hoặc đạt móc cũng sẽ giảm giá vận chuyển để kích thích mua hàng).
 - Các voucher sẽ có thời hạn sử dụng nếu hết sẽ không thể sử dụng.
 - Khi mua hàng sẽ có mục chọn voucher, voucher này sẽ áp dụng toàn đơn không áp dụng riêng lẻ, khi sử dụng sẽ nhấn áp dụng đơn hàng sẽ áp dụng theo code được sinh ra để tiến hành giàm giá.
+
+Notification model
+- Dùng để thông báo cho (admin, user, seller).
+- Thông báo cho user (đơn hàng (các thông báo nhỏ), chương trình sale toàn sàn vd: tuần lễ thời trang,... , đơn hàng đã tới, đơn hàng đc hoàn trả thành công hay chưa, đã nhận lại tiền hay chưa, thông báo đăng kí shop nếu có, thông báo các báo cáo đã được xử lý hay chưa, các tin nhắn mới).
+- Thông báo cho seller (Có đơn hàng mới, Đơn hàng bị hủy, Sản phẩm bị từ chối, Tin nhắn mới từ khách, Thanh toán đã hoàn thành).
+- Thông báo cho admin (Có shop mới đăng ký, Có sản phẩm mới cần duyệt, Có báo cáo vi phạm (shop, sản phẩm), Có tin nhắn support mới, Hệ thống lỗi (monitoring)).
