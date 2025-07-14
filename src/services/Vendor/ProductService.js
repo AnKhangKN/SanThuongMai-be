@@ -7,7 +7,7 @@ const createProduct = (newProduct, files, user_id) => {
     try {
       const {
         productName,
-        category,
+        categoryId,
         description,
         priceOptions,
         status,
@@ -22,7 +22,7 @@ const createProduct = (newProduct, files, user_id) => {
 
       const createdProduct = await Product.create({
         productName,
-        category,
+        categoryId,
         description: description || "",
         images: imageNames,
         priceOptions, // ✅ Dùng trực tiếp

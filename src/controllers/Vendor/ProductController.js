@@ -6,10 +6,8 @@ const createProduct = async (req, res) => {
     const data = req.body;
     const files = req.files;
     const user_id = req.user?._id || req.user?.id;
-    console.log("user _id", req.user._id);
-    console.log("user id", req.user.id);
 
-    if (!data.productName || !data.category) {
+    if (!data.productName || !data.categoryId) {
       return res.status(400).json({
         status: "ERR",
         message: "Vui lòng cung cấp tên sản phẩm và danh mục.",
