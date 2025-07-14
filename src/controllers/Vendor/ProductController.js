@@ -80,14 +80,21 @@ const updateProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const vendorId = req.user.id;
 
-    const response = await ProductService.getAllProduct(userId);
-    return res.status(200).json(response);
+    if (!vendorId) {
+      return res.status(401).json({
+        status: "ERR",
+        message: "Unauthorized: vendorId is missing",
+      });
+    } else {
+      const response = await ProductService.getAllProductByVendor(vendorId);
+      return res.status(200).json(response);
+    }
   } catch (e) {
     return res.status(500).json({
       status: "ERR",
-      message: e.message || "Internal server error",
+      message: e.message || "Lỗi lấy ra sản phẩm",
     });
   }
 };

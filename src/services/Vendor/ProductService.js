@@ -1,5 +1,5 @@
 const Product = require("../../models/Product");
-const User = require("../../models/User");
+const Shop = require("../../models/Shop");
 const path = require("path");
 
 const createProduct = (newProduct, files, user_id) => {
@@ -76,30 +76,25 @@ const updateProduct = (data) => {
   });
 };
 
-const getAllProduct = (userId) => {
+const getAllProductByVendor = (vendorId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkId = await User.findOne({
-        _id: userId,
-      });
+      const checkId = await Shop.findOne({ ownerId: vendorId });
 
       if (checkId === null) {
-        resolve({
+        return resolve({
           status: "ERR",
-          message: "User not found",
+          message: "Người dùng không tồn tại",
         });
       }
-
-      const allProduct = await Product.find({
-        user_id: userId,
-      });
-      resolve({
+      const producted = await Product.find({ shopId: checkId._id });
+      return resolve({
         status: "OK",
         message: "SUCCESS",
-        data: allProduct,
+        data: producted,
       });
     } catch (e) {
-      reject(e);
+      return reject(e);
     }
   });
 };
@@ -140,6 +135,6 @@ const updateStatusProduct = (data, userId) => {
 module.exports = {
   createProduct,
   updateProduct,
-  getAllProduct,
+  getAllProductByVendor,
   updateStatusProduct,
 };
