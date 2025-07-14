@@ -6,6 +6,8 @@ const createProduct = async (req, res) => {
     const data = req.body;
     const files = req.files;
     const user_id = req.user?._id || req.user?.id;
+    console.log("user _id", req.user._id);
+    console.log("user id", req.user.id);
 
     if (!data.productName || !data.category) {
       return res.status(400).json({
@@ -66,28 +68,49 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const data = req.body;
+    const productId = req.body.id;
+    const updatedData = req.body;
 
-    const response = await ProductService.updateProduct(data);
-    return res.status(200).json(response);
-  } catch (e) {
-    return res.status(500).json({
-      status: "ERR",
-      message: e.message || "Internal server error",
+    if (!productId) {
+      return res.status(400).json({
+        status: "ERROR",
+        message: "Thiếu productId",
+      });
+    }
+
+    const result = await ProductService.updateProduct(productId, updatedData);
+
+    res.status(200).json({
+      status: "OK",
+      message: "Cập nhật thành công",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "ERROR",
+      message: "Cập nhật thất bại",
+      error: error.message,
     });
   }
 };
 
 const getAllProduct = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const vendorId = req.user.id;
 
-    const response = await ProductService.getAllProduct(userId);
-    return res.status(200).json(response);
+    if (!vendorId) {
+      return res.status(401).json({
+        status: "ERR",
+        message: "Unauthorized: vendorId is missing",
+      });
+    } else {
+      const response = await ProductService.getAllProductByVendor(vendorId);
+      return res.status(200).json(response);
+    }
   } catch (e) {
     return res.status(500).json({
       status: "ERR",
-      message: e.message || "Internal server error",
+      message: e.message || "Lỗi lấy ra sản phẩm",
     });
   }
 };
