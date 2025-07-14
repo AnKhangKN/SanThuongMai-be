@@ -130,9 +130,33 @@ const updateStatusProduct = async (req, res) => {
   }
 };
 
+const getSearchProduct = async (req, res) => {
+  try {
+    const vendorId = req.user.id; // từ verifyToken
+    const keyword = req.query.keyword || "";
+
+    if (!vendorId) {
+      return res.status(401).json({
+        status: "ERR",
+        message: "Unauthorized: vendorId is missing",
+      });
+    }
+
+    const products = await ProductService.searchProductsByName(
+      vendorId,
+      keyword
+    );
+    return res.status(200).json(products);
+  } catch (err) {
+    console.error("Search product error:", err);
+    return res.status(500).json({ message: "Lỗi khi tìm kiếm sản phẩm." });
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   getAllProduct,
   updateStatusProduct,
+  getSearchProduct,
 };

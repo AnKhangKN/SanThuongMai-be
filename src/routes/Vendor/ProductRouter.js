@@ -27,28 +27,12 @@ router.get(
   ProductController.getAllProduct
 );
 
-// API tìm kiếm sản phẩm
-router.get("/search-products", async (req, res) => {
-  try {
-    const { search } = req.query;
-
-    if (!search || typeof search !== "string") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Thiếu từ khóa tìm kiếm hợp lệ" });
-    }
-
-    const products = await Product.find({
-      product_name: { $regex: search, $options: "i" },
-      status: "active",
-    }).limit(10);
-
-    res.status(200).json({ success: true, data: products });
-  } catch (err) {
-    console.error("Lỗi tìm kiếm sản phẩm:", err);
-    res.status(500).json({ success: false, message: "Lỗi server" });
-  }
-});
+router.get(
+  "/search-product",
+  verifyToken,
+  isVendor,
+  ProductController.getSearchProduct
+);
 
 // API lọc sản phẩm theo khoảng giá
 router.get("/filter-by-price", async (req, res) => {

@@ -130,9 +130,29 @@ const updateStatusProduct = (data, userId) => {
   });
 };
 
+const searchProductsByName = (vendorId, keyword) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const products = await Product.find({
+        shopId: vendorId,
+        productName: { $regex: keyword, $options: "i" },
+      });
+
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: products,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   getAllProductByVendor,
   updateStatusProduct,
+  searchProductsByName,
 };
