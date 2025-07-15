@@ -14,6 +14,7 @@ const priceOptionSchema = new mongoose.Schema(
         attributes: [attributeSchema],
         price: {type: Number, required: true, min: 0},
         salePrice: {type: Number, required: false, min: 0},
+        finalPrice: {type: Number, required: true, min: 0}, // Dựa trên vat và platformFee của category bắt buộc có.
         stock: {type: Number, required: true, min: 0},
     },
     {_id: false}
