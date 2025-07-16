@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const VoucherSchema = new mongoose.Schema({
     voucherName: {
@@ -12,13 +12,14 @@ const VoucherSchema = new mongoose.Schema({
         default: "",
     },
 
-    image: {
+    category: { // danh mục vận chuyển, danh mục sản phẩm, danh mục đạt móc đơn hàng, ...
         type: String,
+        required: true,
     },
 
     type: {
         type: String,
-        enum: ['fixed', 'percent'],
+        enum: ['fixed', 'percentage'],
         required: true,
     },
 

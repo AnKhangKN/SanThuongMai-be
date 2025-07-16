@@ -18,6 +18,8 @@ const PasswordRouterShared = require("../routes/shared/PasswordRouters");
 const PromotionRouter = require("../routes/admin/PromotionRouters");
 const CategoryRoutersAdmin = require("../routes/Admin/CategoryRoutes");
 const CategoryRouterVendor = require("../routes/Vendor/CategoryRouterVendor");
+const VoucherRoutersAdmin = require("../routes/Admin/VoucherRoutes");
+const VoucherRoutersCustomer = require("../routes/Customer/VoucherRoutes");
 
 const routes = (app) => {
   // Shared API
@@ -37,6 +39,8 @@ const routes = (app) => {
   app.use("/api/customer", ImageRouters);
 
   app.use("/api/customer", ShopRouters);
+
+  app.use("/api/customer", VoucherRoutersCustomer)
 
   // Vendor API
   app.use("/api/vendor", ProductRoutersVendor);
@@ -60,6 +64,8 @@ const routes = (app) => {
   app.use("/api/admin", PromotionRouter);
 
   app.use("/api/admin", CategoryRoutersAdmin);
+
+  app.use("/api/admin", VoucherRoutersAdmin);
 };
 
 module.exports = routes;
