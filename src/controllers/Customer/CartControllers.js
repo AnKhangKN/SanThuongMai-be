@@ -77,14 +77,28 @@ const getAllItems = async (req, res) => {
 const updateCartQuantity = async (req, res) => {
     try {
         const user_id = req.user?.id;
+        const { cartId, productItemId, attributes,productId, quantity } = req.body;
+
+
+
         if (!user_id) {
             return res.status(401).json({
                 status: "ERROR",
                 message: "Bạn chưa đăng nhập!",
             });
         }
+        
 
-        const result = await CartServices.updateCartQuantity(req.body);
+        // Kiểm tra đầu vào
+        if (!cartId || !productItemId || quantity < 1) {
+            return res.status(400).json({
+                status: "ERROR",
+                message: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.",
+            });
+        }
+
+        // Gọi service
+        const result = await CartServices.updateCartQuantity({ cartId, productItemId,attributes,productId, quantity });
         return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({

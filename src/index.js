@@ -22,6 +22,10 @@ app.use(
 );
 
 app.use(bodyParser.json());
+
+// Parse application/x-www-form-urlencoded (nếu cần thiết)
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(cookieParser());
 
 // Các routes API của bạn

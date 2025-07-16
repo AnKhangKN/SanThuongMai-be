@@ -33,9 +33,10 @@ const productItemsSchema = new mongoose.Schema({
         ref: "Shop",
         required: true,
     },
+
     shopName: { type: String, required: true },
 
-}, { _id: false });
+}, { _id: true });
 
 const cartSchema = new mongoose.Schema(
     {

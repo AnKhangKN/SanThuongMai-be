@@ -7,7 +7,7 @@ const attributeSchema = new mongoose.Schema({
 
 // Schema chi tiết từng sản phẩm trong đơn hàng
 const productItemSchema = new mongoose.Schema({
-    product_id: {
+    productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
         required: true,
@@ -20,6 +20,8 @@ const productItemSchema = new mongoose.Schema({
     attributes: [attributeSchema],
 
     price: { type: Number, required: true, min: 0 },
+
+    finalPrice: { type: Number, required: true, min: 0 },
 
     quantity: { type: Number, required: true, min: 0  },
 
@@ -81,7 +83,7 @@ const orderSchema = new mongoose.Schema({
         required: true,
     },
 
-    items: [productItemSchema], // Danh sách sản phẩm
+    productItems: [productItemSchema], // Danh sách sản phẩm
 
     shippingAddress: {
         city: { type: String, required: true },
@@ -160,5 +162,4 @@ const orderSchema = new mongoose.Schema({
 
 
 const Order = mongoose.model('Order', orderSchema);
-
 module.exports = Order;
