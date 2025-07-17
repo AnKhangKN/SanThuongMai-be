@@ -25,7 +25,7 @@ const addShippingCustomer = async (req, res) => {
     try {
         const user_id = req.user?.id;
 
-        const shippingInfo = req.body;
+        const {phone, city, address} = req.body;
 
         if (!user_id) {
             return res.status(400).json({
@@ -34,7 +34,7 @@ const addShippingCustomer = async (req, res) => {
             });
         }
 
-        const result = await OrderServices.addShippingCustomer(user_id, shippingInfo);
+        const result = await OrderServices.addShippingCustomer(user_id, {phone, city, address});
         return res.status(200).json(result);
 
     } catch (error) {
@@ -70,30 +70,32 @@ const getAllOrderByStatus = async (req, res) => {
 
 const orderProduct = async (req, res) => {
     try {
-        const user_id = req.user?.id;
+        const userId = req.user?.id;
 
         // Nhận dữ liệu từ request body
-        const { shippingInfo, items, totalBill, paymentMethod, orderNote, email } = req.body;
-
-        // Kiểm tra nếu thiếu dữ liệu quan trọng
-        if (!user_id || !shippingInfo || !items || !totalBill || items.length === 0) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Thiếu thông tin cần thiết để tạo đơn hàng'
-            });
-        }
+        const {
+            productItems,
+            shippingAddress,
+            paymentMethod,
+            totalPrice,
+            vouchers = [],
+            discountAmount,
+            finalAmount,
+            note
+        } = req.body;
 
         // Gọi service orderProduct (Thêm await để đợi kết quả)
-        const result = await OrderServices.orderProduct(
-            user_id,
-            shippingInfo,
-            items,
-            totalBill,
+        const result = await OrderServices.orderProduct({
+            userId,
+            productItems,
+            shippingAddress,
             paymentMethod,
-            orderNote,
-            email
-        );
-
+            totalPrice,
+            vouchers,
+            discountAmount,
+            finalAmount,
+            note
+        });
         return res.status(200).json(result);
 
     } catch (e) {
@@ -103,7 +105,6 @@ const orderProduct = async (req, res) => {
         });
     }
 };
-
 
 const successfulDelivered = async (req, res) => {
     try {

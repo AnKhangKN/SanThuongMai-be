@@ -96,21 +96,23 @@ const orderSchema = new mongoose.Schema({
         enum: ["COD", "Online", "Wallet"],
         default: "COD",
     },
-
+    
     totalPrice: { // Tổng tiền đơn hàng
         type: Number,
         required: true,
     },
 
-    voucher: {
-        code: { type: String },         // Mã người dùng đã nhập (SALE50)
-        value: { type: Number },        // Số tiền được giảm
-        type: { type: String },         // 'percent' hoặc 'fixed'
-        voucherId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Voucher"
+    vouchers: [
+        {
+            code: { type: String },         // Mã người dùng đã nhập (SALE50)
+            value: { type: Number },        // Số tiền được giảm
+            type: { type: String },         // 'percent' hoặc 'fixed'
+            voucherId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Voucher"
+            }
         }
-    },
+    ],
 
     discountAmount: { // Sô tiền được giảm
         type: Number,

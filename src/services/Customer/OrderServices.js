@@ -2,9 +2,9 @@ const User = require("../../models/User");
 const Order = require("../../models/Order");
 const PlatformFees = require("../../models/PlatformFees");
 const Product = require("../../models/Product");
-const Cart = require("../../models/Cart");
+const Shop = require("../../models/Shop");
+const Voucher = require("../../models/Voucher");
 const mongoose = require("mongoose");
-const EmailServices = require("../../services/Shared/EmailServices");
 
 const getAllShippingCustomer = (user_id) => {
     return new Promise(async (resolve, reject) => {
@@ -17,7 +17,7 @@ const getAllShippingCustomer = (user_id) => {
             }
 
             // Tìm user theo _id
-            const user = await User.findById(user_id).select('shipping_address');
+            const user = await User.findById(user_id).select('shippingAddress');
 
             if (!user) {
                 return reject({
@@ -29,7 +29,7 @@ const getAllShippingCustomer = (user_id) => {
             resolve({
                 status: 'success',
                 message: 'Successfully fetched shipping addresses',
-                data: user.shipping_address // Trả ra mảng shipping_address
+                data: user.shippingAddress // Trả ra mảng shipping_address
             });
 
         } catch (e) {
@@ -42,7 +42,7 @@ const getAllShippingCustomer = (user_id) => {
     });
 };
 
-const addShippingCustomer = (user_id, shippingInfo) => {
+const addShippingCustomer = (user_id, shippingAddress) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Kiểm tra xem user có tồn tại không
@@ -54,10 +54,10 @@ const addShippingCustomer = (user_id, shippingInfo) => {
                 });
             }
 
-            const shipping = shippingInfo.shipping_address
+            const {phone, city, address} = shippingAddress
 
             // Kiểm tra dữ liệu shippingInfo có đầy đủ không (bổ sung nhẹ nhàng)
-            if (!shippingInfo || !shipping.phone || !shipping.address || !shipping.city) {
+            if (!phone || !address || !city) {
                 return reject({
                     status: 'error',
                     message: 'Thiếu thông tin giao hàng'
@@ -69,10 +69,10 @@ const addShippingCustomer = (user_id, shippingInfo) => {
                 user_id,
                 {
                     $push: {
-                        shipping_address: {
-                            phone: shipping.phone,
-                            address: shipping.address,
-                            city: shipping.city,
+                        shippingAddress: {
+                            phone,
+                            address,
+                            city,
                         }
                     }
                 },
@@ -147,146 +147,102 @@ const getAllOrderByStatus = (user_id, status) => {
     });
 };
 
-const orderProduct = (user_id, shippingInfo, items, totalBill, paymentMethod, orderNote, email) => {
+const orderProduct = ({
+                          userId,
+                          productItems,
+                          shippingAddress,
+                          paymentMethod,
+                          totalPrice,
+                          vouchers = [],
+                          discountAmount,
+                          finalAmount,
+                          note
+                      }) => {
     return new Promise(async (resolve, reject) => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
         try {
+            const user = await User.findById(userId).session(session);
+            if (!user) throw new Error("User not found");
 
-            if (!user_id) {
-                return reject({
-                    status: 'error',
-                    message: "Không tìm thấy người dùng"
-                });
-            }
+            for (const item of productItems) {
+                const shop = await Shop.findById(item.shopId).session(session);
+                if (!shop) throw new Error(`Shop not found for product: ${item.productName}`);
 
+                // Tăng soldCount của shop
+                shop.soldCount += item.quantity;
+                await shop.save({ session });
 
-            // Lấy phí nền tảng
-            const fee = await PlatformFees.findOne({ fee_name: "order" });
-            if (!fee) {
-                return reject({
-                    status: 'error',
-                    message: "Không có chi phí nền tảng"
-                });
-            }
+                const product = await Product.findById(item.productId).session(session);
+                if (!product) throw new Error(`Product not found: ${item.productName}`);
 
-            const platform_fee_id = fee._id;
-            const fee_type = fee.fee_type;
-            const value = fee.value;
-
-            const fee_value = value/100;
-
-            // Tính phí nền tảng
-            let fee_price;
-
-            if (fee_type === "percentage"){
-                fee_price = fee_value * totalBill
-            } else {
-                fee_price = 20000;
-            }
-
-            // Tính các khoản chi phí khác
-            const taxRate = parseFloat(process.env.TAX_FEE) || 0.05; // 5% thuế
-            const tax_price = totalBill * taxRate;
-            const shipping_price = parseFloat(process.env.SHIPPING_FEE) || 30000; // phí ship mặc định
-
-            const isPaid = paymentMethod === "credit_card";
-
-            // Tạo đơn hàng
-            const newOrder = await Order.create({
-                user_id,
-                shipping_address: {
-                    phone: shippingInfo.phone,
-                    address: shippingInfo.address,
-                    city: shippingInfo.city,
-                },
-                items: items.map(item => ({
-                    product_id: item.product_id,
-                    product_image: item.product_img,
-                    product_name: item.product_name,
-                    size: item.size,
-                    color: item.color,
-                    price: item.price,
-                    quantity: item.quantity,
-                    owner_id: item.owner_id
-                })),
-                order_note: orderNote,
-                total_price: totalBill,
-                tax_price,
-                shipping_price,
-                payment_method: paymentMethod,
-                is_paid: isPaid,
-                paid_at: isPaid ? new Date() : null,
-                platform_fee: {
-                    platform_fee_id,
-                    value: fee_price,
-                    fee_type
-                },
-                status: isPaid ? "processing" : "pending",
-            });
-
-            const updates = [];
-
-            // Chỉnh số lượng tồn kho và sold_count
-            for (const item of items) {
-                try {
-
-                    const productId = new mongoose.Types.ObjectId(item.product_id);
-
-                    const product = await Product.findById(productId);
-
-                    if (!product) {
-                        console.warn("Không tìm thấy sản phẩm:", item.product_id);
-                        continue;
-                    }
-
-                    const variant = product.details.find(detail =>
-                        String(detail.size).trim().toLowerCase() === String(item.size).trim().toLowerCase() &&
-                        String(detail.color).trim().toLowerCase() === String(item.color).trim().toLowerCase()
+                // Tìm đúng biến thể sản phẩm
+                const matchedOption = product.priceOptions.find((option) => {
+                    if (option.attributes.length !== item.attributes.length) return false;
+                    return item.attributes.every((attr) =>
+                        option.attributes.some(
+                            (optAttr) =>
+                                optAttr.name === attr.name &&
+                                optAttr.value === attr.value
+                        )
                     );
+                });
 
-                    if (!variant) {
-                        console.warn(`Không tìm thấy biến thể phù hợp (size=${item.size}, color=${item.color})`);
-                        continue;
+                if (!matchedOption) {
+                    throw new Error(`Không tìm thấy biến thể phù hợp cho sản phẩm: ${item.productName}`);
+                }
+
+                if (matchedOption.stock < item.quantity) {
+                    throw new Error(`Sản phẩm "${item.productName}" không đủ tồn kho. Còn lại: ${matchedOption.stock}, bạn chọn: ${item.quantity}`);
+                }
+
+                // Trừ kho
+                matchedOption.stock -= item.quantity;
+
+                // Tăng soldCount của sản phẩm
+                product.soldCount += item.quantity;
+
+                await product.save({ session });
+            }
+
+            // Giảm usageLimit của voucher
+            if (vouchers.length > 0) {
+                for (const voucher of vouchers) {
+                    const foundVoucher = await Voucher.findById(voucher.voucherId).session(session);
+                    if (foundVoucher) {
+                        foundVoucher.usageLimit = Math.max(foundVoucher.usageLimit - 1, 0);
+                        await foundVoucher.save({ session });
                     }
-
-                    variant.quantity -= item.quantity;
-                    if (variant.quantity < 0) variant.quantity = 0;
-
-                    product.sold_count = (product.sold_count || 0) + item.quantity;
-
-                    updates.push(product.save());
-
-                } catch (err) {
-                    console.error("Lỗi xử lý sản phẩm:", item.product_id, err.message);
                 }
             }
 
-            // Xóa từng sản phẩm đã mua khỏi cart (chỉ xóa sản phẩm đã mua)
-            for (const item of items) {
-                await Cart.updateOne(
-                    { user_id },
-                    { $pull: { items: { product_id: item.product_id } } }
-                );
-            }
+            // Tạo đơn hàng
+            const order = await Order.create([{
+                userId,
+                productItems,
+                shippingAddress,
+                paymentMethod,
+                totalPrice,
+                vouchers,
+                discountAmount,
+                finalAmount,
+                note
+            }], { session });
 
-            // Chạy tất cả cập nhật song song
-            await Promise.all(updates);
+            // Commit nếu mọi thứ thành công
+            await session.commitTransaction();
+            session.endSession();
 
-            await EmailServices.sendEmailCreateOrder(email, items);
-
-            // Trả kết quả
             resolve({
-                status: 'success',
-                message: 'Đặt hàng thành công',
-                order: newOrder
+                message: "Tạo đơn hàng thành công",
+                order: order[0]
             });
 
         } catch (error) {
-            console.error(error);
-            reject({
-                status: 'error',
-                message: 'Lỗi khi đặt hàng',
-                error: error.message
-            });
+            await session.abortTransaction();
+            session.endSession();
+            reject({ message: error.message });
         }
     });
 };
