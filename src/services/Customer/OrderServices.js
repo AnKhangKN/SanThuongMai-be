@@ -170,14 +170,12 @@ const orderProduct = ({
                 const shop = await Shop.findById(item.shopId).session(session);
                 if (!shop) throw new Error(`Shop not found for product: ${item.productName}`);
 
-                // Tăng soldCount của shop
                 shop.soldCount += item.quantity;
                 await shop.save({ session });
 
                 const product = await Product.findById(item.productId).session(session);
                 if (!product) throw new Error(`Product not found: ${item.productName}`);
 
-                // Tìm đúng biến thể sản phẩm
                 const matchedOption = product.priceOptions.find((option) => {
                     if (option.attributes.length !== item.attributes.length) return false;
                     return item.attributes.every((attr) =>
@@ -197,40 +195,41 @@ const orderProduct = ({
                     throw new Error(`Sản phẩm "${item.productName}" không đủ tồn kho. Còn lại: ${matchedOption.stock}, bạn chọn: ${item.quantity}`);
                 }
 
-                // Trừ kho
                 matchedOption.stock -= item.quantity;
-
-                // Tăng soldCount của sản phẩm
                 product.soldCount += item.quantity;
-
                 await product.save({ session });
             }
 
             // Giảm usageLimit của voucher
-            if (vouchers.length > 0) {
-                for (const voucher of vouchers) {
-                    const foundVoucher = await Voucher.findById(voucher.voucherId).session(session);
-                    if (foundVoucher) {
-                        foundVoucher.usageLimit = Math.max(foundVoucher.usageLimit - 1, 0);
-                        await foundVoucher.save({ session });
-                    }
+            for (const voucher of vouchers) {
+                const foundVoucher = await Voucher.findById(voucher.voucherId).session(session);
+                if (foundVoucher) {
+                    foundVoucher.usageLimit = Math.max(foundVoucher.usageLimit - 1, 0);
+                    await foundVoucher.save({ session });
                 }
             }
+
+            // Gán trạng thái cho từng productItem
+            const productItemsWithStatus = productItems.map(item => ({
+                ...item,
+                status: paymentMethod === "Online" ? "processing" : "pending"
+            }));
 
             // Tạo đơn hàng
             const order = await Order.create([{
                 userId,
-                productItems,
+                productItems: productItemsWithStatus,
                 shippingAddress,
                 paymentMethod,
                 totalPrice,
                 vouchers,
                 discountAmount,
                 finalAmount,
-                note
+                note,
+                isPaid: paymentMethod === "Online",
+                paidAt: paymentMethod === "Online" ? new Date() : null
             }], { session });
 
-            // Commit nếu mọi thứ thành công
             await session.commitTransaction();
             session.endSession();
 
