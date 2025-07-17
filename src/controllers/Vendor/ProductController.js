@@ -1,5 +1,6 @@
 const ProductService = require("../../services/Vendor/ProductService");
 const Shop = require("../../models/Shop");
+const Category = require("../../models/Category");
 
 const createProduct = async (req, res) => {
   try {
@@ -43,11 +44,33 @@ const createProduct = async (req, res) => {
       });
     }
 
+    // ❗️Lấy category để tính thuế/phí
+    const category = await Category.findById(data.categoryId);
+    if (!category) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "Danh mục không hợp lệ.",
+      });
+    }
+
+    // ✅ Tính finalPrice cho mỗi option
+    const updatedOptions = priceOptions.map((opt) => {
+      const basePrice = opt.salePrice || opt.price;
+      const finalPrice = Math.round(
+        basePrice * (1 + (category.vat + category.platformFee) / 100)
+      );
+
+      return {
+        ...opt,
+        finalPrice,
+      };
+    });
+
     const productData = {
       ...data,
       images: imagePaths,
-      shopId: shop._id, // ✅ Gán đúng shopId lấy từ DB
-      priceOptions,
+      shopId: shop._id,
+      priceOptions: updatedOptions,
     };
 
     const response = await ProductService.createProduct(
@@ -69,10 +92,39 @@ const updateProduct = async (req, res) => {
     const productId = req.body.id;
     const updatedData = req.body;
 
-    if (!productId) {
+    if (!productId || !updatedData.category) {
       return res.status(400).json({
         status: "ERROR",
-        message: "Thiếu productId",
+        message: "Thiếu thông tin sản phẩm hoặc category",
+      });
+    }
+
+    // Lấy thông tin thuế và platformFee từ category
+    const category = await Category.findById(updatedData.category);
+    if (!category) {
+      return res.status(404).json({
+        status: "ERROR",
+        message: "Không tìm thấy danh mục sản phẩm",
+      });
+    }
+
+    const VAT_PERCENT = category.vat ?? 0;
+    const PLATFORM_FEE_PERCENT = category.platformFee ?? 0;
+
+    // Xử lý từng biến thể
+    if (updatedData.priceOptions && Array.isArray(updatedData.priceOptions)) {
+      updatedData.priceOptions = updatedData.priceOptions.map((opt) => {
+        const basePrice = opt.salePrice ?? opt.price ?? 0;
+        const tax = basePrice * VAT_PERCENT;
+        const platformFee = basePrice * PLATFORM_FEE_PERCENT;
+        const finalPrice = basePrice + tax + platformFee;
+
+        return {
+          ...opt,
+          tax,
+          platformFee,
+          finalPrice,
+        };
       });
     }
 
