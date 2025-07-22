@@ -4,6 +4,7 @@ const PlatformFees = require("../../models/PlatformFees");
 const Product = require("../../models/Product");
 const Shop = require("../../models/Shop");
 const Voucher = require("../../models/Voucher");
+const Cart = require("../../models/Cart");
 const mongoose = require("mongoose");
 
 const getAllShippingCustomer = (user_id) => {
@@ -198,6 +199,20 @@ const orderProduct = ({
                 matchedOption.stock -= item.quantity;
                 product.soldCount += item.quantity;
                 await product.save({ session });
+
+                const cart = await Cart.findOne({ userId }).session(session);
+
+                if (cart) {
+                    // Giữ lại những item KHÔNG thuộc về productItems đã đặt hàng
+                    cart.productItems = cart.productItems.filter(cartItem => {
+                        return !productItems.some(orderItem =>
+                            orderItem.productId.toString() === cartItem.productId.toString() &&
+                            orderItem.shopId.toString() === cartItem.shopId.toString() &&
+                            JSON.stringify(orderItem.attributes) === JSON.stringify(cartItem.attributes)
+                        );
+                    });
+                    await cart.save({ session });
+                }
             }
 
             // Giảm usageLimit của voucher

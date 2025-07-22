@@ -19,6 +19,8 @@ const productItemsSchema = new mongoose.Schema({
 
     price: { type: Number, required: true, min: 0 },
 
+    salePrice: { type: Number, required: false, min: 0 },
+
     finalPrice: { type: Number, required: false, min: 0 },
 
     categoryId: { type: mongoose.Schema.Types.ObjectId,
