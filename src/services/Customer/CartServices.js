@@ -103,13 +103,6 @@ const getAllItems = (user_id) => {
 
             const allItem = await Cart.find({userId: user_id});
 
-            if (!allItem || allItem.length === 0) {
-                return reject({
-                    status: "ERROR",
-                    message: "Giỏ hàng trống",
-                });
-            }
-
             resolve({
                 status: "SUCCESS",
                 data: allItem,
