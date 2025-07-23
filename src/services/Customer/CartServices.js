@@ -8,6 +8,7 @@ const addToCart = ({
                        productImage,
                        attributes,
                        price,
+                       salePrice,
                        finalPrice,
                        categoryId,
                        quantity,
@@ -16,7 +17,7 @@ const addToCart = ({
                    }) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let cart = await Cart.findOne({ userId: user_id });
+            let cart = await Cart.findOne({userId: user_id});
 
             // Nếu chưa có giỏ hàng → tạo mới
             if (!cart) {
@@ -29,6 +30,7 @@ const addToCart = ({
                             productImage,
                             attributes,
                             price,
+                            salePrice,
                             finalPrice,
                             categoryId,
                             quantity,
@@ -63,6 +65,7 @@ const addToCart = ({
                     productImage,
                     attributes,
                     price,
+                    salePrice,
                     finalPrice,
                     categoryId,
                     quantity,
@@ -98,14 +101,7 @@ const getAllItems = (user_id) => {
                 });
             }
 
-            const allItem = await Cart.find({ userId: user_id });
-
-            if (!allItem || allItem.length === 0) {
-                return reject({
-                    status: "ERROR",
-                    message: "Giỏ hàng trống",
-                });
-            }
+            const allItem = await Cart.find({userId: user_id});
 
             resolve({
                 status: "SUCCESS",
@@ -124,13 +120,13 @@ const getAllItems = (user_id) => {
 const updateCartQuantity = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { cartId, productItemId, attributes, productId, quantity } = data;
+            const {cartId, productItemId, attributes, productId, quantity} = data;
 
             // Tìm sản phẩm trước
-            const product = await Product.findOne({ _id: productId });
+            const product = await Product.findOne({_id: productId});
 
             if (!product) {
-                return reject({ message: "Không tìm thấy sản phẩm" });
+                return reject({message: "Không tìm thấy sản phẩm"});
             }
 
             // Tìm đúng priceOption theo attributes
@@ -143,12 +139,12 @@ const updateCartQuantity = (data) => {
             });
 
             if (!matchedOption) {
-                return reject({ message: "Không tìm thấy biến thể sản phẩm với thuộc tính tương ứng" });
+                return reject({message: "Không tìm thấy biến thể sản phẩm với thuộc tính tương ứng"});
             }
 
             // Kiểm tra tồn kho
             if (matchedOption.stock < quantity) {
-                return reject({ message: "Vượt quá số lượng tồn kho" });
+                return reject({message: "Vượt quá số lượng tồn kho"});
             }
 
             // Cập nhật giỏ hàng
@@ -162,7 +158,7 @@ const updateCartQuantity = (data) => {
                         "productItems.$.quantity": quantity,
                     },
                 },
-                { new: true }
+                {new: true}
             );
 
             if (!cart) {
@@ -193,8 +189,8 @@ const deleteCartItem = (data) => {
             const detailCartId = data.detailCartId;
 
             const deletedResult = await Cart.updateOne(
-                { "productItems._id": detailCartId },
-                { $pull: { productItems: { _id: detailCartId } } }
+                {"productItems._id": detailCartId},
+                {$pull: {productItems: {_id: detailCartId}}}
             );
 
             resolve({
@@ -216,7 +212,7 @@ const getProductBestSellersInCart = () => {
     return new Promise(async (resolve, reject) => {
         try {
             const products = await Product.find()
-                .sort({ sold_count: -1 })
+                .sort({sold_count: -1})
                 .limit(12);
 
             resolve({

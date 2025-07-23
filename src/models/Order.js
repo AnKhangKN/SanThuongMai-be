@@ -19,7 +19,9 @@ const productItemSchema = new mongoose.Schema({
 
     attributes: [attributeSchema],
 
-    price: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true, min: 0 }, // Đây là tiền shop nhận được nếu không có salePrice
+
+    salePrice: { type: Number, required: false, min: 0 }, // Đây là tiền shop giảm có thể nhận được nếu có sale
 
     finalPrice: { type: Number, required: true, min: 0 },
 
@@ -34,7 +36,7 @@ const productItemSchema = new mongoose.Schema({
     // Trạng thái riêng của từng sản phẩm
     status: {
         type: String,
-        enum: ["pending", "processing", "shipped", "delivered", "returned", "cancelled"],
+        enum: ["pending", "processing", "shipping","shipped", "delivered", "returned", "cancelled"],
         default: "pending",
         required: true,
     },
@@ -96,21 +98,23 @@ const orderSchema = new mongoose.Schema({
         enum: ["COD", "Online", "Wallet"],
         default: "COD",
     },
-
+    
     totalPrice: { // Tổng tiền đơn hàng
         type: Number,
         required: true,
     },
 
-    voucher: {
-        code: { type: String },         // Mã người dùng đã nhập (SALE50)
-        value: { type: Number },        // Số tiền được giảm
-        type: { type: String },         // 'percent' hoặc 'fixed'
-        voucherId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Voucher"
+    vouchers: [
+        {
+            code: { type: String },         // Mã người dùng đã nhập (SALE50)
+            value: { type: Number },        // Số tiền được giảm
+            type: { type: String },         // 'percent' hoặc 'fixed'
+            voucherId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Voucher"
+            }
         }
-    },
+    ],
 
     discountAmount: { // Sô tiền được giảm
         type: Number,

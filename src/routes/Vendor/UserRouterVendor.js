@@ -7,7 +7,6 @@ const { verifyToken, isVendor } = require("../../middleware/authMiddleware");
 router.post(
   "/add-vendor",
   verifyToken,
-  isVendor,
   multerConfigAvatar,
   UserVendorController.createVendor
 );
