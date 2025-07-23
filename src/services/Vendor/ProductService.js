@@ -12,23 +12,19 @@ const createProduct = (newProduct, files, user_id) => {
         priceOptions,
         status,
         sale,
-        shopId, // ✅ shopId nhận từ controller
+        shopId,
       } = newProduct;
 
       const imageNames = files ? files.map((file) => file.filename) : [];
-
-      // ❌ Không ép lại size/color nếu đã là attributes
-      // const normalizedPriceOptions = ...
-
       const createdProduct = await Product.create({
         productName,
         categoryId,
         description: description || "",
         images: imageNames,
-        priceOptions, // ✅ Dùng trực tiếp
+        priceOptions,
         status: status || "active",
         sale: sale || {},
-        shopId, // ✅ Dùng đúng shopId đã truyền từ controller
+        shopId,
         bannedUntil: null,
         reports: [],
         soldCount: 0,
