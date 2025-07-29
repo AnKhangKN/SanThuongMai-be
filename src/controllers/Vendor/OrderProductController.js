@@ -1,11 +1,19 @@
 const OrderProductService = require("../../services/Vendor/OrderProductService");
+const Shop = require("../../models/Shop");
 
 const getAllOrderProducts = async (req, res) => {
   try {
     const userId = req.user?.id;
 
-    const response = await OrderProductService.getAllOrderProducts(userId);
-    return res.status(200).json(response);
+    const shop = await Shop.findOne({ ownerId: userId });
+    if (!shop) {
+      return res
+        .status(404)
+        .json({ status: "ERR", message: "Shop không tồn tại" });
+    }
+
+    const result = await OrderProductService.getOrderByVendor(shop._id);
+    res.status(200).json(result);
   } catch (e) {
     return res.status(500).json({
       status: "ERR",

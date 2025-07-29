@@ -1,30 +1,19 @@
 const mongoose = require("mongoose");
 const Order = require("../../models/Order");
 const User = require("../../models/User");
+const Product = require("../../models/Product");
 
-const getAllOrderProducts = (userId) => {
+const getOrderByVendor = (vendorId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkId = await User.findById(userId);
-      if (!checkId) {
-        return resolve({
-          status: "ERR",
-          message: "User not found",
-        });
-      }
-
-      const allOrderProducts = await Order.find({
-        "items.owner_id": new mongoose.Types.ObjectId(userId),
-      }).populate("user_id", "user_name"); // 👉 Chỉ lấy user_name của người mua
-
-      // allOrderProducts.forEach((order) => {
-      //   console.log("Tên người mua:", order.user_id?.user_name);
-      // });
+      const orders = await Order.find({ "productItems.shopId": vendorId }).sort(
+        { createdAt: -1 }
+      );
 
       resolve({
         status: "OK",
         message: "SUCCESS",
-        data: allOrderProducts,
+        data: orders,
       });
     } catch (e) {
       reject(e);
@@ -85,6 +74,6 @@ const changeStatusOrder = (userId, itemId) => {
 };
 
 module.exports = {
-  getAllOrderProducts,
+  getOrderByVendor,
   changeStatusOrder,
 };

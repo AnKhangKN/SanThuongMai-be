@@ -92,7 +92,7 @@ const updateProduct = async (req, res) => {
     const productId = req.body.id;
     const updatedData = req.body;
 
-    if (!productId || !updatedData.category) {
+    if (!productId || !updatedData.categoryId) {
       return res.status(400).json({
         status: "ERROR",
         message: "Thiếu thông tin sản phẩm hoặc category",
@@ -100,7 +100,7 @@ const updateProduct = async (req, res) => {
     }
 
     // Lấy thông tin thuế và platformFee từ category
-    const category = await Category.findById(updatedData.category);
+    const category = await Category.findById(updatedData.categoryId);
     if (!category) {
       return res.status(404).json({
         status: "ERROR",
