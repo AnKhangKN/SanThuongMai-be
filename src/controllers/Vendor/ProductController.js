@@ -25,7 +25,7 @@ const createProduct = async (req, res) => {
             ? JSON.parse(data.priceOptions)
             : data.priceOptions;
 
-        priceOptions = parsed; // ✅ Không map lại, vì đã đúng format
+        priceOptions = parsed; // Không map lại, vì đã đúng format
       } catch (err) {
         return res.status(400).json({
           status: "ERR",
