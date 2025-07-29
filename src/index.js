@@ -7,11 +7,19 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const http = require("http");
+const { initSocket } = require("./utils/socket");
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8080;
+const server = http.createServer(app);
+
+// Khởi tạo socket sau khi tạo HTTP server
+initSocket(server);
+
+
 
 // Cấu hình CORS cho phép frontend (React) truy cập
 app.use(
@@ -77,6 +85,7 @@ mongoose
   });
 
 // Khởi động server
-app.listen(port, () => {
+server.listen(port, () => {
   console.log("Server is running on port: " + port);
 });
+

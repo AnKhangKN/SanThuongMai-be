@@ -1,17 +1,18 @@
 const mongoose = require('mongoose');
 
 const chatSchema = new mongoose.Schema({
-    members: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }],
-
+    members: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        }
+    ],
     lastMessage: {
+        text: { type: String },
         senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        text: { type: String, default: "" },
-        createdAt: { type: Date }
-    }
+        createdAt: { type: Date },
+    },
 }, {
     timestamps: true,
 });
