@@ -20,7 +20,7 @@ const getAllShops = () => {
     });
 };
 
-const activateShop = (status, shopId) => {
+const activateShop = ({ shopId, status }) => {
     return new Promise(async (resolve, reject) => {
         try {
             const shop = await Shop.findByIdAndUpdate(

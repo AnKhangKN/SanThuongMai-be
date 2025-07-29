@@ -6,6 +6,6 @@ const route = express.Router();
 
 route.get("/get-all-shops", verifyToken, isAdmin, ShopControllers.getAllShops);
 
-route.patch('/shop', verifyToken, isAdmin, ShopControllers.activateShop);
+route.patch('/shops', verifyToken, isAdmin, ShopControllers.activateShop);
 
 module.exports = route;

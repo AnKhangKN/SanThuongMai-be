@@ -54,9 +54,28 @@ const isUser = (req, res, next) => {
   });
 };
 
+// Lưu thông tin để train AI
+const verifyAi = (req, res, next) => {
+  const token = extractToken(req);
+
+  if (!token) {
+    return next(); // THÊM return để tránh chạy xuống verify
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Token không hợp lệ", status: "ERROR" });
+    }
+
+    req.user = decoded; // Gắn user vào request
+    next();
+  });
+};
+
 module.exports = {
   verifyToken,
   isAdmin,
   isVendor,
   isUser,
+  verifyAi
 };

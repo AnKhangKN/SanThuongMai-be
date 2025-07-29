@@ -16,9 +16,12 @@ const getAllShops = async (req, res) => {
 
 const activateShop = async (req, res) => {
     try {
-        const { status, shopId } = req.body;
+        const { shopId, status } = req.body;
+        
+        console.log(req.body);
+        
 
-        const result = await ShopServices.activateShop(status, shopId);
+        const result = await ShopServices.activateShop({ shopId, status });
         return res.status(200).json(result);
 
     } catch (error) {
