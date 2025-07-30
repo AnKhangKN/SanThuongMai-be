@@ -24,15 +24,58 @@ const initSocket = (server) => {
         });
 
         // Gửi tin nhắn socket sendMessages (gửi vào chatId không phân biệt ai ai trong đoạn chat đều nhận)
-        socket.on('sendMessage', ({ senderId, chatId, text }) => {
-            console.log(`📤 Message from ${senderId} to chat ${chatId}: ${text}`);
+        // socket.on('sendMessage', ({ senderId, chatId, text }) => {
+        //     console.log(`📤 Message from ${senderId} to chat ${chatId}: ${text}`);
+        //
+        //     // Gửi đến tất cả thành viên trong room (trừ người gửi)
+        //     socket.to(chatId).emit('receiveMessage', {
+        //         senderId,
+        //         text,
+        //         chatId,
+        //     });
+        // });
 
-            // Gửi đến tất cả thành viên trong room (trừ người gửi)
-            socket.to(chatId).emit('receiveMessage', {
+        socket.on('sendMessage', async ({ senderId, receiverId, chatId, text }) => {
+            let finalChatId = chatId;
+
+            // Nếu không có chatId → tạo hoặc lấy chatId giữa 2 người
+            if (!finalChatId && receiverId) {
+                const Chat = require("../models/Chat"); // tùy đường dẫn
+
+                // Tìm chat giữa 2 người (dù thứ tự đảo ngược)
+                let chat = await Chat.findOne({
+                    members: { $all: [senderId, receiverId], $size: 2 }
+                });
+
+                if (!chat) {
+                    // Chưa có → tạo mới
+                    chat = await Chat.create({
+                        members: [senderId, receiverId],
+                        createdAt: new Date(),
+                    });
+                }
+
+                finalChatId = chat._id.toString();
+
+                // Cho socket join room mới
+                socket.join(finalChatId);
+
+                console.log(`🆕 Tạo hoặc dùng chatId ${finalChatId} giữa ${senderId} & ${receiverId}`);
+            }
+
+            if (!finalChatId) {
+                console.warn("❌ Không thể gửi tin nhắn vì thiếu chatId hoặc receiverId.");
+                return;
+            }
+
+            // Gửi đến room
+            socket.to(finalChatId).emit("receiveMessage", {
                 senderId,
                 text,
-                chatId,
+                chatId: finalChatId,
             });
+
+            console.log(`📤 Message from ${senderId} to chat ${finalChatId}: ${text}`);
         });
     });
 

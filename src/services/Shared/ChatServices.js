@@ -81,17 +81,19 @@ const getChats = async ({ userId }) => {
         const uniqueUserIds = new Set(Object.keys(userIdToChatIdMap));
 
         // Đảm bảo admin luôn có mặt
-        if (ADMIN_ID !== userId.toString() && !uniqueUserIds.has(ADMIN_ID)) {
+        if (ADMIN_ID !== userId.toString()) {
             uniqueUserIds.add(ADMIN_ID);
         }
 
+        // Lấy thông tin người dùng
         const users = await User.find({ _id: { $in: Array.from(uniqueUserIds) } })
             .select("_id fullName email")
             .lean();
 
+        // Ghép với chatId
         const usersWithChatId = users.map(user => ({
             ...user,
-            chatId: userIdToChatIdMap[user._id.toString()] || null, // null nếu chưa có chat với admin
+            chatId: userIdToChatIdMap[user._id.toString()] || null, // null nếu chưa từng chat
         }));
 
         return usersWithChatId;
