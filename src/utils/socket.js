@@ -23,18 +23,6 @@ const initSocket = (server) => {
             });
         });
 
-        // Gửi tin nhắn socket sendMessages (gửi vào chatId không phân biệt ai ai trong đoạn chat đều nhận)
-        // socket.on('sendMessage', ({ senderId, chatId, text }) => {
-        //     console.log(`📤 Message from ${senderId} to chat ${chatId}: ${text}`);
-        //
-        //     // Gửi đến tất cả thành viên trong room (trừ người gửi)
-        //     socket.to(chatId).emit('receiveMessage', {
-        //         senderId,
-        //         text,
-        //         chatId,
-        //     });
-        // });
-
         socket.on('sendMessage', async ({ senderId, receiverId, chatId, text }) => {
             let finalChatId = chatId;
 
@@ -60,11 +48,14 @@ const initSocket = (server) => {
                 // Cho socket join room mới
                 socket.join(finalChatId);
 
+                socket.emit("messageSent", { senderId, receiverId });
+                socket.emit("messageSent", { senderId, receiverId });
+
                 console.log(`🆕 Tạo hoặc dùng chatId ${finalChatId} giữa ${senderId} & ${receiverId}`);
             }
 
             if (!finalChatId) {
-                console.warn("❌ Không thể gửi tin nhắn vì thiếu chatId hoặc receiverId.");
+                console.warn("Không thể gửi tin nhắn vì thiếu chatId hoặc receiverId.");
                 return;
             }
 
@@ -74,6 +65,9 @@ const initSocket = (server) => {
                 text,
                 chatId: finalChatId,
             });
+
+            socket.emit("messageSent", { senderId, receiverId });
+            socket.emit("messageSent", { senderId, receiverId });
 
             console.log(`📤 Message from ${senderId} to chat ${finalChatId}: ${text}`);
         });
