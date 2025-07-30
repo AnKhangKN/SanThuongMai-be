@@ -1,5 +1,7 @@
 const OrderProductService = require("../../services/Vendor/OrderProductService");
 const Shop = require("../../models/Shop");
+const Order = require("../../models/Order");
+const User = require("../../models/User");
 
 const getAllOrderProducts = async (req, res) => {
   try {
@@ -49,7 +51,24 @@ const changeStatusOrder = async (req, res) => {
   }
 };
 
+const getBuyersInfo = async (req, res) => {
+  try {
+    const buyers = await OrderProductService.getBuyersInfoService();
+    return res.status(200).json({
+      status: "OK",
+      data: buyers,
+    });
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách người mua:", err);
+    return res.status(500).json({
+      status: "ERR",
+      message: "Lỗi server",
+    });
+  }
+};
+
 module.exports = {
   getAllOrderProducts,
   changeStatusOrder,
+  getBuyersInfo,
 };

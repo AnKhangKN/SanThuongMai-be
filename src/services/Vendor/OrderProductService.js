@@ -73,7 +73,23 @@ const changeStatusOrder = (userId, itemId) => {
   });
 };
 
+const getBuyersInfoService = async () => {
+  // Lấy tất cả userId từ đơn hàng
+  const orders = await Order.find().select("userId").lean();
+
+  // Loại bỏ trùng lặp userId
+  const uniqueUserIds = [...new Set(orders.map((o) => o.userId.toString()))];
+
+  // Truy vấn thông tin người dùng
+  const buyers = await User.find({ _id: { $in: uniqueUserIds } })
+    .select("fullName email avatar shippingAddress")
+    .lean();
+
+  return buyers;
+};
+
 module.exports = {
   getOrderByVendor,
   changeStatusOrder,
+  getBuyersInfoService,
 };

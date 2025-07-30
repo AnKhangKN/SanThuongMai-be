@@ -11,6 +11,8 @@ router.get(
   OrderProductController.getAllOrderProducts
 );
 
+router.get("/get-buyers", OrderProductController.getBuyersInfo);
+
 router.put(
   "/change-status",
   verifyToken,
