@@ -5,7 +5,7 @@ const initSocket = (server) => {
     const { Server } = require("socket.io");
     io = new Server(server, {
         cors: {
-            origin: "http://localhost:3000", // phải khớp với FE của bạn
+            origin: "*", // phải khớp với FE của bạn localhost là: http://localhost:3000
             methods: ["GET", "POST"],
             credentials: true,
         },

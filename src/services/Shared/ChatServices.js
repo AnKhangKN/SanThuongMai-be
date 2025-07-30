@@ -40,8 +40,6 @@ const sendMessage = async ({ senderId, receiverId, chatId, text }) => {
     // 🔌 Gửi socket đến tất cả thành viên trong đoạn chat
     const io = getIo();
 
-    console.log("✅ Chat found:", chat);
-
     chat.members.forEach((memberId) => {
         console.log(`🔁 Emitting to member ${memberId}`);
 
