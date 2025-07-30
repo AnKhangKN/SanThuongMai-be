@@ -11,21 +11,27 @@ const initSocket = (server) => {
         },
     });
 
+    // Tạo connection
     io.on('connection', (socket) => {
         console.log('🔌 A user connected');
-
-        socket.on('joinRoom', (userId) => {
-            socket.join(userId); // room tên là userId
-            console.log(`🟢 User joined room: ${userId}`);
+        // Join rooms chat theo chatId.
+        socket.on('joinRooms', ({ userId, chatIds }) => {
+            console.log(`🟢 User ${userId} joining chats:`, chatIds)
+            
+            chatIds.forEach((chatId) => {
+                socket.join(chatId); // mỗi room là 1 đoạn chat
+            });
         });
 
-        socket.on('sendMessage', ({ senderId, receiverId, text }) => {
-            console.log(`📤 Message from ${senderId} to ${receiverId}: ${text}`);
+        // Gửi tin nhắn socket sendMessages (gửi vào chatId không phân biệt ai ai trong đoạn chat đều nhận)
+        socket.on('sendMessage', ({ senderId, chatId, text }) => {
+            console.log(`📤 Message from ${senderId} to chat ${chatId}: ${text}`);
 
-            // Gửi tới người nhận theo room
-            socket.to(receiverId).emit('receiveMessage', {
+            // Gửi đến tất cả thành viên trong room (trừ người gửi)
+            socket.to(chatId).emit('receiveMessage', {
                 senderId,
                 text,
+                chatId,
             });
         });
     });

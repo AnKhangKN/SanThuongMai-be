@@ -19,8 +19,6 @@ const server = http.createServer(app);
 // Khởi tạo socket sau khi tạo HTTP server
 initSocket(server);
 
-
-
 // Cấu hình CORS cho phép frontend (React) truy cập
 app.use(
   cors({
