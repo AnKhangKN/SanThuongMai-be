@@ -2,7 +2,6 @@ const Chat = require("../../models/Chat");
 const User = require("../../models/User");
 const Message = require("../../models/Message");
 const { getIo } = require("../../utils/socket");
-const mongoose = require("mongoose");
 
 const sendMessage = async ({ senderId, receiverId, chatId, text }) => {
     let chat;
@@ -41,11 +40,6 @@ const sendMessage = async ({ senderId, receiverId, chatId, text }) => {
     // 🔌 Gửi socket đến tất cả thành viên trong đoạn chat
     const io = getIo();
 
-    if (!chat) {
-        console.log("❌ Chat not found for ID:", chatId);
-        return res.status(404).json({ message: "Chat not found" });
-    }
-
     console.log("✅ Chat found:", chat);
 
     chat.members.forEach((memberId) => {
@@ -66,44 +60,6 @@ const sendMessage = async ({ senderId, receiverId, chatId, text }) => {
         chatId: chat._id,
     };
 };
-
-// const getChats = async ({ userId }) => {
-//     try {
-//         const chats = await Chat.find({
-//             members: { $in: [userId] }
-//         }).lean();
-//
-//         // Tạo map: userId => chatId
-//         const userIdToChatIdMap = {};
-//
-//         chats.forEach(chat => {
-//             const otherId = chat.members.find(
-//                 id => id.toString() !== userId.toString()
-//             );
-//             if (otherId) {
-//                 userIdToChatIdMap[otherId.toString()] = chat._id.toString();
-//             }
-//         });
-//
-//         const uniqueUserIds = Object.keys(userIdToChatIdMap);
-//
-//         const users = await User.find({ _id: { $in: uniqueUserIds, $ne: userId } })
-//             .select("_id fullName email")
-//             .lean();
-//
-//         // Gắn chatId vào từng user
-//         const usersWithChatId = users.map(user => ({
-//             ...user,
-//             chatId: userIdToChatIdMap[user._id.toString()]
-//         }));
-//
-//         console.log(usersWithChatId);
-//         return usersWithChatId;
-//     } catch (error) {
-//         console.error("❌ Lỗi khi lấy danh sách người đã chat:", error);
-//         throw new Error("Không thể lấy danh sách người đã chat");
-//     }
-// };
 
 const getChats = async ({ userId }) => {
     try {
@@ -147,33 +103,26 @@ const getChats = async ({ userId }) => {
     }
 };
 
-
-const getMessagesHistory = ({ userId, receiverId }) => {
+const getMessagesHistory = ({ userId, chatId }) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (
-                !mongoose.Types.ObjectId.isValid(userId) ||
-                !mongoose.Types.ObjectId.isValid(receiverId)
-            ) {
-                return reject(new Error("userId hoặc receiverId không hợp lệ"));
+            if (!userId) {
+                return reject("User ID is required");
             }
 
-            const userObjId = new mongoose.Types.ObjectId(userId);
-            const receiverObjId = new mongoose.Types.ObjectId(receiverId);
+            const chat = await Chat.findById(chatId); // Sửa lỗi ở đây
 
-            const chat = await Chat.findOne({
-                members: { $all: [userObjId, receiverObjId] },
-            });
-
-            if (!chat) return resolve([]);
+            if (!chat) return resolve([]); // không có chat thì trả về rỗng
 
             const messages = await Message.find({
                 chatId: chat._id,
             })
                 .sort({ createdAt: 1 })
-                .select("text senderId createdAt chatId") // chỉ lấy trường cần
+                .select("text senderId createdAt chatId") // chỉ lấy các trường cần thiết
                 .lean();
-
+            
+            console.log(messages);
+            
 
             resolve(messages);
         } catch (error) {
@@ -181,6 +130,7 @@ const getMessagesHistory = ({ userId, receiverId }) => {
         }
     });
 };
+
 
 module.exports = {
     sendMessage,

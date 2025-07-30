@@ -11,10 +11,6 @@ const sendMessage = async (req, res) => {
             })
         }
 
-        if (!receiverId) {
-            return res.status(400).json({ message: "Missing chatId or receiverId" });
-        }
-
         if (!text) {
             return res.status(400).json({ message: "Message text is required" });
         }
@@ -50,13 +46,9 @@ const getMessagesHistory = async (req, res) => {
     try {
 
         const userId = req.user?.id;
-        const receiverId = req.query.receiverId.receiverId;
-        
-        console.log(receiverId);
-        
-        
+        const chatId = req.query.receiverId.chatId;
 
-        const result = await ChatServices.getMessagesHistory({ userId, receiverId });
+        const result = await ChatServices.getMessagesHistory({ userId, chatId });
         return res.status(200).json(result);
 
     } catch (error) {
