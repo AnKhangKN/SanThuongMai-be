@@ -1,88 +1,112 @@
-// utils/socket.js
+const Chat = require("../models/Chat");
+const Message = require("../models/Message");
+
 let io;
 
 const initSocket = (server) => {
     const { Server } = require("socket.io");
     io = new Server(server, {
         cors: {
-            origin: "*", // phải khớp với FE của bạn localhost là: http://localhost:3000
-            methods: ["GET", "POST"],
-            credentials: true,
-        },
+            origin: "*",
+            methods: ["GET", "POST"]
+        }
     });
 
-    // Tạo connection
-    io.on('connection', (socket) => {
-        console.log('🔌 A user connected');
-        // Join rooms chat theo chatId.
-        socket.on('joinRooms', ({ userId, chatIds }) => {
-            console.log(`🟢 User ${userId} joining chats:`, chatIds)
-            
-            chatIds.forEach((chatId) => {
-                socket.join(chatId); // mỗi room là 1 đoạn chat
-            });
+    io.on("connection", (socket) => {
+        console.log("🟢 Client connected");
+
+        // Khi client kết nối, cho phép client gửi userId để join vào room cá nhân
+        socket.on("setup", (userId) => {
+            socket.join(userId); // Room riêng cho mỗi người dùng
+            console.log(`👤 User ${userId} joined their personal room`);
         });
 
-        socket.on('sendMessage', async ({ senderId, receiverId, chatId, text }) => {
-            let finalChatId = chatId;
-
-            // Nếu không có chatId → tạo hoặc lấy chatId giữa 2 người
-            if (!finalChatId && receiverId) {
-                const Chat = require("../models/Chat"); // tùy đường dẫn
-
-                // Tìm chat giữa 2 người (dù thứ tự đảo ngược)
+        /**
+         * Khi người dùng mở khung chat, gọi sự kiện này để join vào room
+         * - Nếu đã có chat → join room với chatId
+         * - Nếu chưa có → tạo chat mới rồi join
+         */
+        socket.on("joinRoom", async ({ senderId, receiverId }) => {
+            try {
                 let chat = await Chat.findOne({
-                    members: { $all: [senderId, receiverId], $size: 2 }
+                    members: { $all: [senderId, receiverId] }
                 });
 
                 if (!chat) {
-                    // Chưa có → tạo mới
                     chat = await Chat.create({
-                        members: [senderId, receiverId],
-                        createdAt: new Date(),
+                        members: [senderId, receiverId]
                     });
                 }
 
-                finalChatId = chat._id.toString();
+                const chatId = chat._id.toString();
 
-                // Cho socket join room mới
-                socket.join(finalChatId);
+                socket.join(chatId);
+                socket.emit("joinedRoom", { chatId });
 
-                socket.emit("messageSent", { senderId, receiverId });
-                socket.emit("messageSent", { senderId, receiverId });
-
-                console.log(`🆕 Tạo hoặc dùng chatId ${finalChatId} giữa ${senderId} & ${receiverId}`);
+                console.log(`✅ ${senderId} joined room ${chatId}`);
+            } catch (error) {
+                console.error("❌ Error in joinRoom:", error.message);
+                socket.emit("error", { message: error.message });
             }
+        });
 
-            if (!finalChatId) {
-                console.warn("Không thể gửi tin nhắn vì thiếu chatId hoặc receiverId.");
-                return;
+        /**
+         * Gửi tin nhắn
+         * - Nếu chưa có chatId → tìm hoặc tạo chat
+         * - Join vào room nếu chưa
+         * - Tạo tin nhắn, gửi đến room
+         */
+        socket.on("sendMessage", async (data) => {
+            try {
+                const { senderId, receiverId, chatId, text } = data;
+
+                if (!chatId) {
+                    return res.status(400).json({
+                        message: "Lỗi thêm tin nhắn"
+                    })
+                }
+
+                socket.join(chatId);
+
+                const message = await Message.create({
+                    senderId,
+                    chatId,
+                    text
+                });
+
+                const messageData = {
+                    chatId,
+                    senderId,
+                    receiverId,
+                    text: message.text,
+                };
+
+                // Gửi cho 2 bên refresh danh sách chat
+                io.to(senderId).emit("refreshChatList");
+                io.to(receiverId).emit("refreshChatList");
+
+                // Gửi message mới đến tất cả trong room
+                io.to(chatId).emit("receiveMessage", messageData);
+
+                console.log(`✉️ Message sent in room ${chatId}`);
+            } catch (error) {
+                console.error("❌ Error in sendMessage:", error.message);
+                socket.emit("error", { message: error.message });
             }
+        });
 
-            // Gửi đến room
-            socket.to(finalChatId).emit("receiveMessage", {
-                senderId,
-                text,
-                chatId: finalChatId,
-            });
-
-            socket.emit("messageSent", { senderId, receiverId });
-            socket.emit("messageSent", { senderId, receiverId });
-
-            console.log(`📤 Message from ${senderId} to chat ${finalChatId}: ${text}`);
+        socket.on("disconnect", () => {
+            console.log("🔴 Client disconnected");
         });
     });
-
 };
 
 const getIo = () => {
-    if (!io) {
-        throw new Error("Socket.io not initialized!");
-    }
+    if (!io) throw new Error("Socket.IO not initialized");
     return io;
 };
 
 module.exports = {
     initSocket,
-    getIo,
+    getIo
 };

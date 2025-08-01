@@ -61,5 +61,5 @@ const getMessagesHistory = async (req, res) => {
 module.exports = {
     sendMessage,
     getChats,
-    getMessagesHistory
+    getMessagesHistory,
 };

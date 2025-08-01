@@ -1,70 +1,17 @@
 const Chat = require("../../models/Chat");
 const User = require("../../models/User");
 const Message = require("../../models/Message");
-const { getIo } = require("../../utils/socket");
 
 const sendMessage = async ({ senderId, receiverId, chatId, text }) => {
-    let chat;
-
-    // Nếu có chatId → dùng chat cũ
-    if (chatId) {
-        chat = await Chat.findById(chatId);
-        if (!chat) throw new Error("Chat not found");
-    } else {
-        // Nếu không có chatId → cần receiverId
-        if (!receiverId) throw new Error("Receiver ID is required to start chat");
-
-        // Tìm hoặc tạo chat mới giữa 2 người
-        chat = await Chat.findOne({
-            members: { $all: [senderId, receiverId] },
-        });
-
-        if (!chat) {
-            chat = await Chat.create({
-                members: [senderId, receiverId],
-            });
-        }
-    }
-
-    // Tạo tin nhắn mới
-    const newMessage = await Message.create({
-        chatId: chat._id,
-        senderId,
-        text,
-    });
-
-    // Cập nhật thời gian hoạt động của đoạn chat
-    chat.updatedAt = new Date();
-    await chat.save();
-
-    // 🔌 Gửi socket đến tất cả thành viên trong đoạn chat
-    const io = getIo();
-
-    chat.members.forEach((memberId) => {
-        console.log(`🔁 Emitting to member ${memberId}`);
-
-        io.to(memberId.toString()).emit("receiveMessage", {
-            _id: newMessage._id,
-            chatId: chat._id,
-            senderId,
-            text: newMessage.text,
-            createdAt: newMessage.createdAt,
-        });
-    });
-
-    return {
-        message: "Message sent successfully",
-        data: newMessage,
-        chatId: chat._id,
-    };
+    return ({ senderId, receiverId, chatId, text });
 };
 
-const getChats = async ({ userId }) => {
+const getChats = async ({userId}) => {
     try {
         const ADMIN_ID = "6860059faead400715c4b4de";
 
         const chats = await Chat.find({
-            members: { $in: [userId] }
+            members: {$in: [userId]}
         }).lean();
 
         const userIdToChatIdMap = {};
@@ -86,7 +33,7 @@ const getChats = async ({ userId }) => {
         }
 
         // Lấy thông tin người dùng
-        const users = await User.find({ _id: { $in: Array.from(uniqueUserIds) } })
+        const users = await User.find({_id: {$in: Array.from(uniqueUserIds)}})
             .select("_id fullName email")
             .lean();
 
@@ -103,7 +50,7 @@ const getChats = async ({ userId }) => {
     }
 };
 
-const getMessagesHistory = ({ userId, chatId }) => {
+const getMessagesHistory = ({userId, chatId}) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!userId) {
@@ -117,12 +64,10 @@ const getMessagesHistory = ({ userId, chatId }) => {
             const messages = await Message.find({
                 chatId: chat._id,
             })
-                .sort({ createdAt: 1 })
+                .sort({createdAt: 1})
                 .select("text senderId createdAt chatId") // chỉ lấy các trường cần thiết
                 .lean();
-            
-            console.log(messages);
-            
+
 
             resolve(messages);
         } catch (error) {
@@ -131,9 +76,8 @@ const getMessagesHistory = ({ userId, chatId }) => {
     });
 };
 
-
 module.exports = {
     sendMessage,
     getChats,
-    getMessagesHistory
+    getMessagesHistory,
 };
