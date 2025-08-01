@@ -22,6 +22,7 @@ const VoucherRoutersAdmin = require("../routes/Admin/VoucherRoutes");
 const VoucherRoutersCustomer = require("../routes/Customer/VoucherRoutes");
 const GenerateLogRoutesAi = require("./TrainingAi/GenerateLogRoutes");
 const ChatRoutesShared = require("../routes/Shared/ChatRoutes");
+const ProductSuggestRoutesAi = require("./TrainingAi/ProductSuggestRoutes");
 
 const routes = (app) => {
   // Shared API
@@ -73,6 +74,7 @@ const routes = (app) => {
 
   // Training Ai
   app.use("/api/ai", GenerateLogRoutesAi)
+  app.use("/api/ai", ProductSuggestRoutesAi)
 };
 
 module.exports = routes;
