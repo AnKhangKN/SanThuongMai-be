@@ -88,8 +88,41 @@ const getBuyersInfoService = async () => {
   return buyers;
 };
 
+const updateOrderProductItemsStatus = async (orderId, newStatus) => {
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new Error("Đơn hàng không tồn tại");
+    }
+
+    // Cập nhật trạng thái cho từng sản phẩm
+    order.productItems = order.productItems.map((item) => {
+      if (
+        (["pending", "processing"].includes(item.status) &&
+          newStatus === "shipping") ||
+        (item.status === "shipping" && newStatus === "delivered") ||
+        (["pending", "processing", "shipping"].includes(item.status) &&
+          newStatus === "cancelled")
+      ) {
+        return { ...item.toObject(), status: newStatus };
+      }
+      return item;
+    });
+
+    await order.save();
+    return {
+      status: "OK",
+      message: "Cập nhật trạng thái sản phẩm thành công",
+      data: order,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   getOrderByVendor,
   changeStatusOrder,
   getBuyersInfoService,
+  updateOrderProductItemsStatus,
 };
