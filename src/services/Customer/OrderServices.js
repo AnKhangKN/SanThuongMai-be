@@ -106,10 +106,9 @@ const getAllOrderByStatus = (user_id, status) => {
             }
 
             const match = { userId: user_id };
-
             let statusList = [];
 
-            // Xử lý trạng thái đặc biệt: lấy cả returned + cancelled
+            // Xử lý các nhóm trạng thái đặc biệt
             if (status) {
                 if (typeof status !== 'string' || !status.trim()) {
                     return reject(new Error("Status phải là chuỗi hợp lệ"));
@@ -117,10 +116,16 @@ const getAllOrderByStatus = (user_id, status) => {
 
                 const trimmedStatus = status.trim();
 
-                if (trimmedStatus === "returnedOrCancelled") {
-                    statusList = ["returned", "cancelled"];
-                } else {
-                    statusList = [trimmedStatus];
+                switch (trimmedStatus) {
+                    case "returnedOrCancelled":
+                        statusList = ["returned", "cancelled"];
+                        break;
+                    case "shippingOrShipped":
+                        statusList = ["shipping", "shipped"];
+                        break;
+                    default:
+                        statusList = [trimmedStatus];
+                        break;
                 }
 
                 match["productItems.status"] = { $in: statusList };
@@ -137,7 +142,7 @@ const getAllOrderByStatus = (user_id, status) => {
                 });
             }
 
-            // Lọc từng item trong đơn
+            // Lọc sản phẩm theo trạng thái
             const filteredOrders = orders.map(order => {
                 const filteredItems = order.productItems.filter(item =>
                     statusList.includes(item.status)
@@ -163,6 +168,7 @@ const getAllOrderByStatus = (user_id, status) => {
         }
     });
 };
+
 
 const orderProduct = ({
                           userId,

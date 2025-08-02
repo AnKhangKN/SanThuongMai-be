@@ -1,5 +1,5 @@
 const express = require('express');
-const {isAdminMiddleware, verifyToken, isAdmin} = require("../../middleware/authMiddleware");
+const { verifyToken, isAdmin} = require("../../middleware/authMiddleware");
 const OrderController = require("../../controllers/Admin/OrderControllers");
 
 const route = express.Router();
