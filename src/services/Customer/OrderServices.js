@@ -99,30 +99,37 @@ const addShippingCustomer = (user_id, shippingAddress) => {
 const getAllOrderByStatus = (user_id, status) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // Kiểm tra xem người dùng có tồn tại không
+            // Kiểm tra người dùng
             const user = await User.findById(user_id);
             if (!user) {
                 return reject(new Error("Người dùng không tồn tại"));
             }
 
-            // Khởi tạo đối tượng filter
-            const filter = {
-                user_id: user_id
-            };
+            const match = { userId: user_id };
 
-            // Kiểm tra xem status có được truyền vào và có phải là chuỗi không
+            let statusList = [];
+
+            // Xử lý trạng thái đặc biệt: lấy cả returned + cancelled
             if (status) {
                 if (typeof status !== 'string' || !status.trim()) {
                     return reject(new Error("Status phải là chuỗi hợp lệ"));
                 }
-                filter.status = status.trim(); // trim để loại bỏ các ký tự khoảng trắng thừa
+
+                const trimmedStatus = status.trim();
+
+                if (trimmedStatus === "returnedOrCancelled") {
+                    statusList = ["returned", "cancelled"];
+                } else {
+                    statusList = [trimmedStatus];
+                }
+
+                match["productItems.status"] = { $in: statusList };
             }
 
-            // Truy vấn các đơn hàng từ cơ sở dữ liệu
-            const orders = await Order.find(filter);
+            // Lấy đơn hàng có ít nhất 1 sản phẩm phù hợp
+            const orders = await Order.find(match);
 
-            // Kiểm tra xem có đơn hàng nào không
-            if (orders.length === 0) {
+            if (!orders.length) {
                 return resolve({
                     status: "OK",
                     message: "Không có đơn hàng nào phù hợp",
@@ -130,15 +137,24 @@ const getAllOrderByStatus = (user_id, status) => {
                 });
             }
 
-            // Trả về kết quả thành công
-            resolve({
+            // Lọc từng item trong đơn
+            const filteredOrders = orders.map(order => {
+                const filteredItems = order.productItems.filter(item =>
+                    statusList.includes(item.status)
+                );
+                return {
+                    ...order.toObject(),
+                    productItems: filteredItems
+                };
+            }).filter(order => order.productItems.length > 0);
+
+            return resolve({
                 status: "OK",
                 message: "Lấy đơn hàng thành công",
-                data: orders
+                data: filteredOrders
             });
 
         } catch (error) {
-            // Xử lý lỗi chi tiết
             console.error("Lỗi khi lấy đơn hàng:", error);
             reject({
                 status: "ERROR",

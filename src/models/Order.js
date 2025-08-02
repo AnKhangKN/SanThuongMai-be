@@ -33,6 +33,8 @@ const productItemSchema = new mongoose.Schema({
         required: true,
     },
 
+    shopName: { type: String, required: false },
+
     // Trạng thái riêng của từng sản phẩm
     status: {
         type: String,

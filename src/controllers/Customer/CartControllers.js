@@ -5,7 +5,6 @@ const addToCart = async (req, res) => {
         const user_id = req.user?.id;
         if (!user_id) {
             return res.status(401).json({
-                status: "ERROR",
                 message: "Bạn chưa đăng nhập!",
             });
         }
@@ -26,7 +25,6 @@ const addToCart = async (req, res) => {
 
         if (!productId || !shopId || !price || !quantity) {
             return res.status(400).json({
-                status: "ERROR",
                 message: "Thiếu thông tin sản phẩm bắt buộc!",
             });
         }
@@ -47,11 +45,9 @@ const addToCart = async (req, res) => {
         });
 
         return res.status(200).json(result);
-    } catch (e) {
-        console.error("Lỗi addToCart:", e);
+    } catch (error) {
         return res.status(500).json({
-            status: "ERROR",
-            message: e.message || "Lỗi máy chủ!",
+            message: error.message || "Lỗi máy chủ!",
         });
     }
 };
@@ -113,6 +109,8 @@ const updateCartQuantity = async (req, res) => {
 const deleteCartItem = async (req, res) => {
     try {
         const user_id = req.user?.id;
+        console.log(req.body);
+        
         if (!user_id) {
             return res.status(401).json({
                 status: "ERROR",
