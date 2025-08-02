@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
 
-const attributeSchema = new mongoose.Schema({
+const attributeSchema = new mongoose.Schema(
+  {
     name: String,
     value: String,
-}, { _id: false });
+  },
+  { _id: false }
+);
 
 // Schema chi tiết từng sản phẩm trong đơn hàng
-const productItemSchema = new mongoose.Schema({
+const productItemSchema = new mongoose.Schema(
+  {
     productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
     },
 
     productName: { type: String, required: true },
@@ -25,34 +29,42 @@ const productItemSchema = new mongoose.Schema({
 
     finalPrice: { type: Number, required: true, min: 0 },
 
-    quantity: { type: Number, required: true, min: 0  },
+    quantity: { type: Number, required: true, min: 0 },
 
     shopId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Shop",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Shop",
+      required: true,
     },
 
     // Trạng thái riêng của từng sản phẩm
     status: {
-        type: String,
-        enum: ["pending", "processing", "shipping","shipped", "delivered", "returned", "cancelled"],
-        default: "pending",
-        required: true,
+      type: String,
+      enum: [
+        "pending",
+        "processing",
+        "shipping",
+        "shipped",
+        "delivered",
+        "returned",
+        "cancelled",
+      ],
+      default: "pending",
+      required: true,
     },
 
     isReviewed: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
 
     isDelivered: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
 
     deliveredAt: {
-        type: Date,
+      type: Date,
     },
 
     // khi bị returned
@@ -61,109 +73,121 @@ const productItemSchema = new mongoose.Schema({
     imgReturnReason: [{ type: String }],
 
     refundRequested: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
 
     refundReason: {
-        type: String,
-        default: ""
+      type: String,
+      default: "",
+    },
+
+    refundHandled: {
+      type: Boolean,
+      default: false,
     },
 
     // Lý do hủy đơn
     cancelReason: {
-        type: String,
-        default: ""
-    }
-}, { _id: false });
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false }
+);
 
 // Schema chính của đơn hàng
-const orderSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema(
+  {
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
 
     productItems: [productItemSchema], // Danh sách sản phẩm
 
     shippingAddress: {
-        city: { type: String, required: true },
-        address: { type: String, required: true },
-        phone: { type: String, required: true },
+      city: { type: String, required: true },
+      address: { type: String, required: true },
+      phone: { type: String, required: true },
     },
 
     paymentMethod: {
-        type: String,
-        enum: ["COD", "Online", "Wallet"],
-        default: "COD",
+      type: String,
+      enum: ["COD", "Online", "Wallet"],
+      default: "COD",
     },
-    
-    totalPrice: { // Tổng tiền đơn hàng
-        type: Number,
-        required: true,
+
+    totalPrice: {
+      // Tổng tiền đơn hàng
+      type: Number,
+      required: true,
     },
 
     vouchers: [
-        {
-            code: { type: String },         // Mã người dùng đã nhập (SALE50)
-            value: { type: Number },        // Số tiền được giảm
-            type: { type: String },         // 'percent' hoặc 'fixed'
-            voucherId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Voucher"
-            }
-        }
+      {
+        code: { type: String }, // Mã người dùng đã nhập (SALE50)
+        value: { type: Number }, // Số tiền được giảm
+        type: { type: String }, // 'percent' hoặc 'fixed'
+        voucherId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Voucher",
+        },
+      },
     ],
 
-    discountAmount: { // Sô tiền được giảm
-        type: Number,
-        default: 0
+    discountAmount: {
+      // Sô tiền được giảm
+      type: Number,
+      default: 0,
     },
 
-    finalAmount: { // Số tiền cuối cùng tính được
-        type: Number,
-        required: true
+    finalAmount: {
+      // Số tiền cuối cùng tính được
+      type: Number,
+      required: true,
     },
 
     note: {
-        type: String,
-        default: "",
+      type: String,
+      default: "",
     },
 
     isPaid: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
 
     paidAt: {
-        type: Date,
+      type: Date,
     },
 
     isCancelled: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
 
     cancelledAt: {
-        type: Date,
+      type: Date,
     },
 
     cancelReason: {
-        type: String,
-        default: "",  // hoặc required: false
+      type: String,
+      default: "", // hoặc required: false
     },
 
     // Trạng thái đơn hàng tổng
     orderStatus: {
-        type: String,
-        enum: ["pending", "completed", "cancelled"],
-        default: "pending",
-    }
-}, {
+      type: String,
+      enum: ["pending", "completed", "cancelled"],
+      default: "pending",
+    },
+  },
+  {
     timestamps: true,
-});
+  }
+);
 
-
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;

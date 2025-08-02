@@ -20,38 +20,11 @@ router.put(
   OrderProductController.changeStatusOrder
 );
 
-// API đếm đơn hàng theo trạng thái cho vendor
-// router.get("/order-status", async (req, res) => {
-//   try {
-//     const { ownerId } = req.query;
-//     if (!ownerId)
-//       return res.status(400).json({ success: false, message: "Thiếu ownerId" });
-
-//     const result = await Order.aggregate([
-//       { $unwind: "$items" },
-//       {
-//         $match: {
-//           "items.owner_id": require("mongoose").Types.ObjectId(ownerId),
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: "$items.status",
-//           count: { $sum: 1 },
-//         },
-//       },
-//     ]);
-
-//     const stats = result.reduce((acc, item) => {
-//       acc[item._id] = item.count;
-//       return acc;
-//     }, {});
-
-//     res.json({ success: true, data: stats });
-//   } catch (error) {
-//     console.error("Lỗi lấy thống kê:", error);
-//     res.status(500).json({ success: false, message: "Lỗi server" });
-//   }
-// });
+router.put(
+  "/update-status/:orderId",
+  verifyToken,
+  isVendor,
+  OrderProductController.updateStatusOrder
+);
 
 module.exports = router;

@@ -67,8 +67,33 @@ const getBuyersInfo = async (req, res) => {
   }
 };
 
+const updateStatusOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { newStatus } = req.body;
+
+    const result = await OrderProductService.updateOrderProductItemsStatus(
+      orderId,
+      newStatus
+    );
+
+    return res.status(200).json({
+      status: "OK",
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái:", error);
+    return res.status(500).json({
+      status: "ERR",
+      message: "Cập nhật trạng thái thất bại",
+    });
+  }
+};
+
 module.exports = {
   getAllOrderProducts,
   changeStatusOrder,
   getBuyersInfo,
+  updateStatusOrder,
 };
