@@ -1,5 +1,6 @@
 const Product = require("../../models/Product");
 const Shop = require("../../models/Shop");
+const Category = require("../../models/Category")
 
 const getAllProducts = () => {
     return new Promise(async (resolve, reject) => {
@@ -7,20 +8,63 @@ const getAllProducts = () => {
             const allProducts = await Product.find()
                 .populate({
                     path: "shopId",
-                    select: "status", // Chỉ cần status, không cần shopId.status
+                    select: "status", // Chỉ lấy trạng thái của shop
                 });
 
-            // Lọc sản phẩm có status "active" và shop cũng "active"
-            const activeProducts = allProducts.filter(
-                (product) =>
-                    product?.status === "active" &&
-                    product.shopId?.status === "active"
-            );
+            const resultProducts = [];
+
+            for (const product of allProducts) {
+                const category = await Category.findById(product.categoryId).lean();
+
+                // Chuyển sang plain object để thao tác
+                const productObj = product.toObject();
+
+                // Nếu có dữ liệu danh mục và price thì tính priceFee
+                if (
+                    category &&
+                    Array.isArray(product.priceOptions?.price) &&
+                    product.priceOptions.price.length > 0
+                ) {
+                    const basePrice = product.priceOptions.price[0];
+                    const vat = category.vat || 0;
+                    const platformFee = category.platformFee || 0;
+
+                    const priceFee =
+                        basePrice +
+                        (basePrice * vat) / 100 +
+                        (basePrice * platformFee) / 100;
+
+                    productObj.priceFee = Math.round(priceFee);
+                } else {
+                    productObj.priceFee = null;
+                }
+
+                // Gắn thêm thông tin danh mục vào sản phẩm (trả về FE)
+                if (category) {
+                    productObj.categoryInfo = {
+                        _id: category._id,
+                        categoryName: category.categoryName,
+                        vat: category.vat,
+                        platformFee: category.platformFee,
+                        typeFees: category.typeFees,
+                    };
+                } else {
+                    productObj.categoryInfo = null;
+                }
+
+                // Lọc chỉ sản phẩm active & shop active
+                if (
+                    productObj.status === "active" &&
+                    productObj.shopId?.status === "active"
+                ) {
+                    resultProducts.push(productObj);
+                }
+            }
 
             resolve({
                 status: "OK",
                 message: "Lấy danh sách sản phẩm thành công",
-                data: activeProducts,
+                data: resultProducts,
             });
         } catch (error) {
             reject(error);
@@ -66,12 +110,15 @@ const getDetailProduct = (productId) => {
             const product = await Product.findById(productId);
             if (!product) return reject({ status: "ERROR", message: "Product not found" });
 
+            const category = await Category.findById(product.categoryId)
+
             const shop = await Shop.findById(product.shopId);
             const countProductShop = await Product.countDocuments({ shopId: product.shopId });
 
             resolve({
                 status: "OK",
                 product,
+                category,
                 shop,
                 countProductShop,
             });

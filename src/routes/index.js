@@ -5,7 +5,6 @@ const ProductRoutersVendor = require("../routes/Vendor/ProductRouter");
 const UserRouterVendor = require("../routes/Vendor/UserRouterVendor");
 const ProductRouterAdmin = require("../routes/Admin/ProductRouters");
 const ShopRouterAdmin = require("../routes/Admin/ShopRouters");
-const PlatformFeesRouterAdmin = require("../routes/Admin/PlatformFeesRouters");
 const ProductRoutersShared = require("../routes/Shared/ProductRouters");
 const CartRoutersCustomer = require("../routes/Customer/CartRouters");
 const OrderRoutersCustomer = require("../routes/Customer/OrderRouters");
@@ -59,8 +58,6 @@ const routes = (app) => {
   app.use("/api/admin", ProductRouterAdmin);
 
   app.use("/api/admin", ShopRouterAdmin);
-
-  app.use("/api/admin", PlatformFeesRouterAdmin);
 
   app.use("/api/admin", OrderRoutersAdmin);
 

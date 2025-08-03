@@ -1,5 +1,6 @@
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
+const Category = require("../../models/Category");
 
 const addToCart = ({
                        user_id,
@@ -20,6 +21,9 @@ const addToCart = ({
             const product = await Product.findById(productId);
             if (!product) return reject(new Error("Không tìm thấy sản phẩm!"));
 
+            const category = await Category.findById(categoryId);
+            if (!category) return reject(new Error("Không tìm thấy danh mục sản phẩm!"));
+
             // Tìm đúng priceOption theo attributes
             const matchedOption = product.priceOptions.find(option => {
                 const normalized = option.attributes.map(a => `${a.name}|${a.value}`);
@@ -29,11 +33,17 @@ const addToCart = ({
 
             if (!matchedOption) return reject(new Error("Biến thể không hợp lệ cho sản phẩm này."));
 
+            // Tính toán lại priceFee từ price và category.typeFees
+            const platformFee = (category.platformFee) * price / 100;
+            const vatFee = (category.vat) * price / 100;
+            const priceFee = Math.round(price + platformFee + vatFee);
+
             let cart = await Cart.findOne({ userId: user_id });
 
             if (!cart) {
                 if (matchedOption.stock < quantity)
                     return reject(new Error("Số lượng không đủ trong kho."));
+
                 const newCart = await Cart.create({
                     userId: user_id,
                     productItems: [
@@ -45,6 +55,7 @@ const addToCart = ({
                             price,
                             salePrice,
                             finalPrice,
+                            priceFee,
                             categoryId,
                             quantity,
                             shopId,
@@ -90,6 +101,7 @@ const addToCart = ({
                     price,
                     salePrice,
                     finalPrice,
+                    priceFee,
                     categoryId,
                     quantity,
                     shopId,

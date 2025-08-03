@@ -1,6 +1,5 @@
 const User = require("../../models/User");
 const Order = require("../../models/Order");
-const PlatformFees = require("../../models/PlatformFees");
 const Product = require("../../models/Product");
 const Shop = require("../../models/Shop");
 const Voucher = require("../../models/Voucher");
@@ -131,8 +130,8 @@ const getAllOrderByStatus = (user_id, status) => {
                 match["productItems.status"] = { $in: statusList };
             }
 
-            // Lấy đơn hàng có ít nhất 1 sản phẩm phù hợp
-            const orders = await Order.find(match);
+            // Lấy đơn hàng có ít nhất 1 sản phẩm phù hợp, sắp xếp mới nhất
+            const orders = await Order.find(match).sort({ createdAt: -1 });
 
             if (!orders.length) {
                 return resolve({
@@ -168,7 +167,6 @@ const getAllOrderByStatus = (user_id, status) => {
         }
     });
 };
-
 
 const orderProduct = ({
                           userId,
