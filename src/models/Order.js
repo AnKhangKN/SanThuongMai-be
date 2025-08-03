@@ -31,6 +31,11 @@ const productItemSchema = new mongoose.Schema(
 
     quantity: { type: Number, required: true, min: 0 },
 
+      noteItemsByShop: {
+          type: String,
+          default: "",
+      },
+
     shopId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Shop",

@@ -30,11 +30,9 @@ const setStatusOrder = async (req, res) => {
                 message: "User not found"
             })
         }
-
         const data = req.body;
 
         const result = await OrderServices.setStatusOrder(userId, data)
-
         return res.status(200).json(result);
 
     } catch (error) {
