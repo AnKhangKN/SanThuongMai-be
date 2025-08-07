@@ -53,7 +53,7 @@ const getVouchers = async (req, res) => {
             message: error.message || "Internal Server Error",
         })
     }
-}
+} 
 
 module.exports = {
     createVoucher,

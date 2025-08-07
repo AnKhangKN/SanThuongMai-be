@@ -128,33 +128,38 @@ const getDetailProduct = (productId) => {
     });
 };
 
-const searchProducts = (keyword) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const allProducts = await Product.find({
-                product_name: { $regex: keyword, $options: "i" }, // Tìm theo tên, không phân biệt hoa thường
-            }).populate({
-                path: "user_id",
-                select: "shop.status",
-            });
+const searchProducts = async (keyword) => {
+    try {
+        // 1. Tìm tất cả sản phẩm có tên phù hợp
+        const allProducts = await Product.find({
+            productName: { $regex: keyword, $options: "i" },
+            status: "active", // Chỉ lấy sản phẩm active
+        });
 
-            // Lọc sản phẩm active và shop active
-            const activeProducts = allProducts.filter(
-                (product) =>
-                    product?.status === "active" &&
-                    product.user_id?.shop?.status === "active"
-            );
+        // 2. Lấy danh sách tất cả shop có status là active
+        const activeShops = await Shop.find({ status: "active" }, "_id"); // chỉ lấy _id
 
-            resolve({
-                status: "OK",
-                message: `Tìm thấy ${activeProducts.length} sản phẩm phù hợp.`,
-                data: activeProducts,
-            });
-        } catch (error) {
-            reject(error);
-        }
-    });
+        const activeShopIds = activeShops.map((shop) => shop._id.toString());
+
+        // 3. Lọc ra các sản phẩm thuộc shop active
+        const filteredProducts = allProducts.filter((product) =>
+            activeShopIds.includes(product.shopId.toString())
+        );
+
+        return {
+            status: "OK",
+            message: `Tìm thấy ${filteredProducts.length} sản phẩm phù hợp.`,
+            data: filteredProducts,
+        };
+    } catch (error) {
+        console.error("searchProducts error:", error);
+        return {
+            status: "ERROR",
+            message: "Đã xảy ra lỗi khi tìm kiếm sản phẩm.",
+        };
+    }
 };
+
 
 const getAllCategoriesHome = () => {
     return new Promise(async (resolve, reject) => {
