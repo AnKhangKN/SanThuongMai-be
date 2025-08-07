@@ -1,4 +1,3 @@
-const axios = require("axios");
 const ProductSuggestService = require("../../services/TrainingAi/ProductSuggestServices")
 
 const productSuggest = async (req, res) => {

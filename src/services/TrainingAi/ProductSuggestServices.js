@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const productSuggest = async (productId) => {
-    const limit = 2;
+    const limit = 10; // đây là số sản phẩm lấy
 
     try {
         const response = await axios.get(
