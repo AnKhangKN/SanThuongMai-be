@@ -18,4 +18,6 @@ route.patch("/cancel-order", verifyToken, OrderControllers.cancelOrder);
 
 route.patch("/remove-shipping-address", verifyToken, OrderControllers.removeShippingAddress);
 
+route.post("/orders/return", verifyToken, OrderControllers.returnOrder);
+
 module.exports = route;

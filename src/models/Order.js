@@ -8,6 +8,22 @@ const attributeSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const shippingByShopSchema = new mongoose.Schema(
+    {
+        shippingFee: { type: Number, required: true, min: 0 },
+
+        shippingFeeFinal: { type: Number, required: true, min: 0 },
+
+        shopId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Shop",
+            required: true,
+        },
+    },{
+        _id: true
+    }
+)
+
 // Schema chi tiết từng sản phẩm trong đơn hàng
 const productItemSchema = new mongoose.Schema(
   {
@@ -75,30 +91,36 @@ const productItemSchema = new mongoose.Schema(
     },
 
     // khi bị returned
-    returnReason: { type: String },
-
     imgReturnReason: [{ type: String }],
 
-    refundRequested: {
+    refundRequested: { // Yêu cầu hoàn tiền
       type: Boolean,
       default: false,
     },
 
-    refundReason: {
+    refundReason: { // Lý do hoàn tiền
       type: String,
       default: "",
     },
 
-    refundHandled: {
+    refundHandled: { // Hoàn tiền được xử lý
       type: Boolean,
       default: false,
     },
+      
+      returnedAt: {
+        type: Date,
+      },
 
     // Lý do hủy đơn
     cancelReason: {
       type: String,
       default: "",
     },
+
+      canceledAt: {
+        type: Date,
+      }
   },
   { _id: false }
 );
@@ -134,9 +156,26 @@ const orderSchema = new mongoose.Schema(
 
     vouchers: [
       {
+          voucherName: {
+              type: String,
+              required: true,
+              trim: true,
+          },
+          category: { // danh mục vận chuyển, danh mục sản phẩm, danh mục đạt móc đơn hàng, ...
+              type: String,
+              required: true,
+          },
         code: { type: String }, // Mã người dùng đã nhập (SALE50)
-        value: { type: Number }, // Số tiền được giảm
-        type: { type: String }, // 'percent' hoặc 'fixed'
+          value: {
+              type: Number,
+              required: true,
+              min: 0,
+          },
+          type: {
+              type: String,
+              enum: ['fixed', 'percentage'],
+              required: true,
+          },
         voucherId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Voucher",
@@ -156,10 +195,11 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    note: {
-      type: String,
-      default: "",
-    },
+      shippingByShop: [shippingByShopSchema],
+
+      shippingFee: {
+        type: Number,
+      },
 
     isPaid: {
       type: Boolean,
@@ -173,15 +213,6 @@ const orderSchema = new mongoose.Schema(
     isCancelled: {
       type: Boolean,
       default: false,
-    },
-
-    cancelledAt: {
-      type: Date,
-    },
-
-    cancelReason: {
-      type: String,
-      default: "", // hoặc required: false
     },
 
     // Trạng thái đơn hàng tổng

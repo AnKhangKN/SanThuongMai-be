@@ -81,10 +81,12 @@ const orderProduct = async (req, res) => {
             vouchers = [],
             discountAmount,
             finalAmount,
-            note
+            shippingFee,
+            shippingFeeByShop,
+            noteItemsByShop
         } = req.body;
+        
 
-        // Gọi service orderProduct (Thêm await để đợi kết quả)
         const result = await OrderServices.orderProduct({
             userId,
             productItems,
@@ -94,8 +96,11 @@ const orderProduct = async (req, res) => {
             vouchers,
             discountAmount,
             finalAmount,
-            note
+            shippingFee,
+            shippingFeeByShop,
+            noteItemsByShop // truyền xuống service
         });
+
         return res.status(200).json(result);
 
     } catch (e) {
@@ -104,7 +109,7 @@ const orderProduct = async (req, res) => {
             message: e.message || "Internal Server Error",
         });
     }
-};
+}; 
 
 const successfulDelivered = async (req, res) => {
     try {
@@ -154,12 +159,20 @@ const cancelOrder = async (req, res) => {
 
         const { order, status, cancelReason } = req.body;
 
+
+        const productList = req.body.order.productItems
+        const shippingByShopList = req.body.order.shippingByShop
+        const voucherList = req.body.order.vouchers
+        
+        
         const result = await OrderServices.canceledOrder(user_id, {
             order,
+            productList,
+            shippingByShopList,
+            voucherList,
             status,
             cancelReason
         });
-
         return res.status(200).json(result);
 
     } catch (error) {
@@ -183,12 +196,33 @@ const removeShippingAddress = async (req, res) => {
         }
 
         const shippingInfor = req.body;
-
+        
+        console.log(shippingInfor);
 
         const data = OrderServices.removeShippingAddress(user_id, shippingInfor)
-
         return res.status(200).json(data);
 
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || "Internal Server Error",
+        })
+    }
+}
+
+const returnOrder = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+
+        const { order, refundReason } = req.body;
+
+        const productList = req.body.order.productItems
+        const shippingByShopList = req.body.order.shippingByShop
+        const voucherList = req.body.order.vouchers
+        
+
+        const result = await OrderServices.returnOrder(userId, { order, productList, shippingByShopList, refundReason, voucherList })
+        return res.status(200).json(result);
 
     } catch (error) {
         return res.status(500).json({
@@ -204,5 +238,6 @@ module.exports = {
     getAllOrderByStatus,
     successfulDelivered,
     cancelOrder,
-    removeShippingAddress
+    removeShippingAddress,
+    returnOrder
 };
