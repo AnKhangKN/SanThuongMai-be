@@ -31,18 +31,11 @@ const productItemSchema = new mongoose.Schema(
 
     quantity: { type: Number, required: true, min: 0 },
 
-      noteItemsByShop: {
-          type: String,
-          default: "",
-      },
-
     shopId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Shop",
       required: true,
     },
-
-    shopName: { type: String, required: false },
 
     // Trạng thái riêng của từng sản phẩm
     status: {
@@ -100,7 +93,7 @@ const productItemSchema = new mongoose.Schema(
       default: "",
     },
   },
-  { _id: false }
+  { _id: true }
 );
 
 // Schema chính của đơn hàng

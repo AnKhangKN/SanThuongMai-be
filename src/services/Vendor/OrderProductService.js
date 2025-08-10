@@ -6,14 +6,24 @@ const Product = require("../../models/Product");
 const getOrderByVendor = (vendorId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const orders = await Order.find({ "productItems.shopId": vendorId }).sort(
-        { createdAt: -1 }
-      );
+      const orders = await Order.find({
+        "productItems.shopId": vendorId,
+      })
+        .sort({ createdAt: -1 })
+        .lean(); // dùng lean để trả về plain object, dễ xử lý hơn
+
+      // Lọc lại productItems cho đúng shop
+      const filteredOrders = orders.map((order) => ({
+        ...order,
+        productItems: order.productItems.filter(
+          (item) => item.shopId.toString() === vendorId.toString()
+        ),
+      }));
 
       resolve({
         status: "OK",
         message: "SUCCESS",
-        data: orders,
+        data: filteredOrders,
       });
     } catch (e) {
       reject(e);
