@@ -22,6 +22,7 @@ const VoucherRoutersCustomer = require("../routes/Customer/VoucherRoutes");
 const GenerateLogRoutesAi = require("./TrainingAi/GenerateLogRoutes");
 const ChatRoutesShared = require("../routes/Shared/ChatRoutes");
 const ProductSuggestRoutesAi = require("./TrainingAi/ProductSuggestRoutes");
+const StatisticalRouterVendor = require("./Vendor/StatisticalRouterVendor");
 
 const routes = (app) => {
   // Shared API
@@ -31,7 +32,7 @@ const routes = (app) => {
 
   app.use("/api/shared", PasswordRouterShared);
 
-  app.use("/api/shared", ChatRoutesShared)
+  app.use("/api/shared", ChatRoutesShared);
 
   // Customer API
   app.use("/api/customer", UserRoutersCustomer);
@@ -44,13 +45,14 @@ const routes = (app) => {
 
   app.use("/api/customer", ShopRouters);
 
-  app.use("/api/customer", VoucherRoutersCustomer)
+  app.use("/api/customer", VoucherRoutersCustomer);
 
   // Vendor API
   app.use("/api/vendor", ProductRoutersVendor);
   app.use("/api/vendor", UserRouterVendor);
   app.use("/api/vendor", OrderProducts);
   app.use("/api/vendor", CategoryRouterVendor);
+  app.use("/api/vendor", StatisticalRouterVendor);
 
   // Admin API
   app.use("/api/admin", UserRoutersAdmin);
@@ -70,8 +72,8 @@ const routes = (app) => {
   app.use("/api/admin", VoucherRoutersAdmin);
 
   // Training Ai
-  app.use("/api/ai", GenerateLogRoutesAi)
-  app.use("/api/ai", ProductSuggestRoutesAi)
+  app.use("/api/ai", GenerateLogRoutesAi);
+  app.use("/api/ai", ProductSuggestRoutesAi);
 };
 
 module.exports = routes;
