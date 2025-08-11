@@ -72,8 +72,23 @@ const updateStatusOrder = async (req, res) => {
     const { orderId } = req.params;
     const { newStatus } = req.body;
 
+    // Lấy userId từ token
+    const userId = req.user.id;
+
+    // Tìm shopId dựa trên ownerId (userId)
+    const shop = await Shop.findOne({ ownerId: userId }).select("_id");
+    if (!shop) {
+      return res.status(404).json({
+        status: "ERR",
+        message: "Không tìm thấy shop của người dùng này",
+      });
+    }
+
+    const shopId = shop._id;
+
     const result = await OrderProductService.updateOrderProductItemsStatus(
       orderId,
+      shopId,
       newStatus
     );
 
