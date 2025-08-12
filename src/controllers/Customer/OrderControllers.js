@@ -197,7 +197,6 @@ const removeShippingAddress = async (req, res) => {
 
         const shippingInfor = req.body;
         
-        console.log(shippingInfor);
 
         const data = OrderServices.removeShippingAddress(user_id, shippingInfor)
         return res.status(200).json(data);

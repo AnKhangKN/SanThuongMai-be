@@ -34,7 +34,6 @@ const createVendor = async (req, res) => {
 
     // Nếu có ảnh
     if (req.file?.filename) {
-      console.log("Đã upload avatar:", req.file.filename);
       parsedShop.shopAvatar = req.file.filename;
     }
 

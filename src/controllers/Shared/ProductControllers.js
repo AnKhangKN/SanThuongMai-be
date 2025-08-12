@@ -1,123 +1,126 @@
 const ProductServices = require("../../services/Shared/ProductServices");
 
 const getAllProducts = async (req, res) => {
-    try {
-
-        const result = await ProductServices.getAllProducts();
-        return res.status(200).json(result);
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Internal Server Error",
-        });
-    }
+  try {
+    const result = await ProductServices.getAllProducts();
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
 const getDetailProduct = async (req, res) => {
-    try {
+  try {
+    const { id } = req.params;
 
-        const { id } = req.params;
+    const product = await ProductServices.getDetailProduct(id);
 
-        const product = await ProductServices.getDetailProduct(id);
-
-        return res.status(200).json(product);
-    } catch (error) {
-        return res.status(500).json({
-            status: "ERR",
-            message: error.message || "Lỗi máy chủ",
-        });
-    }
+    return res.status(200).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      status: "ERR",
+      message: error.message || "Lỗi máy chủ",
+    });
+  }
 };
 
 const searchProducts = async (req, res) => {
-    try {
-        const keyword = req.query.keyword || ""; // Lấy từ query trên URL ?keyword=abc
+  try {
+    const keyword = req.query.keyword || ""; // Lấy từ query trên URL ?keyword=abc
 
-        const result = await ProductServices.searchProducts(keyword);
+    const result = await ProductServices.searchProducts(keyword);
 
-        return res.status(200).json(result);
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Đã xảy ra lỗi trong quá trình tìm kiếm.",
-        });
-    }
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Đã xảy ra lỗi trong quá trình tìm kiếm.",
+    });
+  }
+};
+
+const getSuggestSearchKeyWord = async (req, res) => {
+  try {
+    const result = await ProductServices.getSuggestSearchKeyWord();
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
 const getTopSearchProduct = async (req, res) => {
-    try {
-        const result = await ProductServices.getTopSearchProduct();
+  try {
+    const userId = req.user?.id;
 
-        return res.status(200).json(result);
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Internal Server Error",
-        });
-    }
+    const result = await ProductServices.getTopSearchProduct(userId);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
 const getAllCategoriesHome = async (req, res) => {
-    try {
-        const result = await ProductServices.getAllCategoriesHome();
+  try {
+    const result = await ProductServices.getAllCategoriesHome();
 
-        return res.status(200).json(result);
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Internal Server Error",
-        });
-    }
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
 };
 
 const searchCategory = async (req, res) => {
-    try {
-        // Lấy từ query trên URL ?keyword=abc, mặc định nếu không có sẽ là chuỗi rỗng
-        const keyword = req.query.keyword || "";
+  try {
+    const categoryId = req.params?.categoryId;
 
-        // Nếu không có từ khóa, trả về thông báo lỗi rõ ràng
-        if (!keyword) {
-            return res.status(400).json({
-                message: "Vui lòng cung cấp từ khóa tìm kiếm danh mục.",
-            });
-        }
 
-        // Gọi hàm searchCategory từ ProductServices để tìm kiếm sản phẩm
-        const result = await ProductServices.searchCategory(keyword);
-
-        // Nếu không tìm thấy sản phẩm nào, trả về thông báo
-        if (result.data.length === 0) {
-            return res.status(404).json({
-                message: "Không tìm thấy sản phẩm nào với danh mục này.",
-            });
-        }
-
-        // Trả về kết quả tìm kiếm thành công
-        return res.status(200).json(result);
-    } catch (error) {
-        // Nếu có lỗi xảy ra trong quá trình tìm kiếm, trả về lỗi chi tiết
-        console.error("Lỗi tìm kiếm danh mục:", error);
-        return res.status(500).json({
-            message: error.message || "Đã xảy ra lỗi trong quá trình tìm kiếm.",
-        });
+    // Nếu không có từ khóa, trả về thông báo lỗi rõ ràng
+    if (!categoryId) {
+      return res.status(400).json({
+        message: "Vui lòng chọn danh mục.",
+      });
     }
+
+    // Gọi hàm searchCategory từ ProductServices để tìm kiếm sản phẩm
+    const result = await ProductServices.searchCategory(categoryId);
+
+    // Trả về kết quả tìm kiếm thành công
+    return res.status(200).json(result);
+  } catch (error) {
+    // Nếu có lỗi xảy ra trong quá trình tìm kiếm, trả về lỗi chi tiết
+    console.error("Lỗi tìm kiếm danh mục:", error);
+    return res.status(500).json({
+      message: error.message || "Đã xảy ra lỗi trong quá trình tìm kiếm.",
+    });
+  }
 };
 
 const getTopCartProduct = async (req, res) => {
-    try {
-
-        const result = await ProductServices.getTopCartProduct();
-        return res.status(200).json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || "Internal Server Error",
-        })
-    }
-}
+  try {
+    const result = await ProductServices.getTopCartProduct();
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
-    getAllProducts,
-    getTopSearchProduct,
-    getAllCategoriesHome,
-    searchProducts,
-    getDetailProduct,
-    searchCategory,
-    getTopCartProduct
-}
+  getAllProducts,
+  getTopSearchProduct,
+  getAllCategoriesHome,
+  searchProducts,
+  getSuggestSearchKeyWord,
+  getDetailProduct,
+  searchCategory,
+  getTopCartProduct,
+};

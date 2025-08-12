@@ -1,5 +1,6 @@
 const express = require("express");
 const ProductControllers = require("../../controllers/Shared/ProductControllers");
+const { verifyAi } = require("../../middleware/authMiddleware");
 
 const route = express.Router();
 
@@ -10,11 +11,17 @@ route.get("/get-all-categories-home", ProductControllers.getAllCategoriesHome);
 
 route.get("/search-products", ProductControllers.searchProducts);
 
+route.get("/suggest/search", ProductControllers.getSuggestSearchKeyWord);
+
 route.get("/get-detail-product/:id", ProductControllers.getDetailProduct);
 
-route.get("/top-search-product", ProductControllers.getTopSearchProduct);
+route.get(
+  "/top-search-product",
+  verifyAi,
+  ProductControllers.getTopSearchProduct
+);
 
-route.get("/search-category", ProductControllers.searchCategory);
+route.get("/search-category/:categoryId", ProductControllers.searchCategory);
 
 route.get("/get-top-cart", ProductControllers.getTopCartProduct);
 

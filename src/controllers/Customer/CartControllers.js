@@ -109,7 +109,6 @@ const updateCartQuantity = async (req, res) => {
 const deleteCartItem = async (req, res) => {
     try {
         const user_id = req.user?.id;
-        console.log(req.body);
         
         if (!user_id) {
             return res.status(401).json({

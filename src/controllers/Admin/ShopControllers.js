@@ -18,8 +18,6 @@ const activateShop = async (req, res) => {
     try {
         const { shopId, status } = req.body;
         
-        console.log(req.body);
-        
 
         const result = await ShopServices.activateShop({ shopId, status });
         return res.status(200).json(result);

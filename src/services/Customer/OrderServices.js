@@ -589,7 +589,7 @@ const returnOrder = async (user_id, { order, productList, shippingByShopList, re
 
             // Kiểm tra trạng thái hợp lệ để hoàn trả
             const invalidItem = itemsToReturn.some(
-                item => !(item.status === "shipped" || item.status === "delivered")
+                item => !(item.status === "shipped")
             );
             if (invalidItem) {
                 return reject({ message: "Một số sản phẩm đã xử lý, không thể hoàn trả" });

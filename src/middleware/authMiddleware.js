@@ -19,7 +19,9 @@ const verifyToken = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: "Token không hợp lệ", status: "ERROR" });
+      return res
+        .status(403)
+        .json({ message: "Token không hợp lệ", status: "ERROR" });
     }
 
     req.user = decoded;
@@ -59,15 +61,17 @@ const verifyAi = (req, res, next) => {
   const token = extractToken(req);
 
   if (!token) {
-    return next(); // THÊM return để tránh chạy xuống verify
+    req.user = null; // Người dùng chưa đăng nhập
+    return next();
   }
 
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: "Token không hợp lệ", status: "ERROR" });
+      req.user = null; // Token lỗi thì coi như chưa đăng nhập
+      return next();
     }
 
-    req.user = decoded; // Gắn user vào request
+    req.user = decoded;
     next();
   });
 };
@@ -77,5 +81,5 @@ module.exports = {
   isAdmin,
   isVendor,
   isUser,
-  verifyAi
+  verifyAi,
 };
