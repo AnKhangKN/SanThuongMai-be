@@ -34,7 +34,6 @@ const createProduct = async (req, res) => {
       }
     }
 
-    // ❗️Lấy shopId của user hiện tại
     const shop = await Shop.findOne({ ownerId: user_id });
 
     if (!shop) {
@@ -44,7 +43,6 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // ❗️Lấy category để tính thuế/phí
     const category = await Category.findById(data.categoryId);
     if (!category) {
       return res.status(400).json({
@@ -53,7 +51,6 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // ✅ Tính finalPrice cho mỗi option
     const updatedOptions = priceOptions.map((opt) => {
       const basePrice = opt.salePrice || opt.price;
       const finalPrice = Math.round(
@@ -182,7 +179,7 @@ const updateStatusProduct = async (req, res) => {
 
 const getSearchProduct = async (req, res) => {
   try {
-    const vendorId = req.user.id; // từ verifyToken
+    const vendorId = req.user.id;
     const keyword = req.query.keyword || "";
 
     if (!vendorId) {
@@ -203,10 +200,35 @@ const getSearchProduct = async (req, res) => {
   }
 };
 
+const updateProductImage = async (req, res) => {
+  try {
+    const productId = req.body.id;
+    const { removedImages } = req.body; // dạng JSON string
+    const removedImagesArr = removedImages ? JSON.parse(removedImages) : [];
+
+    const files = req.files || []; // ảnh mới từ multer
+
+    const result = await ProductService.updateProductImageService(
+      productId,
+      removedImagesArr,
+      files
+    );
+
+    res.status(200).json({
+      message: "Cập nhật hình ảnh thành công",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Lỗi updateProductImage:", error);
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   getAllProduct,
   updateStatusProduct,
   getSearchProduct,
+  updateProductImage,
 };

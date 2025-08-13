@@ -145,10 +145,42 @@ const searchProductsByName = (vendorId, keyword) => {
   });
 };
 
+const updateProductImageService = async (
+  productId,
+  removedImages,
+  newFiles
+) => {
+  const product = await Product.findById(productId);
+  if (!product) throw new Error("Không tìm thấy sản phẩm");
+
+  // Xóa ảnh cũ (cả trong DB & trong thư mục)
+  if (removedImages.length > 0) {
+    removedImages.forEach((img) => {
+      const imgPath = path.join(__dirname, `../public/products-img/${img}`);
+      if (fs.existsSync(imgPath)) {
+        fs.unlinkSync(imgPath);
+      }
+    });
+    product.images = product.images.filter(
+      (img) => !removedImages.includes(img)
+    );
+  }
+
+  // Thêm ảnh mới
+  if (newFiles.length > 0) {
+    const newImageNames = newFiles.map((file) => file.filename);
+    product.images.push(...newImageNames);
+  }
+
+  await product.save();
+  return product;
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   getAllProductByVendor,
   updateStatusProduct,
   searchProductsByName,
+  updateProductImageService,
 };
