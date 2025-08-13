@@ -202,25 +202,48 @@ const getSearchProduct = async (req, res) => {
 
 const updateProductImage = async (req, res) => {
   try {
-    const productId = req.body.id;
-    const { removedImages } = req.body; // dạng JSON string
-    const removedImagesArr = removedImages ? JSON.parse(removedImages) : [];
+    const productId = req.params.id?.trim();
 
-    const files = req.files || []; // ảnh mới từ multer
+    if (!productId) {
+      return res.status(400).json({ message: "Thiếu productId" });
+    }
+
+    let removedImagesArr = [];
+    if (req.body.removedImages) {
+      try {
+        removedImagesArr = JSON.parse(req.body.removedImages);
+        if (!Array.isArray(removedImagesArr)) {
+          return res
+            .status(400)
+            .json({ message: "removedImages phải là mảng" });
+        }
+
+        removedImagesArr = removedImagesArr.map((img) => path.basename(img));
+      } catch (err) {
+        return res
+          .status(400)
+          .json({ message: "removedImages không phải JSON hợp lệ" });
+      }
+    }
+
+    const files = Array.isArray(req.files) ? req.files : [];
 
     const result = await ProductService.updateProductImageService(
       productId,
       removedImagesArr,
-      files
+      files,
+      req.user
     );
-
-    res.status(200).json({
+    return res.status(200).json({
       message: "Cập nhật hình ảnh thành công",
-      data: result,
+      images: result.images,
     });
   } catch (error) {
     console.error("Lỗi updateProductImage:", error);
-    res.status(500).json({ message: "Lỗi server", error: error.message });
+    return res.status(500).json({
+      message: "Lỗi server",
+      error: error.message,
+    });
   }
 };
 

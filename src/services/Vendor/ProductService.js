@@ -1,6 +1,8 @@
 const Product = require("../../models/Product");
 const Shop = require("../../models/Shop");
 const path = require("path");
+const User = require("../../models/User");
+const fs = require("fs");
 
 const createProduct = (newProduct, files, user_id) => {
   return new Promise(async (resolve, reject) => {
@@ -148,27 +150,37 @@ const searchProductsByName = (vendorId, keyword) => {
 const updateProductImageService = async (
   productId,
   removedImages,
-  newFiles
+  newFiles,
+  user
 ) => {
   const product = await Product.findById(productId);
   if (!product) throw new Error("Không tìm thấy sản phẩm");
 
-  // Xóa ảnh cũ (cả trong DB & trong thư mục)
+  // if (product._id.toString() !== user._id.toString()) {
+  //   throw new Error("Bạn không có quyền chỉnh sửa sản phẩm này");
+  // }
+
+  // Xóa ảnh cũ
   if (removedImages.length > 0) {
-    removedImages.forEach((img) => {
-      const imgPath = path.join(__dirname, `../public/products-img/${img}`);
-      if (fs.existsSync(imgPath)) {
-        fs.unlinkSync(imgPath);
+    for (const img of removedImages) {
+      try {
+        const fileName = path.basename(img);
+        const imgPath = path.join(__dirname, "../uploads/products", fileName);
+        if (fs.existsSync(imgPath)) {
+          fs.unlinkSync(imgPath);
+        }
+      } catch (err) {
+        console.error(`Không thể xóa ảnh ${img}:`, err.message);
       }
-    });
+    }
     product.images = product.images.filter(
-      (img) => !removedImages.includes(img)
+      (img) => !removedImages.includes(path.basename(img))
     );
   }
 
   // Thêm ảnh mới
   if (newFiles.length > 0) {
-    const newImageNames = newFiles.map((file) => file.filename);
+    const newImageNames = newFiles.map((file) => file.filename); // chỉ filename
     product.images.push(...newImageNames);
   }
 
