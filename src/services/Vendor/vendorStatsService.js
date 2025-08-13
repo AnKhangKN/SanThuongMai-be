@@ -1,25 +1,41 @@
 const mongoose = require("mongoose");
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
+const User = require("../../models/User");
 const Shop = require("../../models/Shop");
 
-const checkShopOwner = async (shopId, userId) => {
-  const shop = await Shop.findOne({ _id: shopId, ownerId: userId }).lean();
-  return !!shop;
-};
+const getStatistics = async (vendorId) => {
+  // Lấy shop của vendor
+  const shop = await Shop.findOne({ ownerId: vendorId }).select("_id shopName");
+  if (!shop) {
+    throw new Error("Vendor chưa có shop");
+  }
 
-const getSummary = async (shopId, opts = { days: 30 }) => {
-  const shopObjectId = new mongoose.Types.ObjectId(shopId);
-  const days = opts.days || 30;
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - (days - 1));
+  // Lấy thông tin ví của vendor
+  const vendor = await User.findById(vendorId).select("wallet");
+  if (!vendor) {
+    throw new Error("Vendor không tồn tại");
+  }
 
-  const pipeline = [
-    { $match: { createdAt: { $gte: start } } },
+  // Tổng doanh thu
+  const totalRevenue = vendor.wallet || 0;
+
+  // Doanh thu tháng này
+  const startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+  );
+
+  const monthlyOrders = await Order.aggregate([
     { $unwind: "$productItems" },
-    { $match: { "productItems.shopId": shopObjectId } },
-    { $match: { "productItems.status": { $ne: "cancelled" } } },
+    {
+      $match: {
+        "productItems.shopId": shop._id, // dùng shop._id thay vì vendorId
+        "productItems.status": "delivered",
+        createdAt: { $gte: startOfMonth },
+      },
+    },
     {
       $group: {
         _id: null,
@@ -28,97 +44,38 @@ const getSummary = async (shopId, opts = { days: 30 }) => {
             $multiply: ["$productItems.finalPrice", "$productItems.quantity"],
           },
         },
-        totalQuantity: { $sum: "$productItems.quantity" },
-        orderSet: { $addToSet: "$_id" },
-        productsSet: { $addToSet: "$productItems.productId" },
       },
     },
-    {
-      $project: {
-        _id: 0,
-        revenue: 1,
-        totalQuantity: 1,
-        ordersCount: { $size: "$orderSet" },
-        productsSoldCount: { $size: "$productsSet" },
-      },
-    },
-  ];
+  ]);
 
-  const [res] = await Order.aggregate(pipeline).exec();
-  return (
-    res || {
-      revenue: 0,
-      totalQuantity: 0,
-      ordersCount: 0,
-      productsSoldCount: 0,
-    }
-  );
-};
+  const monthlyRevenue = monthlyOrders[0]?.revenue || 0;
 
-const getRevenueTrend = async (shopId, days = 30) => {
-  const shopObjectId = new mongoose.Types.ObjectId(shopId);
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - (days - 1));
-
-  const pipeline = [
-    { $match: { createdAt: { $gte: start } } },
+  // Đếm đơn hàng theo trạng thái
+  const ordersCount = await Order.aggregate([
     { $unwind: "$productItems" },
-    { $match: { "productItems.shopId": shopObjectId } },
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        revenue: {
-          $sum: {
-            $multiply: ["$productItems.finalPrice", "$productItems.quantity"],
-          },
-        },
-        orders: { $addToSet: "$_id" },
-      },
-    },
-    { $sort: { _id: 1 } },
-    {
-      $project: {
-        date: "$_id",
-        revenue: 1,
-        ordersCount: { $size: "$orders" },
-        _id: 0,
-      },
-    },
-  ];
+    { $match: { "productItems.shopId": shop._id } },
+    { $group: { _id: "$productItems.status", count: { $sum: 1 } } },
+  ]);
 
-  const rows = await Order.aggregate(pipeline).exec();
-  return rows;
-};
+  const statusCount = ordersCount.reduce((acc, cur) => {
+    acc[cur._id] = cur.count;
+    return acc;
+  }, {});
 
-const getOrdersByStatus = async (shopId) => {
-  const shopObjectId = new mongoose.Types.ObjectId(shopId);
-  const pipeline = [
+  // Top sản phẩm bán chạy
+  const topProducts = await Order.aggregate([
     { $unwind: "$productItems" },
-    { $match: { "productItems.shopId": shopObjectId } },
     {
-      $group: {
-        _id: "$productItems.status",
-        count: { $sum: 1 },
+      $match: {
+        "productItems.shopId": shop._id,
+        "productItems.status": "delivered",
       },
     },
-    { $project: { status: "$_id", count: 1, _id: 0 } },
-  ];
-  const rows = await Order.aggregate(pipeline).exec();
-  const map = {};
-  rows.forEach((r) => (map[r.status] = r.count));
-  return map;
-};
-
-const getTopProducts = async (shopId, limit = 5) => {
-  const shopObjectId = new mongoose.Types.ObjectId(shopId);
-  const pipeline = [
-    { $unwind: "$productItems" },
-    { $match: { "productItems.shopId": shopObjectId } },
     {
       $group: {
         _id: "$productItems.productId",
-        qty: { $sum: "$productItems.quantity" },
+        productName: { $first: "$productItems.productName" },
+        quantity: { $sum: "$productItems.quantity" },
         revenue: {
           $sum: {
             $multiply: ["$productItems.finalPrice", "$productItems.quantity"],
@@ -126,71 +83,26 @@ const getTopProducts = async (shopId, limit = 5) => {
         },
       },
     },
-    { $sort: { qty: -1 } },
-    { $limit: limit },
-    {
-      $lookup: {
-        from: "products",
-        localField: "_id",
-        foreignField: "_id",
-        as: "product",
-      },
-    },
-    { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        productId: "$_id",
-        qty: 1,
-        revenue: 1,
-        productName: "$product.productName",
-        images: "$product.images",
-      },
-    },
-  ];
-
-  const rows = await Order.aggregate(pipeline).exec();
-  return rows;
-};
-
-const getLowStockProducts = async (shopId, threshold = 5) => {
-  const products = await Product.aggregate([
-    { $match: { shopId: mongoose.Types.ObjectId(shopId) } },
-    {
-      $project: {
-        productName: 1,
-        images: 1,
-        priceOptions: {
-          $filter: {
-            input: "$priceOptions",
-            as: "po",
-            cond: { $lte: ["$$po.stock", threshold] },
-          },
-        },
-      },
-    },
-    { $match: { "priceOptions.0": { $exists: true } } },
-    { $limit: 200 },
+    { $sort: { quantity: -1 } },
+    { $limit: 5 },
   ]);
-  return products;
-};
 
-const getWarningsAndReports = async (shopId) => {
-  const shop = await Shop.findById(shopId).lean();
-  if (!shop) return { adminWarnings: [], reports: [] };
   return {
-    adminWarnings: shop.adminWarnings || [],
-    reports: shop.reports || [],
-    followers: shop.followers || 0,
-    soldCount: shop.soldCount || 0,
+    shopName: shop.shopName,
+    totalRevenue,
+    monthlyRevenue,
+    orders: {
+      pending: statusCount.pending || 0,
+      processing: statusCount.processing || 0,
+      shipping: statusCount.shipping || 0,
+      delivered: statusCount.delivered || 0,
+      returned: statusCount.returned || 0,
+      cancelled: statusCount.cancelled || 0,
+    },
+    topProducts,
   };
 };
 
 module.exports = {
-  checkShopOwner,
-  getSummary,
-  getRevenueTrend,
-  getOrdersByStatus,
-  getTopProducts,
-  getLowStockProducts,
-  getWarningsAndReports,
+  getStatistics,
 };

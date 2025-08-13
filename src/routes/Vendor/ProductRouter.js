@@ -20,6 +20,14 @@ router.put(
   ProductController.updateProduct
 );
 
+router.put(
+  "/update-product-image/:id",
+  verifyToken,
+  isVendor,
+  uploadImgProducts,
+  ProductController.updateProductImage
+);
+
 router.get(
   "/get-all-product",
   verifyToken,
